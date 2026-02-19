@@ -42,3 +42,8 @@ Thumbs.db
 *.db
 *.sqlite3
 exports/
+
+# Generated KG outputs
+graph.json
+graph.graphml
+result.json
