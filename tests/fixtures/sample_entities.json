@@ -1,0 +1,69 @@
+{
+  "entities": [
+    {
+      "id": "person-alice",
+      "entity_type": "person",
+      "name": "Alice Smith",
+      "first_name": "Alice",
+      "last_name": "Smith",
+      "email": "alice@acme.com",
+      "title": "Software Engineer",
+      "is_active": true
+    },
+    {
+      "id": "dept-eng",
+      "entity_type": "department",
+      "name": "Engineering",
+      "description": "Software engineering department",
+      "code": "ENG",
+      "headcount": 25
+    },
+    {
+      "id": "sys-webapp",
+      "entity_type": "system",
+      "name": "Web Application",
+      "system_type": "application",
+      "hostname": "webapp-001",
+      "ip_address": "10.0.1.100",
+      "os": "Linux",
+      "criticality": "high",
+      "is_internet_facing": true
+    },
+    {
+      "id": "net-corp",
+      "entity_type": "network",
+      "name": "Corporate LAN",
+      "network_type": "lan",
+      "cidr": "10.0.0.0/16"
+    },
+    {
+      "id": "vuln-001",
+      "entity_type": "vulnerability",
+      "name": "CVE-2024-1234",
+      "severity": "critical",
+      "description": "Remote code execution in web framework"
+    }
+  ],
+  "relationships": [
+    {
+      "relationship_type": "works_in",
+      "source_id": "person-alice",
+      "target_id": "dept-eng"
+    },
+    {
+      "relationship_type": "responsible_for",
+      "source_id": "dept-eng",
+      "target_id": "sys-webapp"
+    },
+    {
+      "relationship_type": "connects_to",
+      "source_id": "sys-webapp",
+      "target_id": "net-corp"
+    },
+    {
+      "relationship_type": "affects",
+      "source_id": "vuln-001",
+      "target_id": "sys-webapp"
+    }
+  ]
+}
