@@ -227,22 +227,27 @@ hckg visualize graph.json --height 1200px --no-open
 
 > Requires the viz extras: `poetry install --extras viz`
 
-### `hckg serve` — REST API server
+### `hckg serve` — Knowledge graph server
 
-Start a platform-agnostic REST API that exposes the full knowledge graph over HTTP. Works with any LLM client, agent framework, or HTTP consumer — Claude Desktop, ChatGPT custom GPTs, OpenAI function calling, LangChain, or plain curl.
+Start a server that exposes the knowledge graph to any LLM client, agent framework, or HTTP consumer. REST API by default; use `--stdio` for Claude Desktop's MCP pipe.
 
 ```bash
+# REST API (default) — works with ChatGPT, OpenAI, LangChain, curl, etc.
 hckg serve graph.json
 hckg serve graph.json --port 9000 --host 0.0.0.0
+
+# MCP stdio mode — used by Claude Desktop
+hckg serve graph.json --stdio
 ```
 
 | Option | Default | Description |
 |---|---|---|
 | `--host` | `127.0.0.1` | Bind address |
 | `--port` | `8420` | Port to listen on |
+| `--stdio` | off | Run as MCP server over stdio (for Claude Desktop) |
 | `--reload` | off | Enable auto-reload for development |
 
-**Key endpoints:**
+**REST endpoints:**
 
 | Endpoint | Description |
 |---|---|
@@ -255,25 +260,23 @@ hckg serve graph.json --port 9000 --host 0.0.0.0
 | `POST /openai/call` | Execute a tool by name (for agent frameworks) |
 | `GET /health` | Health check |
 
-> Requires the api extras: `poetry install --extras api`
+> REST mode requires `poetry install --extras api`. Stdio mode requires `poetry install --extras mcp`.
 
-### `hckg mcp` — Claude Desktop integration
+### `hckg install` — Register with LLM clients
 
-Register the knowledge graph as an MCP (Model Context Protocol) server in Claude Desktop. Auto-detects config paths on macOS, Windows, and Linux.
+Register hc-enterprise-kg with LLM desktop clients. Currently supports Claude Desktop; extensible to other clients.
 
 ```bash
-# Register the MCP server
-hckg mcp install
-hckg mcp install --graph graph.json
+# Register with Claude Desktop
+hckg install claude
+hckg install claude --graph graph.json
 
-# Check status
-hckg mcp status
+# Check what's registered
+hckg install status
 
-# Remove
-hckg mcp uninstall
+# Remove from a client
+hckg install remove claude
 ```
-
-> Requires the mcp extras: `poetry install --extras mcp`
 
 ### `hckg export` — Convert between formats
 

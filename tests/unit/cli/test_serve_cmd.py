@@ -20,6 +20,13 @@ class TestServeCLI:
         runner = CliRunner()
         result = runner.invoke(cli, ["serve", "--help"])
         assert result.exit_code == 0
-        assert "REST API" in result.output or "server" in result.output
         assert "--port" in result.output
         assert "--host" in result.output
+        assert "--stdio" in result.output
+
+    def test_serve_help_shows_both_modes(self):
+        runner = CliRunner()
+        result = runner.invoke(cli, ["serve", "--help"])
+        assert result.exit_code == 0
+        assert "REST" in result.output
+        assert "stdio" in result.output
