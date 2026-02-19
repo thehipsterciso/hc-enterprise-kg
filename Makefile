@@ -7,7 +7,7 @@ test:
 	poetry run pytest tests/ -v --tb=short
 
 test-cov:
-	poetry run pytest tests/ --cov=hc_enterprise_kg --cov-report=term-missing
+	poetry run pytest tests/ --cov=src --cov-report=term-missing
 
 lint:
 	poetry run ruff check src/ tests/

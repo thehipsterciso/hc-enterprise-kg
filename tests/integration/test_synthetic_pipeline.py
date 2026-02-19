@@ -1,11 +1,11 @@
 """Integration tests for the synthetic generation pipeline."""
 
-from hc_enterprise_kg.domain.base import EntityType, RelationshipType
-from hc_enterprise_kg.graph.knowledge_graph import KnowledgeGraph
-from hc_enterprise_kg.synthetic.orchestrator import SyntheticOrchestrator
-from hc_enterprise_kg.synthetic.profiles.tech_company import mid_size_tech_company
-from hc_enterprise_kg.synthetic.profiles.healthcare_org import healthcare_org
-from hc_enterprise_kg.synthetic.profiles.financial_org import financial_org
+from domain.base import EntityType, RelationshipType
+from graph.knowledge_graph import KnowledgeGraph
+from synthetic.orchestrator import SyntheticOrchestrator
+from synthetic.profiles.tech_company import mid_size_tech_company
+from synthetic.profiles.healthcare_org import healthcare_org
+from synthetic.profiles.financial_org import financial_org
 
 
 class TestSyntheticPipeline:
@@ -61,7 +61,7 @@ class TestSyntheticPipeline:
         orchestrator = SyntheticOrchestrator(kg, profile, seed=42)
         orchestrator.generate()
 
-        from hc_enterprise_kg.export.json_export import JSONExporter
+        from export.json_export import JSONExporter
         exporter = JSONExporter()
         result = exporter.export_string(kg.engine)
         data = json.loads(result)

@@ -1,6 +1,6 @@
 """Tests for temporal event types."""
 
-from hc_enterprise_kg.domain.temporal import GraphEvent, MutationType
+from domain.temporal import GraphEvent, MutationType
 
 
 class TestGraphEvent:

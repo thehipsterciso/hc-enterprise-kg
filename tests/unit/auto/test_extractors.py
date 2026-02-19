@@ -1,7 +1,7 @@
 """Tests for auto extractors."""
 
-from hc_enterprise_kg.auto.extractors.rule_based import RuleBasedExtractor
-from hc_enterprise_kg.domain.base import EntityType
+from auto.extractors.rule_based import RuleBasedExtractor
+from domain.base import EntityType
 
 
 class TestRuleBasedExtractor:

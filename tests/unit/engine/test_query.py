@@ -1,10 +1,10 @@
 """Tests for QueryBuilder."""
 
-from hc_enterprise_kg.domain.base import BaseRelationship, EntityType, RelationshipType
-from hc_enterprise_kg.domain.entities.department import Department
-from hc_enterprise_kg.domain.entities.person import Person
-from hc_enterprise_kg.engine.networkx_engine import NetworkXGraphEngine
-from hc_enterprise_kg.engine.query import QueryBuilder
+from domain.base import BaseRelationship, EntityType, RelationshipType
+from domain.entities.department import Department
+from domain.entities.person import Person
+from engine.networkx_engine import NetworkXGraphEngine
+from engine.query import QueryBuilder
 
 
 class TestQueryBuilder:

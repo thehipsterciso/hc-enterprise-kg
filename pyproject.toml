@@ -32,12 +32,12 @@ dev = [
 ]
 
 [project.scripts]
-hckg = "hc_enterprise_kg.cli.main:cli"
+hckg = "cli.main:cli"
 
-[project.entry-points."hc_enterprise_kg.generators"]
+[project.entry-points."hckg.generators"]
 # Allows third-party packages to register generators
 
-[project.entry-points."hc_enterprise_kg.engines"]
+[project.entry-points."hckg.engines"]
 # Allows third-party packages to register graph backends
 
 [build-system]
@@ -45,7 +45,17 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-packages = [{include = "hc_enterprise_kg", from = "src"}]
+packages = [
+    {include = "domain", from = "src"},
+    {include = "engine", from = "src"},
+    {include = "graph", from = "src"},
+    {include = "synthetic", from = "src"},
+    {include = "auto", from = "src"},
+    {include = "ingest", from = "src"},
+    {include = "export", from = "src"},
+    {include = "analysis", from = "src"},
+    {include = "cli", from = "src"},
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

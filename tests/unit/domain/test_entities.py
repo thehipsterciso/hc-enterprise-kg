@@ -1,7 +1,7 @@
 """Tests for all entity types."""
 
-from hc_enterprise_kg.domain.base import EntityType
-from hc_enterprise_kg.domain.entities import (
+from domain.base import EntityType
+from domain.entities import (
     AnyEntity,
     DataAsset,
     Department,

@@ -2,11 +2,11 @@
 
 from unittest.mock import MagicMock, patch
 
-from hc_enterprise_kg.auto.linkers.heuristic_linker import HeuristicLinker
-from hc_enterprise_kg.domain.base import EntityType, RelationshipType
-from hc_enterprise_kg.domain.entities.department import Department
-from hc_enterprise_kg.domain.entities.person import Person
-from hc_enterprise_kg.domain.entities.system import System
+from auto.linkers.heuristic_linker import HeuristicLinker
+from domain.base import EntityType, RelationshipType
+from domain.entities.department import Department
+from domain.entities.person import Person
+from domain.entities.system import System
 
 
 class TestHeuristicLinker:
@@ -79,7 +79,7 @@ class TestHeuristicLinker:
 
 class TestEmbeddingLinker:
     def test_embedding_linker_returns_result_with_few_entities(self):
-        from hc_enterprise_kg.auto.linkers.embedding_linker import EmbeddingLinker
+        from auto.linkers.embedding_linker import EmbeddingLinker
 
         linker = EmbeddingLinker(similarity_threshold=0.7)
         # Less than 2 entities => no linking
@@ -89,7 +89,7 @@ class TestEmbeddingLinker:
         assert len(result.relationships) == 0
 
     def test_embedding_linker_missing_library(self):
-        from hc_enterprise_kg.auto.linkers.embedding_linker import EmbeddingLinker
+        from auto.linkers.embedding_linker import EmbeddingLinker
 
         linker = EmbeddingLinker()
         linker._model = None  # Reset

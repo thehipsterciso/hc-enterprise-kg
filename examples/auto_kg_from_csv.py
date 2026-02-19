@@ -3,12 +3,12 @@
 import tempfile
 from pathlib import Path
 
-from hc_enterprise_kg.auto.extractors.csv_extractor import CSVExtractor
-from hc_enterprise_kg.auto.linkers.heuristic_linker import HeuristicLinker
-from hc_enterprise_kg.auto.pipeline import AutoKGPipeline
-from hc_enterprise_kg.auto.resolvers.dedup_resolver import DedupResolver
-from hc_enterprise_kg.domain.base import EntityType
-from hc_enterprise_kg.graph.knowledge_graph import KnowledgeGraph
+from auto.extractors.csv_extractor import CSVExtractor
+from auto.linkers.heuristic_linker import HeuristicLinker
+from auto.pipeline import AutoKGPipeline
+from auto.resolvers.dedup_resolver import DedupResolver
+from domain.base import EntityType
+from graph.knowledge_graph import KnowledgeGraph
 
 # Sample organizational data
 SAMPLE_DATA = """name,first_name,last_name,email,department,title,location
@@ -76,7 +76,7 @@ def main() -> None:
         print("  Deduplication successful!")
 
     # Step 7: Export results
-    from hc_enterprise_kg.export.json_export import JSONExporter
+    from export.json_export import JSONExporter
 
     exporter = JSONExporter()
     json_str = exporter.export_string(kg.engine)
