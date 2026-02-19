@@ -47,3 +47,10 @@ exports/
 graph.json
 graph.graphml
 result.json
+*_viz.html
+
+# pyvis generated assets
+lib/
+
+# Plan files
+PLAN.md
