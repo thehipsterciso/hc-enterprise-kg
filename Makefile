@@ -1,7 +1,7 @@
 .PHONY: install test test-cov lint format typecheck generate clean all
 
 install:
-	poetry install --with dev
+	poetry install --extras dev
 
 test:
 	poetry run pytest tests/ -v --tb=short

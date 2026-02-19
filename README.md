@@ -329,7 +329,7 @@ poetry install --extras neo4j
 poetry install --extras viz
 
 # Development tools (pytest, mypy, ruff)
-poetry install --with dev
+poetry install --extras dev
 ```
 
 ## Development
@@ -378,4 +378,4 @@ You need to generate a graph first. Run `hckg demo` — it creates `graph.json` 
 The `auto build` command needs either a CSV file or the `--demo` flag. Try: `hckg auto build --demo --output result.json`.
 
 **Tests failing after a fresh clone**
-Run `poetry install --with dev` to get test dependencies, then `make test`.
+Run `poetry install --extras dev` to get test dependencies, then `make test`.

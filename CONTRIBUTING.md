@@ -7,7 +7,7 @@ Thanks for your interest in contributing! This document explains how to get star
 ```bash
 git clone https://github.com/thehipsterciso/hc-enterprise-kg.git
 cd hc-enterprise-kg
-poetry install --with dev
+poetry install --extras dev
 ```
 
 ## Running Tests
