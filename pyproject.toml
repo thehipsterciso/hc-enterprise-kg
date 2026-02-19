@@ -58,6 +58,7 @@ Changelog = "https://github.com/thehipsterciso/hc-enterprise-kg/blob/main/CHANGE
 embeddings = ["sentence-transformers>=2.2"]
 neo4j = ["neo4j>=5.0"]
 viz = ["matplotlib>=3.8", "pyvis>=0.3"]
+mcp = ["mcp>=1.25"]
 dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
@@ -90,6 +91,8 @@ packages = [
     {include = "export", from = "src"},
     {include = "analysis", from = "src"},
     {include = "cli", from = "src"},
+    {include = "mcp_server", from = "src"},
+    {include = "rag", from = "src"},
 ]
 
 [tool.pytest.ini_options]
