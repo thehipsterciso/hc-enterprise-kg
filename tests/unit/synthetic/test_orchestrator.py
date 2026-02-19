@@ -1,8 +1,8 @@
 """Tests for SyntheticOrchestrator."""
 
-from hc_enterprise_kg.graph.knowledge_graph import KnowledgeGraph
-from hc_enterprise_kg.synthetic.orchestrator import SyntheticOrchestrator
-from hc_enterprise_kg.synthetic.profiles.tech_company import mid_size_tech_company
+from graph.knowledge_graph import KnowledgeGraph
+from synthetic.orchestrator import SyntheticOrchestrator
+from synthetic.profiles.tech_company import mid_size_tech_company
 
 
 class TestSyntheticOrchestrator:

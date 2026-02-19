@@ -1,7 +1,7 @@
 """Tests for entity resolvers."""
 
-from hc_enterprise_kg.auto.resolvers.dedup_resolver import DedupResolver
-from hc_enterprise_kg.domain.entities.person import Person
+from auto.resolvers.dedup_resolver import DedupResolver
+from domain.entities.person import Person
 
 
 class TestDedupResolver:
@@ -37,7 +37,7 @@ class TestDedupResolver:
         assert merged.title == "Engineer"  # Filled from loser
 
     def test_different_types_not_merged(self):
-        from hc_enterprise_kg.domain.entities.department import Department
+        from domain.entities.department import Department
         entities = [
             Person(id="p1", first_name="Engineering", last_name="", name="Engineering", email="eng@test.com"),
             Department(id="d1", name="Engineering"),

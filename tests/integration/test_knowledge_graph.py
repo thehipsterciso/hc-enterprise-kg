@@ -1,11 +1,11 @@
 """Integration tests for the KnowledgeGraph lifecycle."""
 
-from hc_enterprise_kg.domain.base import BaseRelationship, EntityType, RelationshipType
-from hc_enterprise_kg.domain.entities.department import Department
-from hc_enterprise_kg.domain.entities.person import Person
-from hc_enterprise_kg.domain.entities.system import System
-from hc_enterprise_kg.domain.temporal import MutationType
-from hc_enterprise_kg.graph.knowledge_graph import KnowledgeGraph
+from domain.base import BaseRelationship, EntityType, RelationshipType
+from domain.entities.department import Department
+from domain.entities.person import Person
+from domain.entities.system import System
+from domain.temporal import MutationType
+from graph.knowledge_graph import KnowledgeGraph
 
 
 class TestKnowledgeGraphLifecycle:

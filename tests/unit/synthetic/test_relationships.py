@@ -2,16 +2,16 @@
 
 import random
 
-from hc_enterprise_kg.domain.base import EntityType, RelationshipType
-from hc_enterprise_kg.domain.entities.department import Department
-from hc_enterprise_kg.domain.entities.location import Location
-from hc_enterprise_kg.domain.entities.network import Network
-from hc_enterprise_kg.domain.entities.person import Person
-from hc_enterprise_kg.domain.entities.system import System
-from hc_enterprise_kg.domain.entities.vulnerability import Vulnerability
-from hc_enterprise_kg.synthetic.base import GenerationContext
-from hc_enterprise_kg.synthetic.profiles.tech_company import mid_size_tech_company
-from hc_enterprise_kg.synthetic.relationships import RelationshipWeaver
+from domain.base import EntityType, RelationshipType
+from domain.entities.department import Department
+from domain.entities.location import Location
+from domain.entities.network import Network
+from domain.entities.person import Person
+from domain.entities.system import System
+from domain.entities.vulnerability import Vulnerability
+from synthetic.base import GenerationContext
+from synthetic.profiles.tech_company import mid_size_tech_company
+from synthetic.relationships import RelationshipWeaver
 
 
 def _build_context(num_people: int = 10, seed: int = 42) -> GenerationContext:

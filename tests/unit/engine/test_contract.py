@@ -2,12 +2,12 @@
 
 import pytest
 
-from hc_enterprise_kg.domain.base import BaseRelationship, EntityType, RelationshipType
-from hc_enterprise_kg.domain.entities.department import Department
-from hc_enterprise_kg.domain.entities.person import Person
-from hc_enterprise_kg.domain.entities.system import System
-from hc_enterprise_kg.engine.abstract import AbstractGraphEngine
-from hc_enterprise_kg.engine.networkx_engine import NetworkXGraphEngine
+from domain.base import BaseRelationship, EntityType, RelationshipType
+from domain.entities.department import Department
+from domain.entities.person import Person
+from domain.entities.system import System
+from engine.abstract import AbstractGraphEngine
+from engine.networkx_engine import NetworkXGraphEngine
 
 
 class GraphEngineContractTests:

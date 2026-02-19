@@ -1,11 +1,11 @@
 """Tests for entity generators."""
 
-from hc_enterprise_kg.domain.base import EntityType
-from hc_enterprise_kg.synthetic.base import GenerationContext, GeneratorRegistry
-from hc_enterprise_kg.synthetic.profiles.tech_company import mid_size_tech_company
+from domain.base import EntityType
+from synthetic.base import GenerationContext, GeneratorRegistry
+from synthetic.profiles.tech_company import mid_size_tech_company
 
 # Import to trigger registration
-import hc_enterprise_kg.synthetic.generators  # noqa: F401
+import synthetic.generators  # noqa: F401
 
 
 class TestGenerators:

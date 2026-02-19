@@ -1,8 +1,8 @@
 """Tests for EntityRegistry."""
 
-from hc_enterprise_kg.domain.base import EntityType
-from hc_enterprise_kg.domain.entities.person import Person
-from hc_enterprise_kg.domain.registry import EntityRegistry
+from domain.base import EntityType
+from domain.entities.person import Person
+from domain.registry import EntityRegistry
 
 
 class TestEntityRegistry:

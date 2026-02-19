@@ -1,12 +1,12 @@
 """Tests for domain base types."""
 
-from hc_enterprise_kg.domain.base import (
+from domain.base import (
     BaseEntity,
     BaseRelationship,
     EntityType,
     RelationshipType,
 )
-from hc_enterprise_kg.domain.entities.person import Person
+from domain.entities.person import Person
 
 
 class TestBaseEntity:

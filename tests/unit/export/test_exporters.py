@@ -4,12 +4,12 @@ import json
 import tempfile
 from pathlib import Path
 
-from hc_enterprise_kg.domain.base import BaseRelationship, RelationshipType
-from hc_enterprise_kg.domain.entities.department import Department
-from hc_enterprise_kg.domain.entities.person import Person
-from hc_enterprise_kg.engine.networkx_engine import NetworkXGraphEngine
-from hc_enterprise_kg.export.graphml_export import GraphMLExporter
-from hc_enterprise_kg.export.json_export import JSONExporter
+from domain.base import BaseRelationship, RelationshipType
+from domain.entities.department import Department
+from domain.entities.person import Person
+from engine.networkx_engine import NetworkXGraphEngine
+from export.graphml_export import GraphMLExporter
+from export.json_export import JSONExporter
 
 
 def _build_engine() -> NetworkXGraphEngine:

@@ -1,8 +1,8 @@
 """Tests for organization profiles."""
 
-from hc_enterprise_kg.synthetic.profiles.financial_org import financial_org
-from hc_enterprise_kg.synthetic.profiles.healthcare_org import healthcare_org
-from hc_enterprise_kg.synthetic.profiles.tech_company import mid_size_tech_company
+from synthetic.profiles.financial_org import financial_org
+from synthetic.profiles.healthcare_org import healthcare_org
+from synthetic.profiles.tech_company import mid_size_tech_company
 
 
 class TestProfiles:

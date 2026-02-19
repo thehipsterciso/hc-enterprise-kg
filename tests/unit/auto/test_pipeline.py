@@ -2,12 +2,12 @@
 
 from unittest.mock import MagicMock
 
-from hc_enterprise_kg.auto.base import ExtractionResult, LinkingResult, ResolutionResult
-from hc_enterprise_kg.auto.pipeline import AutoKGPipeline
-from hc_enterprise_kg.domain.base import BaseRelationship, EntityType, RelationshipType
-from hc_enterprise_kg.domain.entities.department import Department
-from hc_enterprise_kg.domain.entities.person import Person
-from hc_enterprise_kg.graph.knowledge_graph import KnowledgeGraph
+from auto.base import ExtractionResult, LinkingResult, ResolutionResult
+from auto.pipeline import AutoKGPipeline
+from domain.base import BaseRelationship, EntityType, RelationshipType
+from domain.entities.department import Department
+from domain.entities.person import Person
+from graph.knowledge_graph import KnowledgeGraph
 
 
 class TestAutoKGPipeline:

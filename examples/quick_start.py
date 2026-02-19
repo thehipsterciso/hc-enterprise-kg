@@ -1,9 +1,9 @@
 """Quick start example: generate a synthetic enterprise KG and explore it."""
 
-from hc_enterprise_kg.domain.base import EntityType, RelationshipType
-from hc_enterprise_kg.graph.knowledge_graph import KnowledgeGraph
-from hc_enterprise_kg.synthetic.orchestrator import SyntheticOrchestrator
-from hc_enterprise_kg.synthetic.profiles.tech_company import mid_size_tech_company
+from domain.base import EntityType, RelationshipType
+from graph.knowledge_graph import KnowledgeGraph
+from synthetic.orchestrator import SyntheticOrchestrator
+from synthetic.profiles.tech_company import mid_size_tech_company
 
 
 def main() -> None:
@@ -55,7 +55,7 @@ def main() -> None:
             print(f"  {n.entity_type.value}: {n.name}")
 
     # Step 6: Export to JSON
-    from hc_enterprise_kg.export.json_export import JSONExporter
+    from export.json_export import JSONExporter
 
     exporter = JSONExporter()
     json_str = exporter.export_string(kg.engine)
