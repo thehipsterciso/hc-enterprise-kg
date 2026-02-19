@@ -1,9 +1,8 @@
 """Tests for entity linkers."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 from auto.linkers.heuristic_linker import HeuristicLinker
-from domain.base import EntityType, RelationshipType
 from domain.entities.department import Department
 from domain.entities.person import Person
 from domain.entities.system import System
@@ -23,7 +22,9 @@ class TestHeuristicLinker:
         linker = HeuristicLinker()
         result = linker.link([person, dept])
         assert len(result.relationships) >= 1
-        fk_rels = [r for r in result.relationships if r.properties.get("_link_method") == "fk_detection"]
+        fk_rels = [
+            r for r in result.relationships if r.properties.get("_link_method") == "fk_detection"
+        ]
         assert len(fk_rels) == 1
         assert fk_rels[0].source_id == "p1"
         assert fk_rels[0].target_id == "d1"
@@ -39,24 +40,34 @@ class TestHeuristicLinker:
     def test_name_matching_links_similar_names(self):
         # Person named "Engineering" should fuzzy-match Department "Engineering"
         person = Person(
-            id="p1", first_name="Engineering", last_name="Team",
-            name="Engineering Team", email="eng@test.com",
+            id="p1",
+            first_name="Engineering",
+            last_name="Team",
+            name="Engineering Team",
+            email="eng@test.com",
         )
         dept = Department(id="d1", name="Engineering Team")
         linker = HeuristicLinker(name_match_threshold=80.0)
         result = linker.link([person, dept])
-        name_rels = [r for r in result.relationships if r.properties.get("_link_method") == "name_matching"]
+        name_rels = [
+            r for r in result.relationships if r.properties.get("_link_method") == "name_matching"
+        ]
         assert len(name_rels) >= 1
 
     def test_high_threshold_prevents_links(self):
         person = Person(
-            id="p1", first_name="Alice", last_name="Smith",
-            name="Alice Smith", email="a@b.com",
+            id="p1",
+            first_name="Alice",
+            last_name="Smith",
+            name="Alice Smith",
+            email="a@b.com",
         )
         dept = Department(id="d1", name="Engineering")
         linker = HeuristicLinker(name_match_threshold=99.0)
         result = linker.link([person, dept])
-        name_rels = [r for r in result.relationships if r.properties.get("_link_method") == "name_matching"]
+        name_rels = [
+            r for r in result.relationships if r.properties.get("_link_method") == "name_matching"
+        ]
         assert len(name_rels) == 0
 
     def test_linking_result_has_method(self):
@@ -67,8 +78,11 @@ class TestHeuristicLinker:
     def test_relationships_have_confidence(self):
         dept = Department(id="d1", name="Engineering")
         person = Person(
-            id="p1", first_name="Alice", last_name="Smith",
-            name="Alice Smith", email="a@b.com",
+            id="p1",
+            first_name="Alice",
+            last_name="Smith",
+            name="Alice Smith",
+            email="a@b.com",
             department_id="d1",
         )
         linker = HeuristicLinker()

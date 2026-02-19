@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from auto.base import ResolutionResult
-from domain.base import BaseEntity
+if TYPE_CHECKING:
+    from auto.base import ResolutionResult
+    from domain.base import BaseEntity
 
 
 class AbstractResolver(ABC):

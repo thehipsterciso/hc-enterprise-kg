@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import random
+from typing import TYPE_CHECKING
 
 from domain.base import BaseRelationship, EntityType, RelationshipType
-from synthetic.base import GenerationContext
+
+if TYPE_CHECKING:
+    from synthetic.base import GenerationContext
 
 
 class RelationshipWeaver:
@@ -44,7 +47,7 @@ class RelationshipWeaver:
             return rels
 
         idx = 0
-        for spec, dept in zip(profile.department_specs, departments):
+        for spec, dept in zip(profile.department_specs, departments, strict=False):
             count = max(1, int(len(people) * spec.headcount_fraction))
             for person in people[idx : idx + count]:
                 rels.append(
@@ -159,7 +162,7 @@ class RelationshipWeaver:
             )
 
         # Add some inter-system dependencies
-        for i in range(min(len(systems) // 3, 20)):
+        for _i in range(min(len(systems) // 3, 20)):
             src, tgt = random.sample(systems, 2)
             rels.append(
                 BaseRelationship(

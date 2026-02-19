@@ -9,7 +9,13 @@ from domain.entities.role import Role
 from synthetic.base import AbstractGenerator, GenerationContext, GeneratorRegistry
 
 ROLE_TEMPLATES = {
-    "Engineering": ["Software Engineer", "Senior Engineer", "Tech Lead", "DevOps Engineer", "QA Engineer"],
+    "Engineering": [
+        "Software Engineer",
+        "Senior Engineer",
+        "Tech Lead",
+        "DevOps Engineer",
+        "QA Engineer",
+    ],
     "Product": ["Product Manager", "Product Analyst", "UX Designer"],
     "Sales": ["Account Executive", "Sales Manager", "SDR"],
     "Marketing": ["Marketing Manager", "Content Strategist", "Growth Analyst"],
@@ -23,9 +29,16 @@ ROLE_TEMPLATES = {
 
 ACCESS_LEVELS = ["standard", "elevated", "privileged", "admin"]
 PERMISSIONS = [
-    "read:internal", "write:internal", "read:confidential", "write:confidential",
-    "admin:systems", "admin:users", "deploy:production", "access:vpn",
-    "manage:budgets", "approve:changes",
+    "read:internal",
+    "write:internal",
+    "read:confidential",
+    "write:confidential",
+    "admin:systems",
+    "admin:users",
+    "deploy:production",
+    "access:vpn",
+    "manage:budgets",
+    "approve:changes",
 ]
 
 
@@ -44,7 +57,17 @@ class RoleGenerator(AbstractGenerator):
             for role_name in dept_roles:
                 is_privileged = any(
                     kw in role_name.lower()
-                    for kw in ["admin", "lead", "manager", "director", "ciso", "cto", "ceo", "cfo", "coo"]
+                    for kw in [
+                        "admin",
+                        "lead",
+                        "manager",
+                        "director",
+                        "ciso",
+                        "cto",
+                        "ceo",
+                        "cfo",
+                        "coo",
+                    ]
                 )
                 access = "privileged" if is_privileged else random.choice(ACCESS_LEVELS[:2])
 

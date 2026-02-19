@@ -1,11 +1,11 @@
 """Integration tests for the synthetic generation pipeline."""
 
-from domain.base import EntityType, RelationshipType
+from domain.base import EntityType
 from graph.knowledge_graph import KnowledgeGraph
 from synthetic.orchestrator import SyntheticOrchestrator
-from synthetic.profiles.tech_company import mid_size_tech_company
-from synthetic.profiles.healthcare_org import healthcare_org
 from synthetic.profiles.financial_org import financial_org
+from synthetic.profiles.healthcare_org import healthcare_org
+from synthetic.profiles.tech_company import mid_size_tech_company
 
 
 class TestSyntheticPipeline:
@@ -62,6 +62,7 @@ class TestSyntheticPipeline:
         orchestrator.generate()
 
         from export.json_export import JSONExporter
+
         exporter = JSONExporter()
         result = exporter.export_string(kg.engine)
         data = json.loads(result)

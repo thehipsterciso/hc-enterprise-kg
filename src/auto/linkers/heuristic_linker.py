@@ -59,7 +59,7 @@ class HeuristicLinker(AbstractLinker):
 
         # Strategy 1: FK attribute detection
         for entity in entities:
-            for attr_name, target_type in FK_ATTRIBUTES:
+            for attr_name, _target_type in FK_ATTRIBUTES:
                 fk_value = getattr(entity, attr_name, None)
                 if fk_value and fk_value in by_id:
                     target = by_id[fk_value]

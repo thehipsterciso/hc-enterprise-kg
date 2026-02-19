@@ -14,13 +14,28 @@ FORMATS = ["sql", "nosql", "file", "api", "stream", "data_lake"]
 REGULATIONS = ["GDPR", "HIPAA", "PCI-DSS", "SOX", "CCPA", "FERPA"]
 
 ASSET_NAMES = [
-    "Customer Database", "Employee Records", "Financial Ledger",
-    "Product Catalog", "Audit Logs", "Email Archive", "Source Code Repository",
-    "Marketing Analytics", "Sales Pipeline Data", "Support Tickets",
-    "Compliance Reports", "Network Logs", "Backup Archives",
-    "Research Data", "Client Contracts", "Vendor Records",
-    "Payroll Data", "Health Records", "Transaction History",
-    "User Activity Logs", "API Keys Vault", "Configuration Store",
+    "Customer Database",
+    "Employee Records",
+    "Financial Ledger",
+    "Product Catalog",
+    "Audit Logs",
+    "Email Archive",
+    "Source Code Repository",
+    "Marketing Analytics",
+    "Sales Pipeline Data",
+    "Support Tickets",
+    "Compliance Reports",
+    "Network Logs",
+    "Backup Archives",
+    "Research Data",
+    "Client Contracts",
+    "Vendor Records",
+    "Payroll Data",
+    "Health Records",
+    "Transaction History",
+    "User Activity Logs",
+    "API Keys Vault",
+    "Configuration Store",
 ]
 
 

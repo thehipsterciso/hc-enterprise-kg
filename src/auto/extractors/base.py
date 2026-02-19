@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from auto.base import ExtractionResult
+if TYPE_CHECKING:
+    from auto.base import ExtractionResult
 
 
 class AbstractExtractor(ABC):

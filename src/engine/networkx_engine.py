@@ -57,7 +57,7 @@ class NetworkXGraphEngine(AbstractGraphEngine):
             return False
         # Remove all relationships involving this entity from the index
         edges_to_remove = []
-        for rel_id, (src, tgt, key) in list(self._relationship_index.items()):
+        for rel_id, (src, tgt, _key) in list(self._relationship_index.items()):
             if src == entity_id or tgt == entity_id:
                 edges_to_remove.append(rel_id)
         for rel_id in edges_to_remove:
@@ -73,12 +73,11 @@ class NetworkXGraphEngine(AbstractGraphEngine):
         offset: int = 0,
     ) -> list[BaseEntity]:
         results: list[BaseEntity] = []
-        for node_id, data in self._graph.nodes(data=True):
+        for _node_id, data in self._graph.nodes(data=True):
             if entity_type and data.get("entity_type") != entity_type.value:
                 continue
-            if filters:
-                if not all(data.get(k) == v for k, v in filters.items()):
-                    continue
+            if filters and not all(data.get(k) == v for k, v in filters.items()):
+                continue
             entity = self._deserialize_entity(dict(data))
             if entity:
                 results.append(entity)
@@ -145,7 +144,7 @@ class NetworkXGraphEngine(AbstractGraphEngine):
         rel_type_val = relationship_type.value if relationship_type else None
 
         if direction in ("out", "both"):
-            for _, tgt, data in self._graph.out_edges(entity_id, data=True):
+            for _, _tgt, data in self._graph.out_edges(entity_id, data=True):
                 if rel_type_val and data.get("relationship_type") != rel_type_val:
                     continue
                 rel = self._deserialize_relationship(dict(data))
@@ -153,7 +152,7 @@ class NetworkXGraphEngine(AbstractGraphEngine):
                     results.append(rel)
 
         if direction in ("in", "both"):
-            for src, _, data in self._graph.in_edges(entity_id, data=True):
+            for _src, _, data in self._graph.in_edges(entity_id, data=True):
                 if rel_type_val and data.get("relationship_type") != rel_type_val:
                     continue
                 rel = self._deserialize_relationship(dict(data))
@@ -256,9 +255,7 @@ class NetworkXGraphEngine(AbstractGraphEngine):
             "entity_types": type_counts,
             "relationship_types": rel_type_counts,
             "density": nx.density(g),
-            "is_weakly_connected": (
-                nx.is_weakly_connected(g) if g.number_of_nodes() > 0 else True
-            ),
+            "is_weakly_connected": (nx.is_weakly_connected(g) if g.number_of_nodes() > 0 else True),
         }
 
     def clear(self) -> None:

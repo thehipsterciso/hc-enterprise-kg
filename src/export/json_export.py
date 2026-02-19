@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from engine.abstract import AbstractGraphEngine
 from export.base import AbstractExporter
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from engine.abstract import AbstractGraphEngine
 
 
 class JSONExporter(AbstractExporter):

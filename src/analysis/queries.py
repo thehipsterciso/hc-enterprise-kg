@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from domain.base import BaseEntity, EntityType, RelationshipType
-from graph.knowledge_graph import KnowledgeGraph
+
+if TYPE_CHECKING:
+    from graph.knowledge_graph import KnowledgeGraph
 
 
 def find_attack_paths(
@@ -53,7 +57,8 @@ def find_unpatched_vulnerabilities(kg: KnowledgeGraph) -> list[BaseEntity]:
     """Find open vulnerabilities without patches."""
     vulns = kg.list_entities(entity_type=EntityType.VULNERABILITY)
     return [
-        v for v in vulns
+        v
+        for v in vulns
         if getattr(v, "status", "") == "open" and not getattr(v, "patch_available", True)
     ]
 
@@ -97,7 +102,4 @@ def find_vendor_dependencies(kg: KnowledgeGraph, vendor_id: str) -> list[BaseEnt
 def find_high_risk_data_assets(kg: KnowledgeGraph) -> list[BaseEntity]:
     """Find data assets with restricted or confidential classification."""
     assets = kg.list_entities(entity_type=EntityType.DATA_ASSET)
-    return [
-        a for a in assets
-        if getattr(a, "classification", "") in ("restricted", "confidential")
-    ]
+    return [a for a in assets if getattr(a, "classification", "") in ("restricted", "confidential")]

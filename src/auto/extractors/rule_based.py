@@ -3,23 +3,26 @@
 from __future__ import annotations
 
 import re
-import uuid
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from auto.base import ExtractionResult
 from auto.confidence import ConfidenceSource, compute_confidence
 from auto.extractors.base import AbstractExtractor
-from domain.base import BaseEntity, EntityType
 from domain.entities.person import Person
 from domain.entities.system import System
 from domain.entities.vulnerability import Vulnerability
+
+if TYPE_CHECKING:
+    from domain.base import BaseEntity
 
 # Compiled patterns for entity detection
 PATTERNS = {
     "email": re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"),
     "ipv4": re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
     "cve": re.compile(r"\bCVE-\d{4}-\d{4,7}\b"),
-    "hostname": re.compile(r"\b[a-z][a-z0-9-]*\.(local|internal|corp|com|net|org)\b", re.IGNORECASE),
+    "hostname": re.compile(
+        r"\b[a-z][a-z0-9-]*\.(local|internal|corp|com|net|org)\b", re.IGNORECASE
+    ),
     "cidr": re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}/\d{1,2}\b"),
 }
 

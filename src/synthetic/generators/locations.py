@@ -23,7 +23,9 @@ class LocationGenerator(AbstractGenerator):
         locations: list[Location] = []
 
         for i in range(count):
-            loc_type = LOCATION_TYPES[i] if i < len(LOCATION_TYPES) else random.choice(LOCATION_TYPES)
+            loc_type = (
+                LOCATION_TYPES[i] if i < len(LOCATION_TYPES) else random.choice(LOCATION_TYPES)
+            )
 
             location = Location(
                 name=f"{faker.city()} {loc_type.replace('_', ' ').title()}",

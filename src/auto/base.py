@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any
+from enum import StrEnum
+from typing import TYPE_CHECKING, Any
 
-from domain.base import BaseEntity, BaseRelationship
+if TYPE_CHECKING:
+    from domain.base import BaseEntity, BaseRelationship
 
 
-class PipelineStage(str, Enum):
+class PipelineStage(StrEnum):
     """Stages in the auto KG pipeline."""
 
     EXTRACT = "extract"

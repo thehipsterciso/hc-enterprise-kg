@@ -17,27 +17,38 @@ from domain.base import (
 )
 from domain.registry import EntityRegistry
 
-EXTRACTION_PROMPT = """You are an entity and relationship extractor for an enterprise knowledge graph.
+ENTITY_TYPES = (
+    "person, department, role, system, network, data_asset, "
+    "policy, vendor, location, vulnerability, threat_actor, incident"
+)
+RELATIONSHIP_TYPES = (
+    "works_in, manages, reports_to, has_role, member_of, hosts, "
+    "connects_to, depends_on, stores, runs_on, governs, exploits, "
+    "targets, mitigates, affects, provides_service, located_at, "
+    "supplied_by, responsible_for"
+)
+EXTRACTION_PROMPT = f"""\
+You are an entity and relationship extractor for an enterprise knowledge graph.
 
 Given the following text, extract all entities and relationships you can find.
 
-Entity types: person, department, role, system, network, data_asset, policy, vendor, location, vulnerability, threat_actor, incident
+Entity types: {ENTITY_TYPES}
 
-Relationship types: works_in, manages, reports_to, has_role, member_of, hosts, connects_to, depends_on, stores, runs_on, governs, exploits, targets, mitigates, affects, provides_service, located_at, supplied_by, responsible_for
+Relationship types: {RELATIONSHIP_TYPES}
 
 Return a JSON object with this exact structure:
-{
+{{
   "entities": [
-    {"entity_type": "person", "name": "John Doe", "attributes": {"email": "john@example.com", "title": "Engineer"}},
+    {{"entity_type": "person", "name": "John Doe", "attributes": {{"email": "john@example.com"}}}},
     ...
   ],
   "relationships": [
-    {"type": "works_in", "source_name": "John Doe", "target_name": "Engineering"},
+    {{"type": "works_in", "source_name": "John Doe", "target_name": "Engineering"}},
     ...
   ]
-}
+}}
 
-Only include entities and relationships you are confident about. Do not hallucinate.
+Only include entities and relationships you are confident about.
 
 TEXT:
 """
@@ -65,7 +76,9 @@ class LLMExtractor(AbstractExtractor):
         except ImportError:
             return ExtractionResult(
                 source="llm",
-                errors=["litellm is required for LLM extraction. Install with: pip install litellm"],
+                errors=[
+                    "litellm is required for LLM extraction. Install with: pip install litellm"
+                ],
             )
 
         EntityRegistry.auto_discover()
@@ -74,7 +87,13 @@ class LLMExtractor(AbstractExtractor):
             response = completion(
                 model=self._model,
                 messages=[
-                    {"role": "system", "content": "You extract structured entities from text. Always respond with valid JSON."},
+                    {
+                        "role": "system",
+                        "content": (
+                            "You extract structured entities from text. "
+                            "Always respond with valid JSON."
+                        ),
+                    },
                     {"role": "user", "content": EXTRACTION_PROMPT + data},
                 ],
                 temperature=self._temperature,

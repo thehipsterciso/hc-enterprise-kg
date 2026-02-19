@@ -10,10 +10,18 @@ from domain.entities.vulnerability import Vulnerability
 from synthetic.base import AbstractGenerator, GenerationContext, GeneratorRegistry
 
 VULN_TYPES = [
-    "SQL Injection", "Cross-Site Scripting", "Buffer Overflow",
-    "Remote Code Execution", "Privilege Escalation", "Authentication Bypass",
-    "Information Disclosure", "Denial of Service", "Path Traversal",
-    "Insecure Deserialization", "SSRF", "Broken Access Control",
+    "SQL Injection",
+    "Cross-Site Scripting",
+    "Buffer Overflow",
+    "Remote Code Execution",
+    "Privilege Escalation",
+    "Authentication Bypass",
+    "Information Disclosure",
+    "Denial of Service",
+    "Path Traversal",
+    "Insecure Deserialization",
+    "SSRF",
+    "Broken Access Control",
 ]
 
 SEVERITIES = ["low", "medium", "high", "critical"]
@@ -24,17 +32,32 @@ MOTIVATIONS = ["financial", "espionage", "disruption", "ideological", "retaliati
 SOPHISTICATION = ["low", "medium", "high", "advanced"]
 
 APT_NAMES = [
-    "Midnight Blizzard", "Cozy Bear", "Fancy Bear", "Lazarus Group",
-    "Equation Group", "Shadow Brokers", "DarkSide", "REvil",
-    "Sandworm", "Turla", "Kimsuky", "Charming Kitten",
+    "Midnight Blizzard",
+    "Cozy Bear",
+    "Fancy Bear",
+    "Lazarus Group",
+    "Equation Group",
+    "Shadow Brokers",
+    "DarkSide",
+    "REvil",
+    "Sandworm",
+    "Turla",
+    "Kimsuky",
+    "Charming Kitten",
 ]
 
 TTPS = [
-    "T1566-Phishing", "T1059-Command Scripting", "T1078-Valid Accounts",
-    "T1021-Remote Services", "T1071-Application Layer Protocol",
-    "T1486-Data Encrypted for Impact", "T1053-Scheduled Task",
-    "T1027-Obfuscated Files", "T1105-Ingress Tool Transfer",
-    "T1070-Indicator Removal", "T1218-System Binary Proxy Execution",
+    "T1566-Phishing",
+    "T1059-Command Scripting",
+    "T1078-Valid Accounts",
+    "T1021-Remote Services",
+    "T1071-Application Layer Protocol",
+    "T1486-Data Encrypted for Impact",
+    "T1053-Scheduled Task",
+    "T1027-Obfuscated Files",
+    "T1105-Ingress Tool Transfer",
+    "T1070-Indicator Removal",
+    "T1218-System Binary Proxy Execution",
 ]
 
 

@@ -21,7 +21,7 @@ class TestEntityRegistry:
         EntityRegistry.clear()
         try:
             EntityRegistry.get(EntityType.PERSON)
-            assert False, "Should have raised KeyError"
+            raise AssertionError("Should have raised KeyError")
         except KeyError:
             pass
         # Re-register for other tests

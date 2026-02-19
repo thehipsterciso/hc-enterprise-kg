@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class ConfidenceSource(str, Enum):
+class ConfidenceSource(StrEnum):
     """Source of extraction that determines base confidence."""
 
     RULE_BASED = "rule_based"
@@ -44,11 +44,7 @@ def compute_confidence(
     """
     base = BASE_CONFIDENCE.get(source, 0.5)
 
-    if similarity_score is not None:
-        # Blend base confidence with similarity score
-        score = 0.5 * base + 0.5 * similarity_score
-    else:
-        score = base
+    score = 0.5 * base + 0.5 * similarity_score if similarity_score is not None else base
 
     # Penalize incomplete entities
     score *= max(0.5, field_completeness)

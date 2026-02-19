@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class MutationType(str, Enum):
+class MutationType(StrEnum):
     """Types of mutations that can occur on the knowledge graph."""
 
     CREATE = "create"

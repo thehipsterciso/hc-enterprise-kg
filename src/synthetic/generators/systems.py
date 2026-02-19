@@ -21,12 +21,31 @@ TECH_STACKS = [
     ["ruby", "rails", "postgresql"],
 ]
 APP_NAMES = [
-    "ERP System", "CRM Platform", "HR Portal", "Email Server", "File Server",
-    "Database Server", "Web Application", "API Gateway", "Load Balancer",
-    "DNS Server", "LDAP/AD Server", "Monitoring System", "Log Aggregator",
-    "CI/CD Pipeline", "Code Repository", "Wiki/Docs", "Chat Platform",
-    "VPN Gateway", "Firewall", "IDS/IPS", "SIEM", "Backup Server",
-    "Data Warehouse", "Analytics Platform", "SSO Provider",
+    "ERP System",
+    "CRM Platform",
+    "HR Portal",
+    "Email Server",
+    "File Server",
+    "Database Server",
+    "Web Application",
+    "API Gateway",
+    "Load Balancer",
+    "DNS Server",
+    "LDAP/AD Server",
+    "Monitoring System",
+    "Log Aggregator",
+    "CI/CD Pipeline",
+    "Code Repository",
+    "Wiki/Docs",
+    "Chat Platform",
+    "VPN Gateway",
+    "Firewall",
+    "IDS/IPS",
+    "SIEM",
+    "Backup Server",
+    "Data Warehouse",
+    "Analytics Platform",
+    "SSO Provider",
 ]
 
 
@@ -43,7 +62,11 @@ class SystemGenerator(AbstractGenerator):
         for i in range(count):
             sys_type = random.choice(SYSTEM_TYPES)
             hostname = f"{faker.word()}-{sys_type[:3]}-{i:03d}"
-            app_name = random.choice(APP_NAMES) if i < len(APP_NAMES) else f"{faker.word().title()} Service"
+            app_name = (
+                random.choice(APP_NAMES)
+                if i < len(APP_NAMES)
+                else f"{faker.word().title()} Service"
+            )
 
             system = System(
                 name=app_name,
@@ -56,7 +79,9 @@ class SystemGenerator(AbstractGenerator):
                 environment=random.choice(ENVIRONMENTS),
                 criticality=random.choice(CRITICALITY),
                 is_internet_facing=random.random() < 0.2,
-                ports=random.sample([22, 80, 443, 3306, 5432, 8080, 8443, 6379, 27017], k=random.randint(1, 4)),
+                ports=random.sample(
+                    [22, 80, 443, 3306, 5432, 8080, 8443, 6379, 27017], k=random.randint(1, 4)
+                ),
                 technologies=random.choice(TECH_STACKS),
                 tags=[sys_type],
             )

@@ -2,20 +2,22 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from domain.base import (
-    BaseEntity,
-    BaseRelationship,
-    EntityType,
-    RelationshipType,
-)
 from domain.registry import EntityRegistry
 from domain.temporal import GraphEvent, MutationType
-from engine.abstract import AbstractGraphEngine
 from engine.factory import GraphEngineFactory
 from engine.query import QueryBuilder
 from graph.events import EventBus
+
+if TYPE_CHECKING:
+    from domain.base import (
+        BaseEntity,
+        BaseRelationship,
+        EntityType,
+        RelationshipType,
+    )
+    from engine.abstract import AbstractGraphEngine
 
 
 class KnowledgeGraph:
@@ -177,7 +179,11 @@ class KnowledgeGraph:
             relationship_id=relationship.id if relationship else None,
             before_snapshot=before,
             after_snapshot=(
-                entity.model_dump() if entity else relationship.model_dump() if relationship else None
+                entity.model_dump()
+                if entity
+                else relationship.model_dump()
+                if relationship
+                else None
             ),
         )
         self._event_log.append(event)

@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class EntityType(str, Enum):
+class EntityType(StrEnum):
     """Enumeration of all entity types in the knowledge graph."""
 
     PERSON = "person"
@@ -27,7 +27,7 @@ class EntityType(str, Enum):
     INCIDENT = "incident"
 
 
-class RelationshipType(str, Enum):
+class RelationshipType(StrEnum):
     """Enumeration of all relationship types in the knowledge graph."""
 
     # Organizational

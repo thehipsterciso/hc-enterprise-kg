@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import networkx as nx
 
-from graph.knowledge_graph import KnowledgeGraph
+if TYPE_CHECKING:
+    from graph.knowledge_graph import KnowledgeGraph
 
 
 def compute_centrality(kg: KnowledgeGraph) -> dict[str, float]:

@@ -11,8 +11,11 @@ from graph.knowledge_graph import KnowledgeGraph
 class TestKnowledgeGraphLifecycle:
     def test_add_query_remove_entity(self, kg: KnowledgeGraph):
         person = Person(
-            id="p1", first_name="Alice", last_name="Smith",
-            name="Alice Smith", email="a@b.com",
+            id="p1",
+            first_name="Alice",
+            last_name="Smith",
+            name="Alice Smith",
+            email="a@b.com",
         )
         kg.add_entity(person)
         assert kg.get_entity("p1") is not None
@@ -35,14 +38,20 @@ class TestKnowledgeGraphLifecycle:
         kg.add_entity(dept)
         kg.add_entity(system)
 
-        kg.add_relationship(BaseRelationship(
-            relationship_type=RelationshipType.WORKS_IN,
-            source_id="p1", target_id="d1",
-        ))
-        kg.add_relationship(BaseRelationship(
-            relationship_type=RelationshipType.RESPONSIBLE_FOR,
-            source_id="d1", target_id="s1",
-        ))
+        kg.add_relationship(
+            BaseRelationship(
+                relationship_type=RelationshipType.WORKS_IN,
+                source_id="p1",
+                target_id="d1",
+            )
+        )
+        kg.add_relationship(
+            BaseRelationship(
+                relationship_type=RelationshipType.RESPONSIBLE_FOR,
+                source_id="d1",
+                target_id="s1",
+            )
+        )
 
         # Neighbors
         neighbors = kg.neighbors("d1")
@@ -83,7 +92,9 @@ class TestKnowledgeGraphLifecycle:
 
     def test_bulk_operations(self, kg: KnowledgeGraph):
         people = [
-            Person(id=f"p{i}", first_name=f"P{i}", last_name="T", name=f"P{i} T", email=f"p{i}@t.com")
+            Person(
+                id=f"p{i}", first_name=f"P{i}", last_name="T", name=f"P{i} T", email=f"p{i}@t.com"
+            )
             for i in range(10)
         ]
         kg.add_entities_bulk(people)
@@ -92,7 +103,8 @@ class TestKnowledgeGraphLifecycle:
         rels = [
             BaseRelationship(
                 relationship_type=RelationshipType.REPORTS_TO,
-                source_id=f"p{i}", target_id="p0",
+                source_id=f"p{i}",
+                target_id="p0",
             )
             for i in range(1, 10)
         ]
@@ -106,14 +118,26 @@ class TestKnowledgeGraphLifecycle:
         assert "entity_types" in stats
 
     def test_query_with_filters(self, kg: KnowledgeGraph):
-        kg.add_entity(Person(
-            id="p1", first_name="Alice", last_name="Smith",
-            name="Alice Smith", email="a@b.com", is_active=True,
-        ))
-        kg.add_entity(Person(
-            id="p2", first_name="Bob", last_name="Jones",
-            name="Bob Jones", email="b@c.com", is_active=False,
-        ))
+        kg.add_entity(
+            Person(
+                id="p1",
+                first_name="Alice",
+                last_name="Smith",
+                name="Alice Smith",
+                email="a@b.com",
+                is_active=True,
+            )
+        )
+        kg.add_entity(
+            Person(
+                id="p2",
+                first_name="Bob",
+                last_name="Jones",
+                name="Bob Jones",
+                email="b@c.com",
+                is_active=False,
+            )
+        )
 
         active = kg.query().entities(EntityType.PERSON).where(is_active=True).execute()
         assert len(active) == 1
@@ -121,10 +145,15 @@ class TestKnowledgeGraphLifecycle:
 
     def test_list_entities_with_limit_offset(self, kg: KnowledgeGraph):
         for i in range(5):
-            kg.add_entity(Person(
-                id=f"p{i}", first_name=f"P{i}", last_name="T",
-                name=f"P{i} T", email=f"p{i}@t.com",
-            ))
+            kg.add_entity(
+                Person(
+                    id=f"p{i}",
+                    first_name=f"P{i}",
+                    last_name="T",
+                    name=f"P{i} T",
+                    email=f"p{i}@t.com",
+                )
+            )
         page = kg.list_entities(limit=2, offset=0)
         assert len(page) == 2
 

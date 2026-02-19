@@ -1,7 +1,5 @@
 """Tests for RelationshipWeaver."""
 
-import random
-
 from domain.base import EntityType, RelationshipType
 from domain.entities.department import Department
 from domain.entities.location import Location
@@ -20,29 +18,27 @@ def _build_context(num_people: int = 10, seed: int = 42) -> GenerationContext:
 
     # Generate minimal entities
     people = [
-        Person(id=f"p{i}", first_name=f"Person{i}", last_name="Test", name=f"Person{i} Test", email=f"p{i}@t.com")
+        Person(
+            id=f"p{i}",
+            first_name=f"Person{i}",
+            last_name="Test",
+            name=f"Person{i} Test",
+            email=f"p{i}@t.com",
+        )
         for i in range(num_people)
     ]
     departments = [
-        Department(id=f"d{i}", name=spec.name)
-        for i, spec in enumerate(profile.department_specs)
+        Department(id=f"d{i}", name=spec.name) for i, spec in enumerate(profile.department_specs)
     ]
-    systems = [
-        System(id=f"s{i}", name=f"System{i}", system_type="application")
-        for i in range(5)
-    ]
+    systems = [System(id=f"s{i}", name=f"System{i}", system_type="application") for i in range(5)]
     networks = [
         Network(id=f"n{i}", name=f"Network{i}", network_type="lan", cidr="10.0.0.0/24")
         for i in range(3)
     ]
     locations = [
-        Location(id=f"l{i}", name=f"Location{i}", city=f"City{i}", country="US")
-        for i in range(2)
+        Location(id=f"l{i}", name=f"Location{i}", city=f"City{i}", country="US") for i in range(2)
     ]
-    vulns = [
-        Vulnerability(id=f"v{i}", name=f"CVE-2024-000{i}", severity="high")
-        for i in range(2)
-    ]
+    vulns = [Vulnerability(id=f"v{i}", name=f"CVE-2024-000{i}", severity="high") for i in range(2)]
 
     ctx.store(EntityType.PERSON, people)
     ctx.store(EntityType.DEPARTMENT, departments)

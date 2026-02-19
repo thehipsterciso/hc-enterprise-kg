@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import click
 
-from graph.knowledge_graph import KnowledgeGraph
-
 
 @click.group()
 @click.version_option(package_name="hc-enterprise-kg")
@@ -18,10 +16,10 @@ def cli(ctx: click.Context, backend: str) -> None:
 
 
 # Import and register subcommand groups
-from cli.demo_cmd import demo  # noqa: E402
-from cli.generate import generate  # noqa: E402
 from cli.auto_cmd import auto  # noqa: E402
+from cli.demo_cmd import demo  # noqa: E402
 from cli.export_cmd import export_cmd  # noqa: E402
+from cli.generate import generate  # noqa: E402
 from cli.inspect_cmd import inspect_cmd  # noqa: E402
 
 cli.add_command(demo)

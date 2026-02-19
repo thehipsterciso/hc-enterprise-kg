@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from domain.base import BaseEntity, EntityType, RelationshipType
-from engine.abstract import AbstractGraphEngine
+if TYPE_CHECKING:
+    from domain.base import BaseEntity, EntityType, RelationshipType
+    from engine.abstract import AbstractGraphEngine
 
 
 @dataclass

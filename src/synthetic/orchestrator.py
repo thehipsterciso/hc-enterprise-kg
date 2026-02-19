@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import random
-
-from domain.base import EntityType
-from graph.knowledge_graph import KnowledgeGraph
-from synthetic.base import GenerationContext, GeneratorRegistry
+from typing import TYPE_CHECKING
 
 # Import generators to trigger registration
 import synthetic.generators  # noqa: F401
-from synthetic.profiles.base_profile import OrgProfile
+from domain.base import EntityType
+from synthetic.base import GenerationContext, GeneratorRegistry
 from synthetic.relationships import RelationshipWeaver
+
+if TYPE_CHECKING:
+    from graph.knowledge_graph import KnowledgeGraph
+    from synthetic.profiles.base_profile import OrgProfile
 
 # Generation order matters: some entities reference others
 GENERATION_ORDER: list[tuple[EntityType, str]] = [

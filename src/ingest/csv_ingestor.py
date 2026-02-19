@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from domain.base import EntityType
 from domain.registry import EntityRegistry
 from ingest.base import AbstractIngestor, IngestResult
-from ingest.mapping import SchemaMapping
+
+if TYPE_CHECKING:
+    from domain.base import EntityType
+    from ingest.mapping import SchemaMapping
 
 
 class CSVIngestor(AbstractIngestor):
@@ -65,7 +67,10 @@ class CSVIngestor(AbstractIngestor):
             name_col = columns[0]
             for i, row in enumerate(rows):
                 try:
-                    attrs = {"entity_type": entity_type.value, "name": row.get(name_col, f"Row-{i}")}
+                    attrs = {
+                        "entity_type": entity_type.value,
+                        "name": row.get(name_col, f"Row-{i}"),
+                    }
                     for col, val in row.items():
                         if val and col != name_col:
                             attrs[col] = val

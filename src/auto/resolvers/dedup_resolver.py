@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from rapidfuzz import fuzz
 
 from auto.base import ResolutionResult
 from auto.resolvers.base import AbstractResolver
-from domain.base import BaseEntity
+
+if TYPE_CHECKING:
+    from domain.base import BaseEntity
 
 
 class DedupResolver(AbstractResolver):
@@ -33,7 +37,7 @@ class DedupResolver(AbstractResolver):
         final_entities: list[BaseEntity] = []
         removed_ids: set[str] = set()
 
-        for entity_type, group in by_type.items():
+        for _entity_type, group in by_type.items():
             # Compare all pairs within the same type
             keep: dict[str, BaseEntity] = {}
             for entity in group:
@@ -42,7 +46,7 @@ class DedupResolver(AbstractResolver):
 
                 # Check against already-kept entities
                 found_match = False
-                for kept_id, kept_entity in list(keep.items()):
+                for _kept_id, kept_entity in list(keep.items()):
                     score = fuzz.token_sort_ratio(entity.name, kept_entity.name)
                     if score >= self._threshold:
                         # Merge: keep the higher-confidence one
@@ -64,9 +68,7 @@ class DedupResolver(AbstractResolver):
             entities=final_entities,
         )
 
-    def _pick_winner(
-        self, a: BaseEntity, b: BaseEntity
-    ) -> tuple[BaseEntity, BaseEntity]:
+    def _pick_winner(self, a: BaseEntity, b: BaseEntity) -> tuple[BaseEntity, BaseEntity]:
         """Pick the entity with higher confidence or more fields populated."""
         conf_a = a.metadata.get("_confidence", 0.5)
         conf_b = b.metadata.get("_confidence", 0.5)
@@ -114,6 +116,4 @@ class DedupResolver(AbstractResolver):
             return True
         if isinstance(value, list) and len(value) == 0:
             return True
-        if isinstance(value, dict) and len(value) == 0:
-            return True
-        return False
+        return bool(isinstance(value, dict) and len(value) == 0)

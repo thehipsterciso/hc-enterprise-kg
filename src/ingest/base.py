@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from domain.base import BaseEntity, BaseRelationship
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from domain.base import BaseEntity, BaseRelationship
 
 
 @dataclass

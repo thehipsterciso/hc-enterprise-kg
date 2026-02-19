@@ -1,11 +1,10 @@
 """Tests for entity generators."""
 
+# Import to trigger registration
+import synthetic.generators  # noqa: F401
 from domain.base import EntityType
 from synthetic.base import GenerationContext, GeneratorRegistry
 from synthetic.profiles.tech_company import mid_size_tech_company
-
-# Import to trigger registration
-import synthetic.generators  # noqa: F401
 
 
 class TestGenerators:
@@ -53,10 +52,18 @@ class TestGenerators:
 
     def test_all_generators_registered(self):
         expected = {
-            EntityType.PERSON, EntityType.DEPARTMENT, EntityType.ROLE,
-            EntityType.SYSTEM, EntityType.NETWORK, EntityType.DATA_ASSET,
-            EntityType.POLICY, EntityType.VENDOR, EntityType.LOCATION,
-            EntityType.VULNERABILITY, EntityType.THREAT_ACTOR, EntityType.INCIDENT,
+            EntityType.PERSON,
+            EntityType.DEPARTMENT,
+            EntityType.ROLE,
+            EntityType.SYSTEM,
+            EntityType.NETWORK,
+            EntityType.DATA_ASSET,
+            EntityType.POLICY,
+            EntityType.VENDOR,
+            EntityType.LOCATION,
+            EntityType.VULNERABILITY,
+            EntityType.THREAT_ACTOR,
+            EntityType.INCIDENT,
         }
         registered = set(GeneratorRegistry.all().keys())
         assert expected.issubset(registered)

@@ -22,7 +22,7 @@ class GenerationContext:
 
     def __init__(
         self,
-        profile: "OrgProfile",  # noqa: F821 — forward ref
+        profile: OrgProfile,  # noqa: F821 — forward ref
         seed: int | None = None,
     ) -> None:
         self.profile = profile

@@ -47,7 +47,9 @@ class GraphEngineContractTests:
         assert engine.remove_entity("nonexistent") is False
 
     def test_list_entities(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         engine.add_entity(Department(id="d1", name="Eng"))
 
         all_entities = engine.list_entities()
@@ -58,13 +60,17 @@ class GraphEngineContractTests:
 
     def test_entity_count(self, engine):
         assert engine.entity_count() == 0
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         assert engine.entity_count() == 1
         assert engine.entity_count(EntityType.PERSON) == 1
         assert engine.entity_count(EntityType.SYSTEM) == 0
 
     def test_add_relationship(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         engine.add_entity(Department(id="d1", name="Eng"))
 
         rel = BaseRelationship(
@@ -85,10 +91,14 @@ class GraphEngineContractTests:
             engine.add_relationship(rel)
 
     def test_get_relationship(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         engine.add_entity(Department(id="d1", name="Eng"))
         engine.add_relationship(
-            BaseRelationship(id="r1", relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1")
+            BaseRelationship(
+                id="r1", relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1"
+            )
         )
 
         rel = engine.get_relationship("r1")
@@ -96,20 +106,28 @@ class GraphEngineContractTests:
         assert rel.source_id == "p1"
 
     def test_remove_relationship(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         engine.add_entity(Department(id="d1", name="Eng"))
         engine.add_relationship(
-            BaseRelationship(id="r1", relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1")
+            BaseRelationship(
+                id="r1", relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1"
+            )
         )
 
         assert engine.remove_relationship("r1") is True
         assert engine.get_relationship("r1") is None
 
     def test_neighbors(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         engine.add_entity(Department(id="d1", name="Eng"))
         engine.add_relationship(
-            BaseRelationship(relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1")
+            BaseRelationship(
+                relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1"
+            )
         )
 
         neighbors = engine.neighbors("p1", direction="out")
@@ -117,27 +135,41 @@ class GraphEngineContractTests:
         assert neighbors[0].id == "d1"
 
     def test_shortest_path(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         engine.add_entity(Department(id="d1", name="Eng"))
         engine.add_entity(System(id="s1", name="Web App"))
         engine.add_relationship(
-            BaseRelationship(relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1")
+            BaseRelationship(
+                relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1"
+            )
         )
         engine.add_relationship(
-            BaseRelationship(relationship_type=RelationshipType.RESPONSIBLE_FOR, source_id="d1", target_id="s1")
+            BaseRelationship(
+                relationship_type=RelationshipType.RESPONSIBLE_FOR, source_id="d1", target_id="s1"
+            )
         )
 
         path = engine.shortest_path("p1", "s1")
         assert path == ["p1", "d1", "s1"]
 
     def test_shortest_path_no_path(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         engine.add_entity(System(id="s1", name="Web App"))
         assert engine.shortest_path("p1", "s1") is None
 
     def test_bulk_add(self, engine):
         people = [
-            Person(id=f"p{i}", first_name=f"F{i}", last_name=f"L{i}", name=f"F{i} L{i}", email=f"p{i}@test.com")
+            Person(
+                id=f"p{i}",
+                first_name=f"F{i}",
+                last_name=f"L{i}",
+                name=f"F{i} L{i}",
+                email=f"p{i}@test.com",
+            )
             for i in range(10)
         ]
         ids = engine.add_entities_bulk(people)
@@ -145,21 +177,29 @@ class GraphEngineContractTests:
         assert engine.entity_count() == 10
 
     def test_statistics(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         stats = engine.get_statistics()
         assert stats["entity_count"] == 1
         assert stats["relationship_count"] == 0
 
     def test_clear(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         engine.clear()
         assert engine.entity_count() == 0
 
     def test_remove_entity_removes_relationships(self, engine):
-        engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
+        engine.add_entity(
+            Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        )
         engine.add_entity(Department(id="d1", name="Eng"))
         engine.add_relationship(
-            BaseRelationship(id="r1", relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1")
+            BaseRelationship(
+                id="r1", relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1"
+            )
         )
         engine.remove_entity("p1")
         assert engine.relationship_count() == 0

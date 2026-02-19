@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from domain.base import BaseRelationship, EntityType, RelationshipType
+from domain.base import BaseRelationship, RelationshipType
 from domain.entities.department import Department
 from domain.entities.person import Person
 from domain.entities.system import System

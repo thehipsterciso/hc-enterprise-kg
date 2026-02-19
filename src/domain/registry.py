@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Type
+from typing import TYPE_CHECKING
 
-from domain.base import BaseEntity, EntityType
+if TYPE_CHECKING:
+    from domain.base import BaseEntity, EntityType
 
 
 class EntityRegistry:
@@ -14,14 +15,14 @@ class EntityRegistry:
     without modifying core code.
     """
 
-    _registry: dict[EntityType, Type[BaseEntity]] = {}
+    _registry: dict[EntityType, type[BaseEntity]] = {}
 
     @classmethod
-    def register(cls, entity_type: EntityType, entity_class: Type[BaseEntity]) -> None:
+    def register(cls, entity_type: EntityType, entity_class: type[BaseEntity]) -> None:
         cls._registry[entity_type] = entity_class
 
     @classmethod
-    def get(cls, entity_type: EntityType) -> Type[BaseEntity]:
+    def get(cls, entity_type: EntityType) -> type[BaseEntity]:
         if entity_type not in cls._registry:
             raise KeyError(f"No entity class registered for type: {entity_type}")
         return cls._registry[entity_type]

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import re
-from typing import Any
 
 from domain.base import EntityType
 
@@ -92,7 +91,11 @@ def infer_relationships(columns: list[str]) -> list[tuple[str, str]]:
 
 def infer_name_field(columns: list[str]) -> str | None:
     """Guess which column is the entity name field."""
-    name_patterns = [r"(?i)^name$", r"(?i)(full.?name|display.?name)", r"(?i)(title|label|hostname)"]
+    name_patterns = [
+        r"(?i)^name$",
+        r"(?i)(full.?name|display.?name)",
+        r"(?i)(title|label|hostname)",
+    ]
     for pattern in name_patterns:
         for col in columns:
             if re.search(pattern, col):

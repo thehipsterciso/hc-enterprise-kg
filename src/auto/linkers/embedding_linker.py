@@ -32,12 +32,13 @@ class EmbeddingLinker(AbstractLinker):
         if self._model is None:
             try:
                 from sentence_transformers import SentenceTransformer
+
                 self._model = SentenceTransformer(self._model_name)
-            except ImportError:
+            except ImportError as err:
                 raise ImportError(
                     "sentence-transformers is required for embedding linking. "
                     "Install with: pip install sentence-transformers"
-                )
+                ) from err
         return self._model
 
     def link(self, entities: list[BaseEntity]) -> LinkingResult:

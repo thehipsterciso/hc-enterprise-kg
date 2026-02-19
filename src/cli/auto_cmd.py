@@ -17,9 +17,13 @@ def auto() -> None:
 
 @auto.command()
 @click.argument("source", type=click.Path(exists=True), required=False, default=None)
-@click.option("--demo", is_flag=True, help="Run with dynamically generated sample data (no file needed).")
+@click.option(
+    "--demo", is_flag=True, help="Run with dynamically generated sample data (no file needed)."
+)
 @click.option("--use-llm/--no-llm", default=False, help="Enable LLM-based extraction.")
-@click.option("--use-embeddings/--no-embeddings", default=False, help="Enable embedding-based linking.")
+@click.option(
+    "--use-embeddings/--no-embeddings", default=False, help="Enable embedding-based linking."
+)
 @click.option("--llm-model", default="gpt-4o-mini", help="LLM model to use.")
 @click.option("--output", type=click.Path(), default=None, help="Export result to JSON file.")
 @click.pass_context
@@ -61,18 +65,17 @@ def build(
 
     if demo:
         import tempfile
+
         csv_content = _generate_demo_csv()
-        tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, prefix="hckg_demo_")
-        tmp.write(csv_content)
-        tmp.close()
-        data = tmp.name
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".csv", delete=False, prefix="hckg_demo_"
+        ) as tmp:
+            tmp.write(csv_content)
+            data = tmp.name
         click.echo("Running auto-KG pipeline on dynamically generated sample data...")
     else:
         source_path = Path(source)  # type: ignore[arg-type]
-        if source_path.suffix == ".csv":
-            data = source  # type: ignore[assignment]
-        else:
-            data = source_path.read_text()
+        data = source if source_path.suffix == ".csv" else source_path.read_text()  # type: ignore[assignment]
         click.echo(f"Running auto-KG pipeline on {source}...")
 
     result = pipeline.run(data)
@@ -83,6 +86,7 @@ def build(
 
     if output:
         from export.json_export import JSONExporter
+
         JSONExporter().export(kg.engine, Path(output))
         click.echo(f"\nExported to {output}")
 
@@ -94,7 +98,15 @@ def _generate_demo_csv() -> str:
     fake = Faker()
     Faker.seed(42)
 
-    departments = ["Engineering", "Marketing", "Sales", "Finance", "HR", "Security", "IT Operations"]
+    departments = [
+        "Engineering",
+        "Marketing",
+        "Sales",
+        "Finance",
+        "HR",
+        "Security",
+        "IT Operations",
+    ]
     titles = {
         "Engineering": ["Software Engineer", "Senior Engineer", "Tech Lead", "DevOps Engineer"],
         "Marketing": ["Marketing Manager", "Content Strategist", "Growth Analyst"],
@@ -113,7 +125,8 @@ def _generate_demo_csv() -> str:
         dept = fake.random_element(departments)
         title = fake.random_element(titles[dept])
         location = fake.random_element(locations)
-        email = f"{first.lower()}.{last.lower()}@{fake.company().lower().replace(' ', '').replace(',', '')}.com"
+        domain = fake.company().lower().replace(" ", "").replace(",", "")
+        email = f"{first.lower()}.{last.lower()}@{domain}.com"
         lines.append(f"{first} {last},{first},{last},{email},{dept},{title},{location}")
 
     return "\n".join(lines)

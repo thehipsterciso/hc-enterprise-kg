@@ -7,7 +7,9 @@ from domain.entities.person import Person
 class TestDedupResolver:
     def test_no_duplicates(self):
         entities = [
-            Person(id="p1", first_name="Alice", last_name="Smith", name="Alice Smith", email="a@b.com"),
+            Person(
+                id="p1", first_name="Alice", last_name="Smith", name="Alice Smith", email="a@b.com"
+            ),
             Person(id="p2", first_name="Bob", last_name="Jones", name="Bob Jones", email="b@c.com"),
         ]
         resolver = DedupResolver()
@@ -17,7 +19,9 @@ class TestDedupResolver:
 
     def test_exact_name_duplicate(self):
         entities = [
-            Person(id="p1", first_name="Alice", last_name="Smith", name="Alice Smith", email="a@b.com"),
+            Person(
+                id="p1", first_name="Alice", last_name="Smith", name="Alice Smith", email="a@b.com"
+            ),
             Person(id="p2", first_name="Alice", last_name="Smith", name="Alice Smith", email=""),
         ]
         resolver = DedupResolver(name_threshold=90.0)
@@ -27,8 +31,22 @@ class TestDedupResolver:
 
     def test_merge_fills_empty_fields(self):
         entities = [
-            Person(id="p1", first_name="Alice", last_name="Smith", name="Alice Smith", email="alice@test.com", title=""),
-            Person(id="p2", first_name="Alice", last_name="Smith", name="Alice Smith", email="", title="Engineer"),
+            Person(
+                id="p1",
+                first_name="Alice",
+                last_name="Smith",
+                name="Alice Smith",
+                email="alice@test.com",
+                title="",
+            ),
+            Person(
+                id="p2",
+                first_name="Alice",
+                last_name="Smith",
+                name="Alice Smith",
+                email="",
+                title="Engineer",
+            ),
         ]
         resolver = DedupResolver(name_threshold=90.0)
         result = resolver.resolve(entities)
@@ -38,8 +56,15 @@ class TestDedupResolver:
 
     def test_different_types_not_merged(self):
         from domain.entities.department import Department
+
         entities = [
-            Person(id="p1", first_name="Engineering", last_name="", name="Engineering", email="eng@test.com"),
+            Person(
+                id="p1",
+                first_name="Engineering",
+                last_name="",
+                name="Engineering",
+                email="eng@test.com",
+            ),
             Department(id="d1", name="Engineering"),
         ]
         resolver = DedupResolver(name_threshold=90.0)

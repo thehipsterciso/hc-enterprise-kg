@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 from datetime import datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import networkx as nx
 
-from engine.abstract import AbstractGraphEngine
 from export.base import AbstractExporter
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from engine.abstract import AbstractGraphEngine
 
 
 class GraphMLExporter(AbstractExporter):
@@ -38,7 +41,7 @@ class GraphMLExporter(AbstractExporter):
         g = native.copy()
 
         # Convert complex attributes to strings for GraphML compatibility
-        for node_id, data in g.nodes(data=True):
+        for _node_id, data in g.nodes(data=True):
             for key, value in list(data.items()):
                 if isinstance(value, (list, dict)):
                     data[key] = str(value)
@@ -49,7 +52,7 @@ class GraphMLExporter(AbstractExporter):
                 elif value is None:
                     data[key] = ""
 
-        for u, v, key, data in g.edges(keys=True, data=True):
+        for _u, _v, _key, data in g.edges(keys=True, data=True):
             for k, value in list(data.items()):
                 if isinstance(value, (list, dict)):
                     data[k] = str(value)

@@ -2,20 +2,22 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from auto.base import PipelineResult
-from auto.extractors.base import AbstractExtractor
 from auto.extractors.csv_extractor import CSVExtractor
 from auto.extractors.llm_extractor import LLMExtractor
 from auto.extractors.rule_based import RuleBasedExtractor
-from auto.linkers.base import AbstractLinker
 from auto.linkers.embedding_linker import EmbeddingLinker
 from auto.linkers.heuristic_linker import HeuristicLinker
-from auto.resolvers.base import AbstractResolver
 from auto.resolvers.dedup_resolver import DedupResolver
 from domain.base import BaseEntity, BaseRelationship
-from graph.knowledge_graph import KnowledgeGraph
+
+if TYPE_CHECKING:
+    from auto.extractors.base import AbstractExtractor
+    from auto.linkers.base import AbstractLinker
+    from auto.resolvers.base import AbstractResolver
+    from graph.knowledge_graph import KnowledgeGraph
 
 
 class AutoKGPipeline:

@@ -24,7 +24,13 @@ def generate() -> None:
 )
 @click.option("--employees", type=int, default=500, help="Number of employees.")
 @click.option("--seed", type=int, default=None, help="Random seed for reproducibility.")
-@click.option("--output", type=click.Path(), default="graph.json", show_default=True, help="Export to JSON file.")
+@click.option(
+    "--output",
+    type=click.Path(),
+    default="graph.json",
+    show_default=True,
+    help="Export to JSON file.",
+)
 @click.pass_context
 def org(ctx: click.Context, profile: str, employees: int, seed: int | None, output: str) -> None:
     """Generate a full organizational knowledge graph."""
@@ -33,12 +39,15 @@ def org(ctx: click.Context, profile: str, employees: int, seed: int | None, outp
     # Load profile
     if profile == "tech":
         from synthetic.profiles.tech_company import mid_size_tech_company
+
         org_profile = mid_size_tech_company(employees)
     elif profile == "healthcare":
         from synthetic.profiles.healthcare_org import healthcare_org
+
         org_profile = healthcare_org(employees)
     elif profile == "financial":
         from synthetic.profiles.financial_org import financial_org
+
         org_profile = financial_org(employees)
     else:
         raise click.BadParameter(f"Unknown profile: {profile}")
@@ -59,5 +68,6 @@ def org(ctx: click.Context, profile: str, employees: int, seed: int | None, outp
     click.echo(f"Total relationships: {stats['relationship_count']}")
 
     from export.json_export import JSONExporter
+
     JSONExporter().export(kg.engine, Path(output))
     click.echo(f"\nExported to {output}")

@@ -9,8 +9,15 @@ from domain.entities.incident import Incident
 from synthetic.base import AbstractGenerator, GenerationContext, GeneratorRegistry
 
 INCIDENT_TYPES = [
-    "data_breach", "malware", "phishing", "dos", "insider_threat",
-    "ransomware", "account_compromise", "supply_chain", "misconfiguration",
+    "data_breach",
+    "malware",
+    "phishing",
+    "dos",
+    "insider_threat",
+    "ransomware",
+    "account_compromise",
+    "supply_chain",
+    "misconfiguration",
 ]
 DETECTION_METHODS = ["siem", "ids", "user_report", "threat_intel", "audit", "edr", "soar"]
 STATUSES = ["open", "investigating", "contained", "resolved", "closed"]

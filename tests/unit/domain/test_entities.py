@@ -76,6 +76,7 @@ class TestDiscriminatedUnion:
         data = person.model_dump()
         data["entity_type"] = "person"
         from pydantic import TypeAdapter
+
         adapter = TypeAdapter(AnyEntity)
         restored = adapter.validate_python(data)
         assert isinstance(restored, Person)
@@ -86,6 +87,7 @@ class TestDiscriminatedUnion:
         data = system.model_dump()
         data["entity_type"] = "system"
         from pydantic import TypeAdapter
+
         adapter = TypeAdapter(AnyEntity)
         restored = adapter.validate_python(data)
         assert isinstance(restored, System)

@@ -1,7 +1,6 @@
 """Tests for domain base types."""
 
 from domain.base import (
-    BaseEntity,
     BaseRelationship,
     EntityType,
     RelationshipType,

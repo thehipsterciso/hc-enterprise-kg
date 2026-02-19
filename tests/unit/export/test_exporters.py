@@ -15,8 +15,11 @@ from export.json_export import JSONExporter
 def _build_engine() -> NetworkXGraphEngine:
     engine = NetworkXGraphEngine()
     person = Person(
-        id="p1", first_name="Alice", last_name="Smith",
-        name="Alice Smith", email="a@b.com",
+        id="p1",
+        first_name="Alice",
+        last_name="Smith",
+        name="Alice Smith",
+        email="a@b.com",
     )
     dept = Department(id="d1", name="Engineering")
     engine.add_entity(person)
@@ -24,7 +27,8 @@ def _build_engine() -> NetworkXGraphEngine:
     engine.add_relationship(
         BaseRelationship(
             relationship_type=RelationshipType.WORKS_IN,
-            source_id="p1", target_id="d1",
+            source_id="p1",
+            target_id="d1",
         )
     )
     return engine

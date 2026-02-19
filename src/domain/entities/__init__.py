@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, Union
+from typing import Annotated
 
 from pydantic import Field
 
@@ -20,20 +20,18 @@ from domain.entities.vendor import Vendor
 from domain.entities.vulnerability import Vulnerability
 
 AnyEntity = Annotated[
-    Union[
-        Person,
-        Department,
-        Role,
-        System,
-        Network,
-        DataAsset,
-        Policy,
-        Vendor,
-        Location,
-        Vulnerability,
-        ThreatActor,
-        Incident,
-    ],
+    Person
+    | Department
+    | Role
+    | System
+    | Network
+    | DataAsset
+    | Policy
+    | Vendor
+    | Location
+    | Vulnerability
+    | ThreatActor
+    | Incident,
     Field(discriminator="entity_type"),
 ]
 

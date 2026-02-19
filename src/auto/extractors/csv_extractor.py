@@ -4,16 +4,17 @@ from __future__ import annotations
 
 import csv
 import io
-import uuid
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from auto.base import ExtractionResult
 from auto.confidence import ConfidenceSource, compute_confidence
 from auto.extractors.base import AbstractExtractor
 from auto.schema_inference import infer_entity_type, infer_name_field
-from domain.base import BaseEntity, EntityType
 from domain.registry import EntityRegistry
+
+if TYPE_CHECKING:
+    from domain.base import BaseEntity, EntityType
 
 
 class CSVExtractor(AbstractExtractor):

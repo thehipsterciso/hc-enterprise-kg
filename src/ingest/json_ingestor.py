@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from domain.base import BaseRelationship, EntityType, RelationshipType
+from domain.base import BaseRelationship, EntityType
 from domain.registry import EntityRegistry
 from ingest.base import AbstractIngestor, IngestResult
 
@@ -17,7 +17,10 @@ class JSONIngestor(AbstractIngestor):
     Expected JSON format:
     {
         "entities": [{"entity_type": "person", "name": "...", ...}, ...],
-        "relationships": [{"relationship_type": "works_in", "source_id": "...", "target_id": "...", ...}, ...]
+        "relationships": [
+            {"relationship_type": "works_in", "source_id": "...", ...},
+            ...
+        ]
     }
     """
 
