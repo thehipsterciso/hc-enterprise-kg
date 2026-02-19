@@ -35,7 +35,7 @@ jobs:
           key: venv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
 
       - name: Install dependencies
-        run: poetry install --extras dev
+        run: poetry install --extras "dev mcp"
 
       - name: Lint
         run: poetry run ruff check src/ tests/

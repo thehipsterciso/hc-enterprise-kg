@@ -11,11 +11,12 @@ from pathlib import Path
 
 import pytest
 
-import mcp_server.server as srv
-from export.json_export import JSONExporter
-from graph.knowledge_graph import KnowledgeGraph
-from synthetic.orchestrator import SyntheticOrchestrator
-from synthetic.profiles.tech_company import mid_size_tech_company
+mcp_available = pytest.importorskip("mcp", reason="mcp package not installed")
+import mcp_server.server as srv  # noqa: E402
+from export.json_export import JSONExporter  # noqa: E402
+from graph.knowledge_graph import KnowledgeGraph  # noqa: E402
+from synthetic.orchestrator import SyntheticOrchestrator  # noqa: E402
+from synthetic.profiles.tech_company import mid_size_tech_company  # noqa: E402
 
 
 @pytest.fixture(scope="module")
