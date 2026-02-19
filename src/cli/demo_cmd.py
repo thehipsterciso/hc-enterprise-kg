@@ -20,7 +20,13 @@ import click
 @click.option(
     "--format", "fmt", type=click.Choice(["json", "graphml"]), default="json", help="Output format."
 )
-def demo(profile: str, employees: int, seed: int, output: str, fmt: str) -> None:
+@click.option(
+    "--clean",
+    is_flag=True,
+    default=False,
+    help="Remove previous output files (graph.json, graph.graphml, *_viz.html) before generating.",
+)
+def demo(profile: str, employees: int, seed: int, output: str, fmt: str, clean: bool) -> None:
     """Generate a full enterprise KG, export it, and print a summary.
 
     \b
@@ -28,9 +34,17 @@ def demo(profile: str, employees: int, seed: int, output: str, fmt: str) -> None
         hckg demo
 
     That's it. You'll get a graph.json with a complete enterprise knowledge graph.
+
+    \b
+    Use --clean to remove previous output files first:
+        hckg demo --clean --employees 200
     """
     from graph.knowledge_graph import KnowledgeGraph
     from synthetic.orchestrator import SyntheticOrchestrator
+
+    # Clean previous outputs if requested
+    if clean:
+        _clean_outputs()
 
     # Load profile
     if profile == "tech":
@@ -81,3 +95,26 @@ def demo(profile: str, employees: int, seed: int, output: str, fmt: str) -> None
     click.echo(f"  hckg inspect {output}")
     click.echo(f"  hckg visualize {output}")
     click.echo(f"  hckg export --source {output} --format graphml --output graph.graphml")
+
+
+# Default patterns to clean — covers standard output files
+_CLEAN_PATTERNS = ["graph.json", "graph.graphml", "result.json", "*_viz.html"]
+
+
+def _clean_outputs() -> None:
+    """Remove previous output files from the current directory."""
+    import glob
+
+    cwd = Path(".")
+    removed = []
+    for pattern in _CLEAN_PATTERNS:
+        for match in glob.glob(str(cwd / pattern)):
+            p = Path(match)
+            if p.is_file():
+                p.unlink()
+                removed.append(p.name)
+
+    if removed:
+        click.echo(f"Cleaned: {', '.join(removed)}")
+    else:
+        click.echo("Nothing to clean.")
