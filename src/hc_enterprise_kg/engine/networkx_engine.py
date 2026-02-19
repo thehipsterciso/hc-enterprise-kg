@@ -251,10 +251,10 @@ class NetworkXGraphEngine(AbstractGraphEngine):
             rel_type_counts[t] = rel_type_counts.get(t, 0) + 1
 
         return {
-            "total_entities": g.number_of_nodes(),
-            "total_relationships": g.number_of_edges(),
-            "entity_type_counts": type_counts,
-            "relationship_type_counts": rel_type_counts,
+            "entity_count": g.number_of_nodes(),
+            "relationship_count": g.number_of_edges(),
+            "entity_types": type_counts,
+            "relationship_types": rel_type_counts,
             "density": nx.density(g),
             "is_weakly_connected": (
                 nx.is_weakly_connected(g) if g.number_of_nodes() > 0 else True

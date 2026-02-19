@@ -11,10 +11,10 @@ from hc_enterprise_kg.auto.resolvers.dedup_resolver import DedupResolver
 from hc_enterprise_kg.domain.base import EntityType
 from hc_enterprise_kg.graph.knowledge_graph import KnowledgeGraph
 
-SAMPLE_CSV = """name,email,department,title
-Alice Smith,alice@acme.com,Engineering,Software Engineer
-Bob Jones,bob@acme.com,Marketing,Marketing Manager
-Carol White,carol@acme.com,Engineering,Senior Engineer
+SAMPLE_CSV = """name,first_name,last_name,email,department,title
+Alice Smith,Alice,Smith,alice@acme.com,Engineering,Software Engineer
+Bob Jones,Bob,Jones,bob@acme.com,Marketing,Marketing Manager
+Carol White,Carol,White,carol@acme.com,Engineering,Senior Engineer
 """
 
 
@@ -80,9 +80,9 @@ class TestAutoPipelineIntegration:
 
     def test_dedup_in_pipeline(self):
         kg = KnowledgeGraph()
-        csv_content = """name,email,department,title
-Alice Smith,alice@acme.com,Engineering,Engineer
-Alice Smith,,Engineering,Senior Engineer
+        csv_content = """name,first_name,last_name,email,department,title
+Alice Smith,Alice,Smith,alice@acme.com,Engineering,Engineer
+Alice Smith,Alice,Smith,alice.smith@acme.com,Engineering,Senior Engineer
 """
         pipeline = AutoKGPipeline(
             kg,

@@ -42,11 +42,13 @@ class TestGenerators:
         assert all(v.cve_id for v in vulns)
 
     def test_seed_reproducibility(self):
-        ctx1 = self._make_context()
-        ctx2 = self._make_context()
-        gen = GeneratorRegistry.get(EntityType.PERSON)()
-        people1 = gen.generate(10, ctx1)
-        people2 = gen.generate(10, ctx2)
+        # Each context re-seeds Faker globally, so we need fresh generators
+        ctx1 = GenerationContext(profile=mid_size_tech_company(50), seed=42)
+        people1 = GeneratorRegistry.get(EntityType.PERSON)().generate(10, ctx1)
+
+        ctx2 = GenerationContext(profile=mid_size_tech_company(50), seed=42)
+        people2 = GeneratorRegistry.get(EntityType.PERSON)().generate(10, ctx2)
+
         assert [p.name for p in people1] == [p.name for p in people2]
 
     def test_all_generators_registered(self):

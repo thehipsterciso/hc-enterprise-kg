@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -41,6 +42,8 @@ class GraphMLExporter(AbstractExporter):
             for key, value in list(data.items()):
                 if isinstance(value, (list, dict)):
                     data[key] = str(value)
+                elif isinstance(value, datetime):
+                    data[key] = value.isoformat()
                 elif isinstance(value, bool):
                     data[key] = str(value).lower()
                 elif value is None:
@@ -50,6 +53,8 @@ class GraphMLExporter(AbstractExporter):
             for k, value in list(data.items()):
                 if isinstance(value, (list, dict)):
                     data[k] = str(value)
+                elif isinstance(value, datetime):
+                    data[k] = value.isoformat()
                 elif isinstance(value, bool):
                     data[k] = str(value).lower()
                 elif value is None:
