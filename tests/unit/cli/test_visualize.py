@@ -114,6 +114,14 @@ class TestInjectLegend:
             assert "Department" not in content
 
 
+_pyvis_available = True
+try:
+    import pyvis  # noqa: F401
+except ImportError:
+    _pyvis_available = False
+
+
+@pytest.mark.skipif(not _pyvis_available, reason="pyvis not installed")
 class TestVisualizeCLI:
     def test_visualize_produces_html(self, sample_graph_json):
         runner = CliRunner()
