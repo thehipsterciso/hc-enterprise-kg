@@ -227,6 +227,54 @@ hckg visualize graph.json --height 1200px --no-open
 
 > Requires the viz extras: `poetry install --extras viz`
 
+### `hckg serve` — REST API server
+
+Start a platform-agnostic REST API that exposes the full knowledge graph over HTTP. Works with any LLM client, agent framework, or HTTP consumer — Claude Desktop, ChatGPT custom GPTs, OpenAI function calling, LangChain, or plain curl.
+
+```bash
+hckg serve graph.json
+hckg serve graph.json --port 9000 --host 0.0.0.0
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--host` | `127.0.0.1` | Bind address |
+| `--port` | `8420` | Port to listen on |
+| `--reload` | off | Enable auto-reload for development |
+
+**Key endpoints:**
+
+| Endpoint | Description |
+|---|---|
+| `GET /statistics` | Graph stats (entity/relationship counts by type) |
+| `GET /entities` | List entities (`?type=person&limit=50`) |
+| `GET /entities/<id>` | Entity details |
+| `GET /search?q=alice` | Fuzzy entity search |
+| `POST /ask` | GraphRAG question answering (send `{"question": "..."}`) |
+| `GET /openai/tools` | OpenAI function-calling tool definitions |
+| `POST /openai/call` | Execute a tool by name (for agent frameworks) |
+| `GET /health` | Health check |
+
+> Requires the api extras: `poetry install --extras api`
+
+### `hckg mcp` — Claude Desktop integration
+
+Register the knowledge graph as an MCP (Model Context Protocol) server in Claude Desktop. Auto-detects config paths on macOS, Windows, and Linux.
+
+```bash
+# Register the MCP server
+hckg mcp install
+hckg mcp install --graph graph.json
+
+# Check status
+hckg mcp status
+
+# Remove
+hckg mcp uninstall
+```
+
+> Requires the mcp extras: `poetry install --extras mcp`
+
 ### `hckg export` — Convert between formats
 
 Re-export an existing JSON knowledge graph to a different format.
@@ -368,7 +416,7 @@ json_string = JSONExporter().export_string(kg.engine)
 
 ```
 src/
-  cli/          # Click-based CLI (demo, generate, auto, inspect, export)
+  cli/          # Click-based CLI (demo, generate, auto, inspect, export, serve, mcp, visualize)
   domain/       # Pydantic v2 entity models (Person, System, Vulnerability, etc.)
   engine/       # Graph backend abstraction (NetworkX; swappable to Neo4j)
   graph/        # KnowledgeGraph facade, event bus, query builder
@@ -377,7 +425,10 @@ src/
   ingest/       # Data ingestion (JSON)
   export/       # Export (JSON, GraphML)
   analysis/     # Graph metrics (centrality, PageRank) + security queries
-tests/          # 124 tests (unit + integration)
+  rag/          # GraphRAG retrieval pipeline (search, context builder, retriever)
+  serve/        # REST API server (Flask, OpenAI-compatible endpoints)
+  mcp_server/   # MCP server for Claude Desktop integration
+tests/          # 217 tests (unit + integration)
 examples/       # Runnable example scripts
 ```
 
@@ -395,6 +446,12 @@ poetry install --extras neo4j
 # Visualization (matplotlib, pyvis)
 poetry install --extras viz
 
+# REST API server (Flask)
+poetry install --extras api
+
+# MCP server for Claude Desktop
+poetry install --extras mcp
+
 # Development tools (pytest, mypy, ruff)
 poetry install --extras dev
 ```
@@ -403,7 +460,7 @@ poetry install --extras dev
 
 ```bash
 make install    # Install with dev dependencies
-make test       # Run 124 tests
+make test       # Run 217 tests
 make test-cov   # Run tests with coverage report
 make lint       # Lint with ruff
 make format     # Auto-format with ruff
