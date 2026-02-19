@@ -55,8 +55,8 @@ def org(ctx: click.Context, profile: str, employees: int, seed: int | None, outp
         click.echo(f"  {entity_type}: {count}")
 
     stats = kg.statistics
-    click.echo(f"\nTotal entities: {stats['total_entities']}")
-    click.echo(f"Total relationships: {stats['total_relationships']}")
+    click.echo(f"\nTotal entities: {stats['entity_count']}")
+    click.echo(f"Total relationships: {stats['relationship_count']}")
 
     if output:
         from export.json_export import JSONExporter

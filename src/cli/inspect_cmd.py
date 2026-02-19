@@ -25,17 +25,17 @@ def inspect_cmd(source: str) -> None:
 
     click.echo("Knowledge Graph Summary")
     click.echo("=" * 40)
-    click.echo(f"Total entities:      {stats['total_entities']}")
-    click.echo(f"Total relationships: {stats['total_relationships']}")
+    click.echo(f"Total entities:      {stats['entity_count']}")
+    click.echo(f"Total relationships: {stats['relationship_count']}")
     click.echo(f"Graph density:       {stats['density']:.4f}")
     click.echo(f"Weakly connected:    {stats['is_weakly_connected']}")
 
     click.echo("\nEntity types:")
-    for etype, count in sorted(stats["entity_type_counts"].items()):
+    for etype, count in sorted(stats["entity_types"].items()):
         click.echo(f"  {etype:20s} {count:>6d}")
 
     click.echo("\nRelationship types:")
-    for rtype, count in sorted(stats.get("relationship_type_counts", {}).items()):
+    for rtype, count in sorted(stats.get("relationship_types", {}).items()):
         click.echo(f"  {rtype:20s} {count:>6d}")
 
     if result.errors:
