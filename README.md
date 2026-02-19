@@ -1,5 +1,10 @@
 # hc-enterprise-kg
 
+[![CI](https://github.com/thehipsterciso/hc-enterprise-kg/actions/workflows/ci.yml/badge.svg)](https://github.com/thehipsterciso/hc-enterprise-kg/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
+
 Enterprise Knowledge Graph for cybersecurity, data, and AI research. Build a "digital twin" of an organization — complete with people, systems, networks, vulnerabilities, incidents, and the relationships between them — using synthetic data generation or automatic construction from your own CSV/text data.
 
 ## Prerequisites
