@@ -8,6 +8,33 @@ requires-python = ">=3.11"
 authors = [
     {name = "Thomas Jones"}
 ]
+keywords = [
+    "knowledge-graph",
+    "cybersecurity",
+    "graph",
+    "networkx",
+    "synthetic-data",
+    "enterprise",
+    "digital-twin",
+    "attack-graph",
+    "threat-modeling",
+    "pydantic",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Security",
+    "Typing :: Typed",
+]
 
 dependencies = [
     "networkx>=3.2",
@@ -18,6 +45,12 @@ dependencies = [
     "litellm>=1.0",
     "rapidfuzz>=3.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/thehipsterciso/hc-enterprise-kg"
+Repository = "https://github.com/thehipsterciso/hc-enterprise-kg"
+Issues = "https://github.com/thehipsterciso/hc-enterprise-kg/issues"
+Changelog = "https://github.com/thehipsterciso/hc-enterprise-kg/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 embeddings = ["sentence-transformers>=2.2"]
