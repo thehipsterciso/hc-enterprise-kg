@@ -5,50 +5,48 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
 
-**An open-source enterprise knowledge graph platform for cybersecurity measurement, data & AI governance, and organizational risk modelling.**
+**An open-source enterprise knowledge graph platform for rapid organizational modelling, scenario analysis, and data & AI leadership.**
 
-Build a "digital twin" of an organization — complete with people, systems, networks, vulnerabilities, incidents, and the relationships between them — using synthetic data generation or automatic construction from your own data.
+Build a structurally accurate "digital twin" of an organization — people, departments, systems, vendors, data assets, and the relationships between them — in seconds, not months. Designed for leaders who need directionally correct insights fast.
 
 ---
 
 ## Vision & Objectives
 
-This project exists at the intersection of two strategic imperatives shaping the future of enterprise security and data leadership.
+### The Problem
 
-### Enabling the Chief Data & AI Officer
+Data and AI leaders are expected to make high-stakes decisions about organizational structure, technology investment, risk exposure, and operational efficiency — often with incomplete information, fragmented tooling, and no way to model the consequences before committing resources. Full-scale enterprise analysis takes months. By the time it delivers, the landscape has already shifted.
 
-Modern enterprises increasingly consolidate data strategy, AI governance, and cybersecurity under a single leadership function: the [Chief Data and AI Officer (CDAIO)](https://www.heinz.cmu.edu/programs/executive-education/chief-data-ai-officer-certificate). This role demands the ability to model organizational structures, map data flows, quantify risk, and evaluate the interdependencies between technology, people, and process — at enterprise scale.
+### The Approach
 
-**hc-enterprise-kg** provides the computational foundation for that work. It generates structurally accurate organizational models that enable CDAIO-driven analysis across:
+**hc-enterprise-kg** is built for speed-to-insight. It generates realistic enterprise models that let you stress-test scenarios, surface hidden dependencies, and identify low-hanging fruit — without standing up a production data platform or waiting on a six-month consulting engagement.
 
-- **Enterprise data governance** — Mapping data assets, ownership, classification, and lineage across departments, systems, and third parties
-- **AI-readiness assessment** — Modelling the data infrastructure, talent, and process maturity required to operationalize machine learning and generative AI
-- **Cross-functional risk visibility** — Connecting cybersecurity posture to business operations, regulatory exposure, and strategic decision-making
-- **Stakeholder communication** — Producing graph-backed evidence for board-level reporting, regulatory disclosure, and investment justification
+This is not a replacement for enterprise-grade analysis. It is the tool you reach for *before* that — to rapidly validate hypotheses, pressure-test assumptions, and build the directional confidence needed to prioritize where deeper investment will actually pay off.
 
-### Advancing Measurable Cybersecurity
+### Enabling Data & AI Leadership
 
-The cybersecurity industry has long relied on subjective assessments, checkbox compliance, and vanity metrics to evaluate security posture. These approaches lack the statistical rigour, reproducibility, and legal defensibility that modern regulatory environments and board governance demand.
+The [Chief Data and AI Officer (CDAIO)](https://www.heinz.cmu.edu/programs/executive-education/chief-data-ai-officer-certificate) role — and the broader movement toward unified data, AI, and technology governance — demands a new class of tooling. Leaders in these functions need the ability to model organizational complexity, quantify interdependencies, and communicate findings to boards and stakeholders with structural evidence, not slide decks and intuition.
 
-**The Architecture of Measurable Cybersecurity** is an initiative to establish an international standard for cybersecurity metrics and measurement — grounded in real-world modelling, empirical validation, and structured indicator design rather than the conventional approaches to assessing security and privacy impacts.
+**hc-enterprise-kg** provides that foundation:
 
-This project serves as the analytical engine behind that initiative:
-
-- **Indicator modelling** — Defining, computing, and validating Key Performance Indicators (KPIs), Key Risk Indicators (KRIs), and Key Control Indicators (KCIs) against synthetic and real-world organizational structures
-- **Measurement architecture** — Implementing the data models, taxonomies, and computation frameworks necessary to move from raw telemetry to defensible, auditable cybersecurity indicators
-- **Empirical validation** — Using graph-based organizational models to test whether proposed metrics demonstrate statistical significance, operational validity, and practical utility across diverse enterprise contexts
-- **Standards development** — Providing the open-source tooling and reproducible analysis that underpins a multi-volume standards framework for cybersecurity measurement governance
+- **Scenario modelling** — Spin up realistic organizational graphs and stress-test structural changes: What happens if this vendor relationship is severed? What's the downstream impact of consolidating two departments? Where are the single points of failure?
+- **Rapid discovery** — Surface the insights that are hardest to see in flat data: which systems are over-connected, which teams are under-resourced relative to their data footprint, where do critical dependencies cluster
+- **Data governance mapping** — Visualize data asset ownership, classification, and lineage across departments, systems, and third-party relationships in a single connected model
+- **AI-readiness assessment** — Model the infrastructure, talent distribution, and process maturity required to operationalize machine learning and generative AI across the enterprise
+- **Stakeholder communication** — Produce graph-backed evidence for board-level conversations, investment justification, and strategic planning — grounded in structural analysis rather than subjective assessment
 
 ### Why Knowledge Graphs
 
-Knowledge graphs are the natural data structure for this work. Enterprise cybersecurity measurement requires understanding not just individual assets or controls, but the relationships between them — how a vulnerability in one system cascades through dependencies, how a policy gap in one department creates exposure in another, how a vendor relationship introduces risk that propagates across the organization.
+Spreadsheets model entities. Knowledge graphs model *relationships* — and in enterprise decision-making, the relationships are where the insight lives.
+
+A knowledge graph reveals what flat data cannot: how a change in one part of the organization cascades through dependencies, where risk concentrates at structural chokepoints, and which connections between people, systems, and data create the leverage points that drive disproportionate impact.
 
 Graph-based modelling enables:
 
-- **Attack path analysis** — Traversing entity relationships to identify realistic threat propagation routes
-- **Blast radius estimation** — Quantifying the scope of impact from any point of compromise
-- **Centrality and criticality scoring** — Identifying single points of failure and high-value targets through structural analysis
-- **Temporal measurement** — Tracking how indicator values evolve as the organizational graph changes over time
+- **Dependency analysis** — Trace how entities connect across organizational boundaries to identify hidden fragility and upstream/downstream impact
+- **Impact estimation** — Quantify the scope of effect from any structural change, outage, or disruption
+- **Centrality and criticality scoring** — Identify the people, systems, and relationships that carry disproportionate organizational weight
+- **Scenario comparison** — Generate multiple organizational models and compare structural properties side by side
 
 ---
 

@@ -8,9 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ### Changed
 
-- **Refined project vision and objectives** — Aligned project goals with two strategic pillars: enabling Chief Data & AI Officer (CDAIO) modelling and analysis, and advancing The Architecture of Measurable Cybersecurity standards initiative
-- **Updated README** with Vision & Objectives section covering CDAIO enablement, measurable cybersecurity, and the rationale for knowledge graph-based modelling
-- **Updated project metadata** — Refined description, keywords, and GitHub topics to reflect cybersecurity measurement, data & AI governance, and risk modelling focus
+- **Refined project vision and objectives** — Focused on rapid organizational modelling, scenario analysis, and enabling data & AI leadership (CDAIO). Positioned as a speed-to-insight tool for directionally correct analysis and low-hanging fruit identification
+- **Updated README** with Vision & Objectives section covering the problem space, approach, CDAIO enablement, and the rationale for knowledge graph-based modelling
+- **Updated project metadata** — Refined description, keywords, and GitHub topics to reflect organizational modelling, data & AI governance, and scenario analysis focus
 
 ## [0.1.0] - 2025-02-19
 

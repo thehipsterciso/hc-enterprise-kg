@@ -1,7 +1,7 @@
 [project]
 name = "hc-enterprise-kg"
 version = "0.1.0"
-description = "Enterprise knowledge graph platform for cybersecurity measurement, data & AI governance, and organizational risk modelling"
+description = "Enterprise knowledge graph platform for rapid organizational modelling, scenario analysis, and data & AI leadership"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.11"
@@ -10,19 +10,16 @@ authors = [
 ]
 keywords = [
     "knowledge-graph",
-    "cybersecurity",
-    "cybersecurity-metrics",
     "enterprise",
     "digital-twin",
-    "risk-modeling",
+    "organizational-modelling",
+    "scenario-analysis",
     "data-governance",
     "ai-governance",
-    "attack-graph",
-    "threat-modeling",
-    "synthetic-data",
-    "graph-analytics",
     "cdaio",
-    "security-measurement",
+    "graph-analytics",
+    "synthetic-data",
+    "risk-modeling",
     "networkx",
 ]
 classifiers = [
