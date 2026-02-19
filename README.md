@@ -1,83 +1,376 @@
 # hc-enterprise-kg
 
-Enterprise Knowledge Graph for cybersecurity, data, and AI research. Build a "digital twin" of an organization with synthetic data generation, automatic KG construction from CSV/text, and graph analysis.
+Enterprise Knowledge Graph for cybersecurity, data, and AI research. Build a "digital twin" of an organization — complete with people, systems, networks, vulnerabilities, incidents, and the relationships between them — using synthetic data generation or automatic construction from your own CSV/text data.
+
+## Prerequisites
+
+- **Python 3.11+** (3.12 recommended; 3.14 is not yet supported by all dependencies)
+- **Poetry** for dependency management
+
+If you don't have Poetry installed:
+
+```bash
+# macOS
+brew install poetry
+
+# Or via pipx (any platform)
+pipx install poetry
+```
 
 ## Install
 
 ```bash
+git clone https://github.com/thehipsterciso/hc-enterprise-kg.git
+cd hc-enterprise-kg
 poetry install
 ```
 
+This creates a virtual environment and installs all dependencies. The CLI tool `hckg` is available through Poetry.
+
+> **Why `poetry run`?** Poetry installs the tool inside its own virtual environment, not system-wide. Every `hckg` command needs the `poetry run` prefix unless you set up an alias (see [Shell Alias](#shell-alias) below).
+
 ## Quick Start
+
+One command — generates a full enterprise knowledge graph, exports it to a file, and prints a summary:
+
+```bash
+poetry run hckg demo
+```
+
+This produces `graph.json` in your current directory containing a complete knowledge graph with ~277 entities and ~543 relationships. The output tells you exactly what was created and what to do next.
+
+You can customize the generated organization:
+
+```bash
+# Healthcare org with 500 employees
+poetry run hckg demo --profile healthcare --employees 500 --output hospital.json
+
+# Financial services org exported as GraphML
+poetry run hckg demo --profile financial --employees 200 --format graphml --output bank.graphml
+```
+
+## Shell Alias
+
+To avoid typing `poetry run` every time, add this to your shell config:
+
+```bash
+# For zsh (default on macOS)
+echo 'alias hckg="poetry run hckg"' >> ~/.zshrc && source ~/.zshrc
+
+# For bash
+echo 'alias hckg="poetry run hckg"' >> ~/.bashrc && source ~/.bashrc
+```
+
+After that, all examples below work without the `poetry run` prefix. The rest of this README assumes the alias is set up.
+
+## What Gets Generated
+
+Each knowledge graph contains interconnected entities that model a real organization:
+
+| Entity Type | Description | Example Fields |
+|---|---|---|
+| **Person** | Employees, contractors | name, email, title, department, clearance level |
+| **Department** | Organizational units | name, headcount, budget, data sensitivity |
+| **System** | Servers, applications, SaaS | hostname, IP, OS, criticality, internet-facing |
+| **Network** | Network segments | CIDR, zone (internal/DMZ/guest) |
+| **Data Asset** | Databases, file stores | classification (public/internal/confidential/restricted) |
+| **Vendor** | Third-party suppliers | contract value, risk tier |
+| **Policy** | Governance documents | compliance framework, enforcement status |
+| **Vulnerability** | Security weaknesses | CVE ID, CVSS score, severity, patch status |
+| **Threat Actor** | Adversaries | motivation, sophistication, target sectors |
+| **Incident** | Security events | severity, status, affected systems |
+| **Location** | Physical sites | city, country, building type |
+
+These entities are connected by 19 relationship types: `works_in`, `reports_to`, `manages`, `connects_to`, `depends_on`, `stores`, `governs`, `exploits`, `affects`, `supplied_by`, and more.
+
+## CLI Reference
+
+### `hckg demo` — Zero-config demo
+
+Generates a complete org, exports it, and prints a summary. No arguments needed.
+
+```bash
+hckg demo
+hckg demo --profile healthcare --employees 500 --output hospital.json
+hckg demo --format graphml --output graph.graphml
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--profile` | `tech` | Organization type: `tech`, `healthcare`, `financial` |
+| `--employees` | `100` | Number of employees to generate |
+| `--seed` | `42` | Random seed for reproducible output |
+| `--output` | `graph.json` | Output file path |
+| `--format` | `json` | Output format: `json` or `graphml` |
+
+### `hckg generate org` — Synthetic generation
+
+Same generation engine as `demo`, with more granular output. Always exports to a file (defaults to `graph.json`).
+
+```bash
+hckg generate org
+hckg generate org --profile tech --employees 100 --seed 42
+hckg generate org --profile healthcare --employees 500 --output hospital.json
+```
+
+### `hckg inspect` — Inspect a knowledge graph file
+
+Loads an exported JSON file and prints entity/relationship breakdowns, graph density, and connectivity.
+
+```bash
+# First, generate a graph (this creates graph.json)
+hckg demo
+
+# Then inspect it
+hckg inspect graph.json
+```
+
+### `hckg auto build` — Build KG from your own data
+
+Construct a knowledge graph from a CSV file. The pipeline automatically infers entity types from column names, extracts entities, links relationships, and deduplicates.
+
+```bash
+# From your own CSV file
+hckg auto build employees.csv --output result.json
+
+# Try it without a file — generates sample data dynamically using Faker
+hckg auto build --demo --output result.json
+```
+
+Your CSV should have column headers. The pipeline recognizes columns like `name`, `first_name`, `last_name`, `email`, `department`, `title`, `hostname`, `ip_address`, etc. to infer the entity type (Person, System, etc.).
+
+| Option | Default | Description |
+|---|---|---|
+| `--demo` | off | Run with dynamically generated sample data (no file needed) |
+| `--output` | none | Export result to JSON file |
+| `--use-llm` / `--no-llm` | `--no-llm` | Enable LLM-based extraction (requires API key) |
+| `--use-embeddings` / `--no-embeddings` | `--no-embeddings` | Enable embedding-based linking (requires sentence-transformers) |
+| `--llm-model` | `gpt-4o-mini` | LLM model for extraction |
+
+### `hckg auto extract` — Extract entities from text
+
+Quick entity extraction from a text string using rule-based pattern matching. Recognizes emails, IP addresses, hostnames, and CVE IDs.
+
+```bash
+hckg auto extract "Contact alice@acme.com at 10.0.1.50 about CVE-2024-1234"
+```
+
+### `hckg export` — Convert between formats
+
+Re-export an existing JSON knowledge graph to a different format.
+
+```bash
+hckg export --source graph.json --format graphml --output graph.graphml
+```
+
+## Organization Profiles
+
+Three industry profiles are included, each with realistic department structures, system counts, network segments, and security postures:
+
+| Profile | Default Org Name | Departments | Focus |
+|---|---|---|---|
+| `tech` | Acme Technologies | Engineering, Product, Sales, Marketing, IT Ops, Security | Software company with DevOps, multiple dev environments |
+| `healthcare` | MedCare Health Systems | Clinical Ops, Nursing, Pharmacy, Research, Compliance | HIPAA-sensitive, medical device networks, restricted zones |
+| `financial` | Atlas Financial Group | Trading, Risk Mgmt, Compliance, Internal Audit | SOX/PCI focus, trading floor network, high contractor ratio |
+
+Profiles control department distribution, system counts, network architecture, vulnerability probability, and threat actor characteristics. You can create custom profiles by defining an `OrgProfile` object (see `src/synthetic/profiles/base_profile.py`).
+
+## Python API
+
+### Synthetic generation
 
 ```python
 from graph.knowledge_graph import KnowledgeGraph
 from synthetic.orchestrator import SyntheticOrchestrator
 from synthetic.profiles.tech_company import mid_size_tech_company
 
+# Create a knowledge graph and generate a tech company with 100 employees.
+# The seed parameter makes output reproducible — same seed = same graph.
 kg = KnowledgeGraph()
 profile = mid_size_tech_company(employee_count=100)
-SyntheticOrchestrator(kg, profile, seed=42).generate()
+orchestrator = SyntheticOrchestrator(kg, profile, seed=42)
+counts = orchestrator.generate()
 
 print(kg.statistics)
+# {'entity_count': 277, 'relationship_count': 543, ...}
 ```
 
-## CLI
+### Querying the graph
 
-All CLI commands run through Poetry:
+```python
+from domain.base import EntityType, RelationshipType
 
-```bash
-# Generate a synthetic org KG
-poetry run hckg generate org --profile tech --employees 100 --seed 42
+# Find all people in the graph
+people = kg.query().entities(EntityType.PERSON).execute()
 
-# Generate and export to JSON
-poetry run hckg generate org --profile healthcare --employees 200 --output graph.json
+# Filter by attributes — .where() matches on entity fields
+active_engineers = (
+    kg.query()
+    .entities(EntityType.PERSON)
+    .where(is_active=True, title="Software Engineer")
+    .execute()
+)
 
-# Inspect an exported KG
-poetry run hckg inspect graph.json
+# Find entities connected to a specific entity via a relationship type
+dept_members = (
+    kg.query()
+    .entities(EntityType.PERSON)
+    .connected_to(department_id, via=RelationshipType.WORKS_IN)
+    .execute()
+)
 
-# Export to different formats
-poetry run hckg export --source graph.json --format graphml --output graph.graphml
-
-# Auto-construct KG from a CSV file
-poetry run hckg auto build data.csv --output result.json
-
-# Extract entities from text
-poetry run hckg auto extract "Contact alice@acme.com at 10.0.1.50"
+# Traverse the graph — get immediate neighbors or find shortest paths
+neighbors = kg.neighbors(entity_id)
+path = kg.shortest_path(source_id, target_id)
 ```
 
-Available profiles: `tech`, `healthcare`, `financial`
+### Analysis and security queries
+
+```python
+from analysis.metrics import (
+    compute_centrality,
+    compute_risk_score,
+    find_most_connected,
+)
+from analysis.queries import (
+    find_attack_paths,
+    get_blast_radius,
+    find_critical_systems,
+    find_unpatched_vulnerabilities,
+    find_internet_facing_systems,
+)
+
+# Find the most connected entities (potential single points of failure)
+top_entities = find_most_connected(kg, top_n=10)
+
+# Compute risk score for a system based on connected vulns, exposure, degree
+risk = compute_risk_score(kg, system_id)
+# {'entity_name': 'web-server-01', 'risk_score': 65.0, 'factors': {...}}
+
+# Find shortest attack path between two entities
+path = find_attack_paths(kg, internet_system_id, database_id)
+
+# Blast radius: what's reachable within 3 hops of a compromised system?
+affected = get_blast_radius(kg, compromised_system_id, max_depth=3)
+
+# Security posture queries
+critical = find_critical_systems(kg)
+unpatched = find_unpatched_vulnerabilities(kg)
+exposed = find_internet_facing_systems(kg)
+```
+
+### Auto-construction from CSV
+
+```python
+from auto.pipeline import AutoKGPipeline
+from graph.knowledge_graph import KnowledgeGraph
+
+# The pipeline reads your CSV, infers entity types from column headers,
+# extracts entities, links them by shared attributes, and deduplicates.
+kg = KnowledgeGraph()
+pipeline = AutoKGPipeline(kg, use_llm=False, use_embeddings=False)
+result = pipeline.run("employees.csv")
+
+print(result.stats)
+# {'entities_extracted': 25, 'entities_after_dedup': 23, ...}
+```
+
+### Exporting
+
+```python
+from pathlib import Path
+from export.json_export import JSONExporter
+from export.graphml_export import GraphMLExporter
+
+# Export to JSON — includes entities, relationships, and statistics
+JSONExporter().export(kg.engine, Path("output.json"))
+
+# Export to GraphML — compatible with Gephi, yEd, Cytoscape
+GraphMLExporter().export(kg.engine, Path("output.graphml"))
+
+# Or get a string (useful for APIs, streaming, etc.)
+json_string = JSONExporter().export_string(kg.engine)
+```
 
 ## Project Structure
 
 ```
 src/
+  cli/          # Click-based CLI (demo, generate, auto, inspect, export)
   domain/       # Pydantic v2 entity models (Person, System, Vulnerability, etc.)
-  engine/       # Graph backend abstraction (NetworkX, swappable to Neo4j)
-  graph/        # KnowledgeGraph facade + event bus
-  synthetic/    # Profile-driven synthetic data generation
-  auto/         # Automatic KG construction (rule-based, CSV, LLM extraction)
-  ingest/       # Data ingestion (CSV, JSON)
+  engine/       # Graph backend abstraction (NetworkX; swappable to Neo4j)
+  graph/        # KnowledgeGraph facade, event bus, query builder
+  synthetic/    # Profile-driven synthetic data generation + relationship weaving
+  auto/         # Auto KG construction (rule-based, CSV, LLM extraction + linking)
+  ingest/       # Data ingestion (JSON)
   export/       # Export (JSON, GraphML)
-  analysis/     # Pre-built queries and graph metrics
-  cli/          # Click-based CLI
+  analysis/     # Graph metrics (centrality, PageRank) + security queries
 tests/          # 124 tests (unit + integration)
-examples/       # quick_start.py, auto_kg_from_csv.py
+examples/       # Runnable example scripts
+```
+
+## Optional Dependencies
+
+The base install covers synthetic generation, CSV-based auto-construction, and all CLI commands. Optional extras enable additional capabilities:
+
+```bash
+# Embedding-based entity linking (requires ~500MB model download)
+poetry install --extras embeddings
+
+# Neo4j graph backend
+poetry install --extras neo4j
+
+# Visualization (matplotlib, pyvis)
+poetry install --extras viz
+
+# Development tools (pytest, mypy, ruff)
+poetry install --with dev
 ```
 
 ## Development
 
 ```bash
 make install    # Install with dev dependencies
-make test       # Run tests
+make test       # Run 124 tests
+make test-cov   # Run tests with coverage report
 make lint       # Lint with ruff
+make format     # Auto-format with ruff
 make typecheck  # Type check with mypy
-make all        # All of the above
+make clean      # Remove caches and build artifacts
+make all        # Lint + typecheck + test
 ```
 
 ## Examples
 
+Runnable example scripts that demonstrate the Python API:
+
 ```bash
+# Synthetic generation with graph exploration
 poetry run python examples/quick_start.py
+
+# Auto KG construction from CSV data
 poetry run python examples/auto_kg_from_csv.py
 ```
+
+## Troubleshooting
+
+**`command not found: hckg`**
+You need the `poetry run` prefix, or set up a [shell alias](#shell-alias). Poetry installs tools inside a virtual environment, not system-wide.
+
+**`command not found: poetry`**
+Install Poetry: `brew install poetry` (macOS) or `pipx install poetry` (any platform).
+
+**`poetry shell` doesn't work**
+Poetry 2.0 removed the `shell` command. Use `poetry run hckg ...` instead, or activate the virtualenv manually: `source $(poetry env info -p)/bin/activate`.
+
+**Python 3.14 errors with torch/sentence-transformers**
+Some dependencies don't support 3.14 yet. Use Python 3.12: `poetry env use python3.12` then `poetry install`.
+
+**`Path 'graph.json' does not exist`**
+You need to generate a graph first. Run `hckg demo` — it creates `graph.json` by default.
+
+**`Provide a SOURCE file, or use --demo`**
+The `auto build` command needs either a CSV file or the `--demo` flag. Try: `hckg auto build --demo --output result.json`.
+
+**Tests failing after a fresh clone**
+Run `poetry install --with dev` to get test dependencies, then `make test`.

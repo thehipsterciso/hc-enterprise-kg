@@ -24,9 +24,9 @@ def generate() -> None:
 )
 @click.option("--employees", type=int, default=500, help="Number of employees.")
 @click.option("--seed", type=int, default=None, help="Random seed for reproducibility.")
-@click.option("--output", type=click.Path(), default=None, help="Export to JSON file.")
+@click.option("--output", type=click.Path(), default="graph.json", show_default=True, help="Export to JSON file.")
 @click.pass_context
-def org(ctx: click.Context, profile: str, employees: int, seed: int | None, output: str | None) -> None:
+def org(ctx: click.Context, profile: str, employees: int, seed: int | None, output: str) -> None:
     """Generate a full organizational knowledge graph."""
     from synthetic.orchestrator import SyntheticOrchestrator
 
@@ -58,7 +58,6 @@ def org(ctx: click.Context, profile: str, employees: int, seed: int | None, outp
     click.echo(f"\nTotal entities: {stats['entity_count']}")
     click.echo(f"Total relationships: {stats['relationship_count']}")
 
-    if output:
-        from export.json_export import JSONExporter
-        JSONExporter().export(kg.engine, Path(output))
-        click.echo(f"\nExported to {output}")
+    from export.json_export import JSONExporter
+    JSONExporter().export(kg.engine, Path(output))
+    click.echo(f"\nExported to {output}")
