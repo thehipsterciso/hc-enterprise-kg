@@ -1,0 +1,63 @@
+[project]
+name = "hc-enterprise-kg"
+version = "0.1.0"
+description = "Enterprise Knowledge Graph for cybersecurity, data, and AI research"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "Thomas Jones"}
+]
+
+dependencies = [
+    "networkx>=3.2",
+    "pydantic>=2.5",
+    "faker>=22.0",
+    "click>=8.1",
+    "pyyaml>=6.0",
+    "litellm>=1.0",
+    "sentence-transformers>=2.2",
+    "rapidfuzz>=3.0",
+]
+
+[project.optional-dependencies]
+neo4j = ["neo4j>=5.0"]
+viz = ["matplotlib>=3.8", "pyvis>=0.3"]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "pytest-mock>=3.12",
+    "mypy>=1.8",
+    "ruff>=0.2",
+]
+
+[project.scripts]
+hckg = "hc_enterprise_kg.cli.main:cli"
+
+[project.entry-points."hc_enterprise_kg.generators"]
+# Allows third-party packages to register generators
+
+[project.entry-points."hc_enterprise_kg.engines"]
+# Allows third-party packages to register graph backends
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{include = "hc_enterprise_kg", from = "src"}]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "TCH"]
