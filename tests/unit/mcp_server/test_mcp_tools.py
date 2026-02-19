@@ -220,3 +220,26 @@ class TestAdditionalTools:
     def test_find_shortest_path_no_graph(self):
         result = srv.find_shortest_path("a", "b")
         assert "error" in result
+
+
+# ---------------------------------------------------------------
+# _auto_load_default_graph
+# ---------------------------------------------------------------
+
+
+class TestAutoLoadDefaultGraph:
+    def test_auto_load_from_env(self, graph_json_path: str, monkeypatch):
+        monkeypatch.setenv("HCKG_DEFAULT_GRAPH", graph_json_path)
+        srv._auto_load_default_graph()
+        assert srv._kg is not None
+        assert srv._kg.statistics["entity_count"] > 0
+
+    def test_auto_load_skipped_when_no_env(self, monkeypatch):
+        monkeypatch.delenv("HCKG_DEFAULT_GRAPH", raising=False)
+        srv._auto_load_default_graph()
+        assert srv._kg is None
+
+    def test_auto_load_skipped_when_path_missing(self, monkeypatch):
+        monkeypatch.setenv("HCKG_DEFAULT_GRAPH", "/tmp/nonexistent_hckg.json")
+        srv._auto_load_default_graph()
+        assert srv._kg is None

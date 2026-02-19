@@ -452,8 +452,18 @@ def search_entities(
 # ---------------------------------------------------------------------------
 
 
+def _auto_load_default_graph() -> None:
+    """Load the graph from HCKG_DEFAULT_GRAPH env var if set."""
+    import os
+
+    path = os.environ.get("HCKG_DEFAULT_GRAPH")
+    if path and __import__("pathlib").Path(path).exists():
+        load_graph(path)
+
+
 def main() -> None:
     """Run the MCP server over stdio transport."""
+    _auto_load_default_graph()
     mcp.run(transport="stdio")
 
 
