@@ -30,6 +30,7 @@ class GenerationContext:
         self.faker = Faker()
         if seed is not None:
             Faker.seed(seed)
+            self.faker.unique.clear()
             import random
 
             random.seed(seed)

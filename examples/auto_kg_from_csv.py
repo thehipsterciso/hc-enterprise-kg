@@ -11,15 +11,15 @@ from hc_enterprise_kg.domain.base import EntityType
 from hc_enterprise_kg.graph.knowledge_graph import KnowledgeGraph
 
 # Sample organizational data
-SAMPLE_DATA = """name,email,department,title,location
-Alice Smith,alice@acme.com,Engineering,Software Engineer,New York
-Bob Jones,bob@acme.com,Marketing,Marketing Manager,San Francisco
-Carol White,carol@acme.com,Engineering,Senior Engineer,New York
-Dave Brown,dave@acme.com,Finance,Financial Analyst,Chicago
-Eve Wilson,eve@acme.com,Human Resources,HR Director,San Francisco
-Frank Miller,frank@acme.com,Engineering,DevOps Engineer,New York
-Grace Lee,grace@acme.com,Sales,Account Executive,Chicago
-Alice Smith,alice.s@acme.com,Engineering,Lead Engineer,New York
+SAMPLE_DATA = """name,first_name,last_name,email,department,title,location
+Alice Smith,Alice,Smith,alice@acme.com,Engineering,Software Engineer,New York
+Bob Jones,Bob,Jones,bob@acme.com,Marketing,Marketing Manager,San Francisco
+Carol White,Carol,White,carol@acme.com,Engineering,Senior Engineer,New York
+Dave Brown,Dave,Brown,dave@acme.com,Finance,Financial Analyst,Chicago
+Eve Wilson,Eve,Wilson,eve@acme.com,Human Resources,HR Director,San Francisco
+Frank Miller,Frank,Miller,frank@acme.com,Engineering,DevOps Engineer,New York
+Grace Lee,Grace,Lee,grace@acme.com,Sales,Account Executive,Chicago
+Alice Smith,Alice,Smith,alice.s@acme.com,Engineering,Lead Engineer,New York
 """
 
 

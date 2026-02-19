@@ -16,11 +16,11 @@ dependencies = [
     "click>=8.1",
     "pyyaml>=6.0",
     "litellm>=1.0",
-    "sentence-transformers>=2.2",
     "rapidfuzz>=3.0",
 ]
 
 [project.optional-dependencies]
+embeddings = ["sentence-transformers>=2.2"]
 neo4j = ["neo4j>=5.0"]
 viz = ["matplotlib>=3.8", "pyvis>=0.3"]
 dev = [

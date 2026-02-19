@@ -49,6 +49,7 @@ class RuleBasedExtractor(AbstractExtractor):
             if email in seen:
                 continue
             seen.add(email)
+            seen.add(email.split("@")[1])  # Prevent domain from matching as hostname
             local = email.split("@")[0]
             parts = re.split(r"[._-]", local)
             first = parts[0].title() if parts else "Unknown"

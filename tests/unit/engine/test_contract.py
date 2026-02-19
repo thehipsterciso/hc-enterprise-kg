@@ -147,8 +147,8 @@ class GraphEngineContractTests:
     def test_statistics(self, engine):
         engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
         stats = engine.get_statistics()
-        assert stats["total_entities"] == 1
-        assert stats["total_relationships"] == 0
+        assert stats["entity_count"] == 1
+        assert stats["relationship_count"] == 0
 
     def test_clear(self, engine):
         engine.add_entity(Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com"))
