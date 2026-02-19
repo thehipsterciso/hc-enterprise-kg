@@ -6,11 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 
 ## [Unreleased]
 
+### Added
+
+- **`hckg visualize` command** — Interactive HTML graph visualization powered by pyvis. Color-coded entity types, force-directed layout, hover tooltips, floating legend, and automatic browser launch
+- **18 new tests** for the visualize command (node labels, tooltips, entity mappings, legend injection, CLI integration)
+
 ### Changed
 
 - **Refined project vision and objectives** — Focused on rapid organizational modelling, scenario analysis, and enabling data & AI leadership (CDAIO). Positioned as a speed-to-insight tool for directionally correct analysis and low-hanging fruit identification
 - **Updated README** with Vision & Objectives section covering the problem space, approach, CDAIO enablement, and the rationale for knowledge graph-based modelling
 - **Updated project metadata** — Refined description, keywords, and GitHub topics to reflect organizational modelling, data & AI governance, and scenario analysis focus
+- **Updated `hckg demo` output** to include `hckg visualize` in next steps
 
 ## [0.1.0] - 2025-02-19
 

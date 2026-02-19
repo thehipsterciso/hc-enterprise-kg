@@ -21,12 +21,14 @@ from cli.demo_cmd import demo  # noqa: E402
 from cli.export_cmd import export_cmd  # noqa: E402
 from cli.generate import generate  # noqa: E402
 from cli.inspect_cmd import inspect_cmd  # noqa: E402
+from cli.visualize_cmd import visualize_cmd  # noqa: E402
 
 cli.add_command(demo)
 cli.add_command(generate)
 cli.add_command(auto)
 cli.add_command(export_cmd, name="export")
 cli.add_command(inspect_cmd, name="inspect")
+cli.add_command(visualize_cmd, name="visualize")
 
 
 def main() -> None:

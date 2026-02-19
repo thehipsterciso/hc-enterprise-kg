@@ -79,4 +79,5 @@ def demo(profile: str, employees: int, seed: int, output: str, fmt: str) -> None
     click.echo("")
     click.echo("Next steps:")
     click.echo(f"  hckg inspect {output}")
+    click.echo(f"  hckg visualize {output}")
     click.echo(f"  hckg export --source {output} --format graphml --output graph.graphml")

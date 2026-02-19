@@ -203,6 +203,30 @@ Quick entity extraction from a text string using rule-based pattern matching. Re
 hckg auto extract "Contact alice@acme.com at 10.0.1.50 about CVE-2024-1234"
 ```
 
+### `hckg visualize` — Interactive graph visualization
+
+Renders a knowledge graph as an interactive, color-coded network diagram in your browser. Each entity type gets a distinct color and size. Hover over nodes for details. Includes a floating legend and summary.
+
+```bash
+# Generate and visualize in two commands
+hckg demo
+hckg visualize graph.json
+
+# Customize output
+hckg visualize graph.json --output my_viz.html --no-physics
+hckg visualize graph.json --height 1200px --no-open
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--output` | `<source>_viz.html` | Output HTML file path |
+| `--height` | `900px` | Visualization height |
+| `--width` | `100%` | Visualization width |
+| `--physics / --no-physics` | `--physics` | Enable force-directed layout simulation |
+| `--open / --no-open` | `--open` | Automatically open in browser |
+
+> Requires the viz extras: `poetry install --extras viz`
+
 ### `hckg export` — Convert between formats
 
 Re-export an existing JSON knowledge graph to a different format.
