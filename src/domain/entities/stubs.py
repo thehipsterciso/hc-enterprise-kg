@@ -16,7 +16,6 @@ from typing import ClassVar, Literal
 
 from domain.base import BaseEntity, EntityType
 
-
 # --- L01: Compliance & Governance ---
 
 

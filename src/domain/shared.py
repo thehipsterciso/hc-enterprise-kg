@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-
 # ---------------------------------------------------------------------------
 # Temporal & Versioning (L00 reusable block)
 # ---------------------------------------------------------------------------
@@ -165,7 +164,7 @@ class CyberExposure(BaseModel):
     """Cyber risk exposure profile. Used in L0, L4."""
 
     attack_surface_type: str = ""  # Internet Facing, Internal, Air Gapped, Hybrid, Cloud, OT/ICS
-    threat_profile: str = ""  # Nation State, Organized Crime, Hacktivist, Insider, Opportunistic, Low
+    threat_profile: str = ""  # Nation State, Organized Crime, Hacktivist, etc.
     last_assessment_date: str | None = None
     assessment_methodology: str = ""
 
