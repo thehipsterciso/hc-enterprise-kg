@@ -64,11 +64,13 @@ class EntityRegistry:
         )
         from domain.entities.business_capability import BusinessCapability
         from domain.entities.control import Control
+        from domain.entities.customer import Customer
         from domain.entities.data_domain import DataDomain
         from domain.entities.data_flow import DataFlow
         from domain.entities.geography import Geography
         from domain.entities.integration import Integration
         from domain.entities.jurisdiction import Jurisdiction
+        from domain.entities.market_segment import MarketSegment
         from domain.entities.organizational_unit import OrganizationalUnit
         from domain.entities.product import Product
         from domain.entities.product_portfolio import ProductPortfolio
@@ -77,9 +79,7 @@ class EntityRegistry:
         from domain.entities.site import Site
         from domain.entities.stubs import (
             Contract,
-            Customer,
             Initiative,
-            MarketSegment,
         )
         from domain.entities.threat import Threat
 
@@ -118,6 +118,7 @@ class EntityRegistry:
             # L08: Products & Services (full implementations)
             ProductPortfolio,
             Product,
+            # L09: Customers & Markets (full implementations)
             MarketSegment,
             Customer,
             Contract,

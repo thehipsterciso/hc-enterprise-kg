@@ -45,21 +45,8 @@ from domain.base import BaseEntity, EntityType
 # See: product_portfolio.py, product.py
 
 # --- L09: Customers & Markets ---
-
-
-class MarketSegment(BaseEntity):
-    """Stub: market segment. Full implementation in L09."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.MARKET_SEGMENT
-    entity_type: Literal[EntityType.MARKET_SEGMENT] = EntityType.MARKET_SEGMENT
-
-
-class Customer(BaseEntity):
-    """Stub: customer account. Full implementation in L09."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.CUSTOMER
-    entity_type: Literal[EntityType.CUSTOMER] = EntityType.CUSTOMER
-
+# MarketSegment, Customer — replaced by full implementations in L09.
+# See: market_segment.py, customer.py
 
 # --- L10: Vendors & Partners ---
 

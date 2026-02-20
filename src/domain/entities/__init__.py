@@ -8,6 +8,7 @@ from pydantic import Field
 
 from domain.entities.business_capability import BusinessCapability
 from domain.entities.control import Control
+from domain.entities.customer import Customer
 from domain.entities.data_asset import DataAsset
 from domain.entities.data_domain import DataDomain
 from domain.entities.data_flow import DataFlow
@@ -17,6 +18,7 @@ from domain.entities.incident import Incident
 from domain.entities.integration import Integration
 from domain.entities.jurisdiction import Jurisdiction
 from domain.entities.location import Location
+from domain.entities.market_segment import MarketSegment
 from domain.entities.network import Network
 from domain.entities.organizational_unit import OrganizationalUnit
 from domain.entities.person import Person
@@ -29,9 +31,7 @@ from domain.entities.role import Role
 from domain.entities.site import Site
 from domain.entities.stubs import (
     Contract,
-    Customer,
     Initiative,
-    MarketSegment,
 )
 from domain.entities.system import System
 from domain.entities.threat import Threat
@@ -74,6 +74,7 @@ AnyEntity = Annotated[
     # L08: Products & Services (full implementations)
     | ProductPortfolio
     | Product
+    # L09: Customers & Markets (full implementations)
     | MarketSegment
     | Customer
     | Contract
