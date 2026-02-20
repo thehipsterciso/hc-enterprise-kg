@@ -21,14 +21,8 @@ from domain.base import BaseEntity, EntityType
 # See: regulation.py, control.py, risk.py, threat.py
 
 # --- L02: Technology & Systems ---
-
-
-class Integration(BaseEntity):
-    """Stub: system-to-system integration. Full implementation in L02."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.INTEGRATION
-    entity_type: Literal[EntityType.INTEGRATION] = EntityType.INTEGRATION
-
+# Integration — replaced by full implementation in L02.
+# See: integration.py (System extended in system.py)
 
 # --- L03: Data Assets ---
 
