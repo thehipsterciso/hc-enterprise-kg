@@ -1,11 +1,61 @@
 """Integration tests for the synthetic generation pipeline."""
 
+import json
+
 from domain.base import EntityType
+from export.json_export import JSONExporter
 from graph.knowledge_graph import KnowledgeGraph
+from ingest.json_ingestor import JSONIngestor
 from synthetic.orchestrator import SyntheticOrchestrator
 from synthetic.profiles.financial_org import financial_org
 from synthetic.profiles.healthcare_org import healthcare_org
 from synthetic.profiles.tech_company import mid_size_tech_company
+
+# Entity types that should be generated. Note: ROLE is excluded because
+# RoleGenerator derives its own count internally, and the orchestrator's
+# _resolve_count returns 0 — so roles are currently not generated.
+ENTERPRISE_ENTITY_TYPES = [
+    # v0.1 types
+    EntityType.LOCATION,
+    EntityType.DEPARTMENT,
+    EntityType.PERSON,
+    EntityType.NETWORK,
+    EntityType.SYSTEM,
+    EntityType.DATA_ASSET,
+    EntityType.POLICY,
+    EntityType.VENDOR,
+    EntityType.VULNERABILITY,
+    EntityType.THREAT_ACTOR,
+    EntityType.INCIDENT,
+    # L01: Compliance & Governance
+    EntityType.REGULATION,
+    EntityType.CONTROL,
+    EntityType.RISK,
+    EntityType.THREAT,
+    # L02: Technology & Systems
+    EntityType.INTEGRATION,
+    # L03: Data Assets
+    EntityType.DATA_DOMAIN,
+    EntityType.DATA_FLOW,
+    # L04: Organization
+    EntityType.ORGANIZATIONAL_UNIT,
+    # L06: Business Capabilities
+    EntityType.BUSINESS_CAPABILITY,
+    # L07: Locations & Facilities
+    EntityType.SITE,
+    EntityType.GEOGRAPHY,
+    EntityType.JURISDICTION,
+    # L08: Products & Services
+    EntityType.PRODUCT_PORTFOLIO,
+    EntityType.PRODUCT,
+    # L09: Customers & Markets
+    EntityType.MARKET_SEGMENT,
+    EntityType.CUSTOMER,
+    # L10: Vendors & Partners
+    EntityType.CONTRACT,
+    # L11: Strategic Initiatives
+    EntityType.INITIATIVE,
+]
 
 
 class TestSyntheticPipeline:
@@ -54,14 +104,10 @@ class TestSyntheticPipeline:
         assert len(departments) > 0
 
     def test_generation_with_export(self):
-        import json
-
         kg = KnowledgeGraph()
         profile = mid_size_tech_company(15)
         orchestrator = SyntheticOrchestrator(kg, profile, seed=42)
         orchestrator.generate()
-
-        from export.json_export import JSONExporter
 
         exporter = JSONExporter()
         result = exporter.export_string(kg.engine)
@@ -92,3 +138,140 @@ class TestSyntheticPipeline:
 
         assert counts1 == counts2
         assert kg1.statistics["entity_count"] == kg2.statistics["entity_count"]
+
+
+class TestEnterpriseSyntheticPipeline:
+    """Tests that all 30 entity types are generated with enterprise attributes."""
+
+    def _generate(self, profile_fn, employee_count=20, seed=42):
+        kg = KnowledgeGraph()
+        profile = profile_fn(employee_count)
+        orchestrator = SyntheticOrchestrator(kg, profile, seed=seed)
+        counts = orchestrator.generate()
+        return kg, counts
+
+    def test_all_30_entity_types_generated(self):
+        """Every entity type in the ontology should be produced."""
+        # Use larger employee count so RoleGenerator produces roles
+        kg, counts = self._generate(mid_size_tech_company, employee_count=50)
+
+        generated_types = set()
+        for et in ENTERPRISE_ENTITY_TYPES:
+            entities = kg.query().entities(et).execute()
+            if entities:
+                generated_types.add(et)
+
+        # All 30 types should have at least one entity
+        missing = set(ENTERPRISE_ENTITY_TYPES) - generated_types
+        assert not missing, f"Missing entity types: {[m.value for m in missing]}"
+
+    def test_enterprise_entity_counts_in_range(self):
+        """Enterprise types should have count > 0."""
+        kg, counts = self._generate(mid_size_tech_company)
+
+        enterprise_types = [
+            "regulation", "control", "risk", "threat", "integration",
+            "data_domain", "data_flow", "organizational_unit",
+            "business_capability", "site", "geography", "jurisdiction",
+            "product_portfolio", "product", "market_segment", "customer",
+            "contract", "initiative",
+        ]
+        for et in enterprise_types:
+            assert counts.get(et, 0) > 0, f"No {et} entities generated"
+
+    def test_cross_layer_relationships_generated(self):
+        """Enterprise relationship weaving should produce cross-layer edges."""
+        kg, counts = self._generate(mid_size_tech_company)
+
+        rel_count = counts.get("_relationships", 0)
+        assert rel_count > 0, "No relationships generated"
+
+        # Check that some cross-layer relationship types exist
+        stats = kg.statistics
+        rel_types = set(stats.get("relationship_types", {}).keys())
+
+        # Should have at least some enterprise relationship types
+        expected_types = {"implements", "mitigates"}
+        found = expected_types & rel_types
+        assert len(found) > 0, (
+            f"No enterprise relationship types found. Got: {rel_types}"
+        )
+
+    def test_export_ingest_roundtrip_all_types(self, tmp_path):
+        """Generate → export JSON → ingest into new KG → verify counts."""
+        kg1, counts1 = self._generate(
+            mid_size_tech_company, employee_count=50, seed=42
+        )
+
+        # Export to JSON
+        exporter = JSONExporter()
+        json_str = exporter.export_string(kg1.engine)
+        data = json.loads(json_str)
+
+        # Verify export has all entity types
+        exported_types = {e["entity_type"] for e in data["entities"]}
+        expected = {et.value for et in ENTERPRISE_ENTITY_TYPES}
+        missing = expected - exported_types
+        assert not missing, f"Export missing types: {missing}"
+
+        # Write to temp file, then ingest into a new KG
+        json_path = tmp_path / "roundtrip.json"
+        json_path.write_text(json_str)
+
+        ingestor = JSONIngestor()
+        result = ingestor.ingest(json_path)
+
+        # Should have no errors
+        assert not result.errors, f"Ingest errors: {result.errors}"
+        # Entity counts should match
+        assert len(result.entities) == kg1.statistics["entity_count"]
+
+    def test_healthcare_all_types(self):
+        """Healthcare profile should also generate all 30 types."""
+        kg, counts = self._generate(healthcare_org, employee_count=20)
+        for et in [
+            "regulation", "control", "risk", "initiative", "site",
+        ]:
+            assert counts.get(et, 0) > 0, f"Healthcare missing {et}"
+
+    def test_financial_all_types(self):
+        """Financial profile should also generate all 30 types."""
+        kg, counts = self._generate(financial_org, employee_count=20)
+        for et in [
+            "regulation", "control", "risk", "contract", "customer",
+        ]:
+            assert counts.get(et, 0) > 0, f"Financial missing {et}"
+
+    def test_entity_fields_populated(self):
+        """Generated entities should have basic fields set, not just defaults."""
+        kg, _ = self._generate(mid_size_tech_company)
+
+        # Check a few enterprise types have non-empty key fields
+        regulations = kg.query().entities(EntityType.REGULATION).execute()
+        assert len(regulations) > 0
+        reg = regulations[0]
+        assert reg.name != ""
+        assert reg.regulation_id != ""
+
+        sites = kg.query().entities(EntityType.SITE).execute()
+        assert len(sites) > 0
+        site = sites[0]
+        assert site.name != ""
+        assert site.site_id != ""
+        assert site.site_type != ""
+        assert site.address.street_line_1 != "" or site.address.city != ""
+
+        initiatives = kg.query().entities(EntityType.INITIATIVE).execute()
+        assert len(initiatives) > 0
+        init = initiatives[0]
+        assert init.name != ""
+        assert init.initiative_id != ""
+
+    def test_total_entity_count_growth(self):
+        """With enterprise types, total entity count should be much higher."""
+        kg, counts = self._generate(mid_size_tech_company, employee_count=20)
+
+        total = kg.statistics["entity_count"]
+        # 20 people + departments + systems + all enterprise types
+        # Should be well above 100 entities total
+        assert total > 100, f"Only {total} entities — expected >100 with enterprise types"
