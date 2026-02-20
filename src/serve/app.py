@@ -11,6 +11,7 @@ Run via CLI:
 from __future__ import annotations
 
 import json
+import re
 from collections import deque
 from pathlib import Path
 from typing import Any
@@ -66,6 +67,14 @@ def _json_response(data: Any, status: int = 200) -> tuple[str, int, dict]:
 
 def _error(msg: str, status: int = 400) -> tuple[str, int, dict]:
     return _json_response({"error": msg}, status)
+
+
+_SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9\-_\.]+$")
+
+
+def _is_safe_id(value: str) -> bool:
+    """Return True if *value* contains only safe characters for an entity ID."""
+    return bool(value) and bool(_SAFE_ID_RE.match(value))
 
 
 # ---------------------------------------------------------------------------
@@ -606,16 +615,20 @@ def create_app(graph_path: str | None = None) -> Any:
 
     @app.route("/entities/<entity_id>", methods=["GET"])
     def get_entity_route(entity_id: str):  # type: ignore[no-untyped-def]
+        if not _is_safe_id(entity_id):
+            return _error("Invalid entity ID format.", 400)
         try:
             result = handle_get_entity(entity_id)
             if "error" in result:
-                return _error(result["error"], 404)
+                return _error("Entity not found.", 404)
             return _json_response(result)
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
     @app.route("/entities/<entity_id>/neighbors", methods=["GET"])
     def get_neighbors_route(entity_id: str):  # type: ignore[no-untyped-def]
+        if not _is_safe_id(entity_id):
+            return _error("Invalid entity ID format.", 400)
         try:
             direction = flask_request.args.get("direction", "both")
             rel_type = flask_request.args.get("relationship_type", "")
@@ -625,21 +638,25 @@ def create_app(graph_path: str | None = None) -> Any:
 
     @app.route("/path/<source_id>/<target_id>", methods=["GET"])
     def shortest_path_route(source_id: str, target_id: str):  # type: ignore[no-untyped-def]
+        if not _is_safe_id(source_id) or not _is_safe_id(target_id):
+            return _error("Invalid entity ID format.", 400)
         try:
             result = handle_shortest_path(source_id, target_id)
             if "error" in result:
-                return _error(result["error"], 404)
+                return _error("No path found between the specified entities.", 404)
             return _json_response(result)
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
     @app.route("/blast-radius/<entity_id>", methods=["GET"])
     def blast_radius_route(entity_id: str):  # type: ignore[no-untyped-def]
+        if not _is_safe_id(entity_id):
+            return _error("Invalid entity ID format.", 400)
         try:
             max_depth = int(flask_request.args.get("max_depth", "3"))
             result = handle_blast_radius(entity_id, max_depth)
             if "error" in result:
-                return _error(result["error"], 404)
+                return _error("Entity not found.", 404)
             return _json_response(result)
         except _NoGraphError:
             return _error("No graph loaded.", 409)
