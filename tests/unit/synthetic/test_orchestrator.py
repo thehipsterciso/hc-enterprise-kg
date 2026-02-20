@@ -29,6 +29,17 @@ class TestSyntheticOrchestrator:
         assert kg1.statistics["entity_count"] == kg2.statistics["entity_count"]
         assert kg1.statistics["relationship_count"] == kg2.statistics["relationship_count"]
 
+    def test_roles_generated(self):
+        """RoleGenerator runs and produces Role entities for each department."""
+        kg = KnowledgeGraph()
+        profile = mid_size_tech_company(20)
+        counts = SyntheticOrchestrator(kg, profile, seed=42).generate()
+
+        assert "role" in counts
+        assert counts["role"] > 0
+        # Should have at least one role per department
+        assert counts["role"] >= counts["department"]
+
     def test_event_log_populated(self):
         kg = KnowledgeGraph(track_events=True)
         profile = mid_size_tech_company(10)
