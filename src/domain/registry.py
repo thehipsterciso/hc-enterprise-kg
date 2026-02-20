@@ -63,6 +63,7 @@ class EntityRegistry:
             Vulnerability,
         )
         from domain.entities.business_capability import BusinessCapability
+        from domain.entities.contract import Contract
         from domain.entities.control import Control
         from domain.entities.customer import Customer
         from domain.entities.data_domain import DataDomain
@@ -78,7 +79,6 @@ class EntityRegistry:
         from domain.entities.risk import Risk
         from domain.entities.site import Site
         from domain.entities.stubs import (
-            Contract,
             Initiative,
         )
         from domain.entities.threat import Threat
@@ -121,6 +121,7 @@ class EntityRegistry:
             # L09: Customers & Markets (full implementations)
             MarketSegment,
             Customer,
+            # L10: Vendors & Partners (full implementations)
             Contract,
             Initiative,
         ]:

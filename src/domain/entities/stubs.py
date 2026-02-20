@@ -49,14 +49,8 @@ from domain.base import BaseEntity, EntityType
 # See: market_segment.py, customer.py
 
 # --- L10: Vendors & Partners ---
-
-
-class Contract(BaseEntity):
-    """Stub: vendor/partner contract. Full implementation in L10."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.CONTRACT
-    entity_type: Literal[EntityType.CONTRACT] = EntityType.CONTRACT
-
+# Contract — replaced by full implementation in L10. Vendor extended in vendor.py.
+# See: contract.py
 
 # --- L11: Strategic Initiatives ---
 

@@ -7,6 +7,7 @@ from typing import Annotated
 from pydantic import Field
 
 from domain.entities.business_capability import BusinessCapability
+from domain.entities.contract import Contract
 from domain.entities.control import Control
 from domain.entities.customer import Customer
 from domain.entities.data_asset import DataAsset
@@ -30,7 +31,6 @@ from domain.entities.risk import Risk
 from domain.entities.role import Role
 from domain.entities.site import Site
 from domain.entities.stubs import (
-    Contract,
     Initiative,
 )
 from domain.entities.system import System
@@ -77,6 +77,7 @@ AnyEntity = Annotated[
     # L09: Customers & Markets (full implementations)
     | MarketSegment
     | Customer
+    # L10: Vendors & Partners (full implementations)
     | Contract
     | Initiative,
     Field(discriminator="entity_type"),
