@@ -69,7 +69,7 @@ def _error(msg: str, status: int = 400) -> tuple[str, int, dict]:
     return _json_response({"error": msg}, status)
 
 
-_SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9\-_\.]+$")
+_SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
 
 
 def _is_safe_id(value: str) -> bool:
