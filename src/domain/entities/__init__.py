@@ -21,6 +21,8 @@ from domain.entities.network import Network
 from domain.entities.organizational_unit import OrganizationalUnit
 from domain.entities.person import Person
 from domain.entities.policy import Policy
+from domain.entities.product import Product
+from domain.entities.product_portfolio import ProductPortfolio
 from domain.entities.regulation import Regulation
 from domain.entities.risk import Risk
 from domain.entities.role import Role
@@ -30,8 +32,6 @@ from domain.entities.stubs import (
     Customer,
     Initiative,
     MarketSegment,
-    Product,
-    ProductPortfolio,
 )
 from domain.entities.system import System
 from domain.entities.threat import Threat
@@ -71,6 +71,7 @@ AnyEntity = Annotated[
     | Site
     | Geography
     | Jurisdiction
+    # L08: Products & Services (full implementations)
     | ProductPortfolio
     | Product
     | MarketSegment

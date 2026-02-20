@@ -70,6 +70,8 @@ class EntityRegistry:
         from domain.entities.integration import Integration
         from domain.entities.jurisdiction import Jurisdiction
         from domain.entities.organizational_unit import OrganizationalUnit
+        from domain.entities.product import Product
+        from domain.entities.product_portfolio import ProductPortfolio
         from domain.entities.regulation import Regulation
         from domain.entities.risk import Risk
         from domain.entities.site import Site
@@ -78,8 +80,6 @@ class EntityRegistry:
             Customer,
             Initiative,
             MarketSegment,
-            Product,
-            ProductPortfolio,
         )
         from domain.entities.threat import Threat
 
@@ -115,6 +115,7 @@ class EntityRegistry:
             Site,
             Geography,
             Jurisdiction,
+            # L08: Products & Services (full implementations)
             ProductPortfolio,
             Product,
             MarketSegment,

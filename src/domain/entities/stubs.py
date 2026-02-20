@@ -41,21 +41,8 @@ from domain.base import BaseEntity, EntityType
 # See: site.py, geography.py, jurisdiction.py
 
 # --- L08: Products & Services ---
-
-
-class ProductPortfolio(BaseEntity):
-    """Stub: product portfolio. Full implementation in L08."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.PRODUCT_PORTFOLIO
-    entity_type: Literal[EntityType.PRODUCT_PORTFOLIO] = EntityType.PRODUCT_PORTFOLIO
-
-
-class Product(BaseEntity):
-    """Stub: product or service offering. Full implementation in L08."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.PRODUCT
-    entity_type: Literal[EntityType.PRODUCT] = EntityType.PRODUCT
-
+# ProductPortfolio, Product — replaced by full implementations in L08.
+# See: product_portfolio.py, product.py
 
 # --- L09: Customers & Markets ---
 
