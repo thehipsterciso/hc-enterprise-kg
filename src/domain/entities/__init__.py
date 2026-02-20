@@ -6,6 +6,7 @@ from typing import Annotated
 
 from pydantic import Field
 
+from domain.entities.business_capability import BusinessCapability
 from domain.entities.control import Control
 from domain.entities.data_asset import DataAsset
 from domain.entities.data_domain import DataDomain
@@ -22,7 +23,6 @@ from domain.entities.regulation import Regulation
 from domain.entities.risk import Risk
 from domain.entities.role import Role
 from domain.entities.stubs import (
-    BusinessCapability,
     Contract,
     Customer,
     Geography,
@@ -65,6 +65,7 @@ AnyEntity = Annotated[
     | DataFlow
     # L04: Organization (full implementations)
     | OrganizationalUnit
+    # L06: Business Capabilities (full implementations)
     | BusinessCapability
     | Site
     | Geography

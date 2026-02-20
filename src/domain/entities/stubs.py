@@ -33,14 +33,8 @@ from domain.base import BaseEntity, EntityType
 # See: organizational_unit.py
 
 # --- L06: Business Capabilities ---
-
-
-class BusinessCapability(BaseEntity):
-    """Stub: business capability. Full implementation in L06."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.BUSINESS_CAPABILITY
-    entity_type: Literal[EntityType.BUSINESS_CAPABILITY] = EntityType.BUSINESS_CAPABILITY
-
+# BusinessCapability — replaced by full implementation in L06.
+# See: business_capability.py
 
 # --- L07: Locations & Facilities ---
 
