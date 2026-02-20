@@ -14,10 +14,12 @@ from domain.entities.network import Network
 from domain.entities.person import Person
 from domain.entities.policy import Policy
 from domain.entities.role import Role
+from domain.entities.control import Control
+from domain.entities.regulation import Regulation
+from domain.entities.risk import Risk
 from domain.entities.stubs import (
     BusinessCapability,
     Contract,
-    Control,
     Customer,
     DataDomain,
     DataFlow,
@@ -29,11 +31,9 @@ from domain.entities.stubs import (
     OrganizationalUnit,
     Product,
     ProductPortfolio,
-    Regulation,
-    Risk,
     Site,
-    Threat,
 )
+from domain.entities.threat import Threat
 from domain.entities.system import System
 from domain.entities.threat_actor import ThreatActor
 from domain.entities.vendor import Vendor
@@ -53,11 +53,12 @@ AnyEntity = Annotated[
     | Vulnerability
     | ThreatActor
     | Incident
-    # Enterprise ontology stubs (replaced layer by layer)
+    # L01: Compliance & Governance (full implementations)
     | Regulation
     | Control
     | Risk
     | Threat
+    # Enterprise ontology stubs (replaced layer by layer)
     | Integration
     | DataDomain
     | DataFlow
