@@ -11,8 +11,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class EntityType(StrEnum):
-    """Enumeration of all entity types in the knowledge graph."""
+    """Enumeration of all entity types in the knowledge graph.
 
+    Original v0.1 types are listed first for backward compatibility.
+    Enterprise ontology types (L00-L11) follow, grouped by build layer.
+    """
+
+    # --- v0.1 original types ---
     PERSON = "person"
     DEPARTMENT = "department"
     ROLE = "role"
@@ -26,10 +31,53 @@ class EntityType(StrEnum):
     THREAT_ACTOR = "threat_actor"
     INCIDENT = "incident"
 
+    # --- L01: Compliance & Governance (from schema L9) ---
+    REGULATION = "regulation"
+    CONTROL = "control"
+    RISK = "risk"
+    THREAT = "threat"
+
+    # --- L02: Technology & Systems (from schema L4) ---
+    INTEGRATION = "integration"
+
+    # --- L03: Data Assets (from schema L5) ---
+    DATA_DOMAIN = "data_domain"
+    DATA_FLOW = "data_flow"
+
+    # --- L04: Organization (from schema L1) ---
+    ORGANIZATIONAL_UNIT = "organizational_unit"
+
+    # --- L06: Business Capabilities (from schema L0) ---
+    BUSINESS_CAPABILITY = "business_capability"
+
+    # --- L07: Locations & Facilities (from schema L3) ---
+    SITE = "site"
+    GEOGRAPHY = "geography"
+    JURISDICTION = "jurisdiction"
+
+    # --- L08: Products & Services (from schema L6) ---
+    PRODUCT_PORTFOLIO = "product_portfolio"
+    PRODUCT = "product"
+
+    # --- L09: Customers & Markets (from schema L7) ---
+    MARKET_SEGMENT = "market_segment"
+    CUSTOMER = "customer"
+
+    # --- L10: Vendors & Partners (from schema L8) ---
+    CONTRACT = "contract"
+
+    # --- L11: Strategic Initiatives (from schema L10) ---
+    INITIATIVE = "initiative"
+
 
 class RelationshipType(StrEnum):
-    """Enumeration of all relationship types in the knowledge graph."""
+    """Enumeration of all relationship types in the knowledge graph.
 
+    Original v0.1 types are listed first. Enterprise ontology cross-layer
+    edge types follow, derived from L00 edge templates and per-layer schemas.
+    """
+
+    # --- v0.1 original types ---
     # Organizational
     WORKS_IN = "works_in"
     MANAGES = "manages"
@@ -53,6 +101,54 @@ class RelationshipType(StrEnum):
     LOCATED_AT = "located_at"
     SUPPLIED_BY = "supplied_by"
     RESPONSIBLE_FOR = "responsible_for"
+
+    # --- Cross-layer edge types (from L00 edge templates) ---
+    SUPPORTS = "supports"
+    BELONGS_TO = "belongs_to"
+    STAFFED_BY = "staffed_by"
+    HOSTED_ON = "hosted_on"
+    PROCESSES = "processes"
+    DELIVERS = "delivers"
+    SERVES = "serves"
+    MANAGED_BY = "managed_by"
+    GOVERNED_BY = "governed_by"
+    IMPACTED_BY = "impacted_by"
+
+    # --- L01: Compliance & Governance ---
+    REGULATES = "regulates"
+    IMPLEMENTS = "implements"
+    ENFORCES = "enforces"
+    CREATES_RISK = "creates_risk"
+    ADDRESSES = "addresses"
+    AUDITED_BY = "audited_by"
+    SUBJECT_TO = "subject_to"
+
+    # --- L02: Technology & Systems ---
+    INTEGRATES_WITH = "integrates_with"
+    AUTHENTICATES_VIA = "authenticates_via"
+    FEEDS_DATA_TO = "feeds_data_to"
+
+    # --- L03: Data Assets ---
+    CONTAINS = "contains"
+    FLOWS_TO = "flows_to"
+    ORIGINATES_FROM = "originates_from"
+    CLASSIFIED_AS = "classified_as"
+
+    # --- L06: Business Capabilities ---
+    ENABLES = "enables"
+    REALIZED_BY = "realized_by"
+
+    # --- L08-L10: Commercial layer ---
+    BUYS = "buys"
+    CONTRACTS_WITH = "contracts_with"
+    HOLDS = "holds"
+    PROVIDES = "provides"
+    SUPPLIES = "supplies"
+
+    # --- L11: Strategic Initiatives ---
+    IMPACTS = "impacts"
+    DRIVES = "drives"
+    FUNDED_BY = "funded_by"
 
 
 class TemporalMixin(BaseModel):
