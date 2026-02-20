@@ -17,35 +17,8 @@ from typing import ClassVar, Literal
 from domain.base import BaseEntity, EntityType
 
 # --- L01: Compliance & Governance ---
-
-
-class Regulation(BaseEntity):
-    """Stub: external regulatory requirement. Full implementation in L01."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.REGULATION
-    entity_type: Literal[EntityType.REGULATION] = EntityType.REGULATION
-
-
-class Control(BaseEntity):
-    """Stub: security or compliance control. Full implementation in L01."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.CONTROL
-    entity_type: Literal[EntityType.CONTROL] = EntityType.CONTROL
-
-
-class Risk(BaseEntity):
-    """Stub: identified risk. Full implementation in L01."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.RISK
-    entity_type: Literal[EntityType.RISK] = EntityType.RISK
-
-
-class Threat(BaseEntity):
-    """Stub: threat to the enterprise. Full implementation in L01."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.THREAT
-    entity_type: Literal[EntityType.THREAT] = EntityType.THREAT
-
+# Regulation, Control, Risk, Threat — replaced by full implementations in L01.
+# See: regulation.py, control.py, risk.py, threat.py
 
 # --- L02: Technology & Systems ---
 

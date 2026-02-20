@@ -182,20 +182,19 @@ class TestNewStubEntitiesCreateable:
             assert entity.entity_type == et
             assert entity.name == f"Test {et.value}"
 
-    def test_stub_accepts_extra_fields(self):
-        """Stubs should accept arbitrary fields via extra='allow'."""
-        from domain.entities.stubs import Regulation
+    def test_entity_accepts_extra_fields(self):
+        """Entities should accept arbitrary fields via extra='allow'."""
+        from domain.entities.regulation import Regulation
 
         reg = Regulation(
             name="GDPR",
-            jurisdiction="EU",
             enforcement_body="EDPB",
             penalties_max_usd=22_000_000,
         )
         assert reg.name == "GDPR"
         # Extra fields accessible via model_dump
         dump = reg.model_dump()
-        assert dump["jurisdiction"] == "EU"
+        assert dump["enforcement_body"] == "EDPB"
         assert dump["penalties_max_usd"] == 22_000_000
 
     def test_stub_roundtrip_via_any_entity(self):
