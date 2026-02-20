@@ -6,7 +6,9 @@ through the MCP transport layer.
 
 from __future__ import annotations
 
+import json
 import tempfile
+import time
 from pathlib import Path
 
 import pytest
@@ -37,8 +39,12 @@ def graph_json_path() -> str:
 def _reset_server_state():
     """Ensure each test starts with a clean server state."""
     srv._kg = None
+    srv._loaded_path = None
+    srv._loaded_mtime = 0.0
     yield
     srv._kg = None
+    srv._loaded_path = None
+    srv._loaded_mtime = 0.0
 
 
 # ---------------------------------------------------------------
@@ -243,3 +249,71 @@ class TestAutoLoadDefaultGraph:
         monkeypatch.setenv("HCKG_DEFAULT_GRAPH", "/tmp/nonexistent_hckg.json")
         srv._auto_load_default_graph()
         assert srv._kg is None
+
+
+# ---------------------------------------------------------------
+# Auto-reload on file change
+# ---------------------------------------------------------------
+
+
+class TestAutoReload:
+    """Verify mtime-based auto-reload of the graph file."""
+
+    def test_reload_detects_file_change(self, graph_json_path: str):
+        """After loading a graph, modifying the file triggers a reload."""
+        srv.load_graph(graph_json_path)
+        original_count = srv._kg.statistics["entity_count"]
+        original_mtime = srv._loaded_mtime
+
+        # Wait to ensure filesystem mtime granularity differs
+        time.sleep(0.05)
+
+        # Rewrite the file with only entities (no relationships) to change content
+        with open(graph_json_path) as f:
+            data = json.load(f)
+        # Keep only the first 5 entities to produce a different graph
+        data["entities"] = data["entities"][:5]
+        data["relationships"] = []
+        with open(graph_json_path, "w") as f:
+            json.dump(data, f)
+
+        # _require_graph should detect the change and reload
+        kg = srv._require_graph()
+        assert kg.statistics["entity_count"] == 5
+        assert kg.statistics["entity_count"] != original_count
+        assert srv._loaded_mtime != original_mtime
+
+    def test_no_reload_when_file_unchanged(self, graph_json_path: str):
+        """When the file hasn't changed, _require_graph returns the same instance."""
+        srv.load_graph(graph_json_path)
+        kg_before = srv._kg
+        mtime_before = srv._loaded_mtime
+
+        kg_after = srv._require_graph()
+        assert kg_after is kg_before
+        assert srv._loaded_mtime == mtime_before
+
+    def test_reload_graceful_when_file_deleted(self, graph_json_path: str):
+        """If the graph file is deleted, the server keeps the last loaded graph."""
+        srv.load_graph(graph_json_path)
+
+        # Point to a file that will be deleted
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+            tmp.write(Path(graph_json_path).read_bytes())
+            tmp_path = tmp.name
+
+        srv.load_graph(tmp_path)
+        Path(tmp_path).unlink()
+
+        # _maybe_reload should gracefully skip (OSError on stat)
+        kg = srv._require_graph()
+        assert kg is not None  # Still serves the last loaded graph
+
+    def test_loaded_path_set_after_load(self, graph_json_path: str):
+        """load_graph sets _loaded_path and _loaded_mtime."""
+        assert srv._loaded_path is None
+        assert srv._loaded_mtime == 0.0
+
+        srv.load_graph(graph_json_path)
+        assert srv._loaded_path == str(Path(graph_json_path).resolve())
+        assert srv._loaded_mtime > 0
