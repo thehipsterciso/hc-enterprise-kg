@@ -44,6 +44,10 @@ class ChartRenderer:
             paths.append(self.render_scaling_curves())
         if self._config.render_entities:
             paths.append(self.render_entity_distribution())
+        if self._config.render_relationships:
+            paths.append(self.render_relationship_distribution())
+        if self._config.render_profile_comparison and len(self._data.profiles) > 1:
+            paths.append(self.render_profile_comparison())
         return paths
 
     def _save_figure(self, fig: Any, name: str) -> str:
@@ -192,3 +196,137 @@ class ChartRenderer:
 
         fig.tight_layout()
         return self._save_figure(fig, f"entity_distribution_{profile_name}")
+
+    # ------------------------------------------------------------------
+    # Chart 3: Relationship Distribution
+    # ------------------------------------------------------------------
+
+    def render_relationship_distribution(self) -> str:
+        """Horizontal bar chart of relationship type counts (top 20, sorted)."""
+        plt = _get_plt()
+
+        # Use the largest scale snapshot from the first profile
+        profile_name = self._data.profiles[0]
+        snapshots = self._data.by_profile(profile_name)
+        if not snapshots:
+            fig, ax = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+            ax.text(0.5, 0.5, "No data", ha="center", va="center")
+            return self._save_figure(fig, f"relationship_distribution_{profile_name}")
+
+        snap = snapshots[-1]  # largest scale
+        rel_types = snap.relationship_types
+        if not rel_types:
+            fig, ax = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+            ax.text(0.5, 0.5, "No relationship data", ha="center", va="center")
+            return self._save_figure(fig, f"relationship_distribution_{profile_name}")
+
+        # Sort and take top 20
+        sorted_rels = sorted(rel_types.items(), key=lambda x: x[1], reverse=True)[:20]
+        names = [r[0].replace("_", " ").title() for r in sorted_rels]
+        counts = [r[1] for r in sorted_rels]
+
+        fig, ax = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+        y_pos = range(len(names))
+        bars = ax.barh(y_pos, counts, color="#4E79A7", edgecolor="white", linewidth=0.5)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(names, fontsize=FONT_TICK)
+        ax.invert_yaxis()
+
+        # Add count labels on bars
+        for bar, count in zip(bars, counts, strict=True):
+            ax.text(
+                bar.get_width() + max(counts) * 0.01,
+                bar.get_y() + bar.get_height() / 2,
+                str(count),
+                va="center",
+                fontsize=FONT_TICK,
+            )
+
+        ax.set_xlabel("Count", fontsize=FONT_LABEL)
+        ax.set_title(
+            f"Relationship Type Distribution ({profile_name}, {snap.scale} emp)",
+            fontsize=FONT_TITLE,
+        )
+        ax.grid(True, axis="x", alpha=0.3)
+        ax.tick_params(labelsize=FONT_TICK)
+
+        fig.tight_layout()
+        return self._save_figure(fig, f"relationship_distribution_{profile_name}")
+
+    # ------------------------------------------------------------------
+    # Chart 4: Profile Comparison
+    # ------------------------------------------------------------------
+
+    def render_profile_comparison(self) -> str:
+        """Grouped bar chart comparing profiles at the largest common scale."""
+        plt = _get_plt()
+        import numpy as np
+
+        # Find the largest scale common to all profiles
+        common_scale = max(self._data.scales)
+        profile_snaps = []
+        for profile_name in self._data.profiles:
+            snaps_at = [
+                s for s in self._data.at_scale(common_scale) if s.profile == profile_name
+            ]
+            if snaps_at:
+                profile_snaps.append(snaps_at[0])
+
+        if len(profile_snaps) < 2:
+            fig, ax = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+            ax.text(0.5, 0.5, "Need 2+ profiles for comparison", ha="center", va="center")
+            return self._save_figure(fig, "profile_comparison")
+
+        metrics = ["Entities", "Relationships"]
+        values_by_profile: dict[str, list[float]] = {}
+        for snap in profile_snaps:
+            values_by_profile[snap.profile] = [
+                float(snap.entity_count),
+                float(snap.relationship_count),
+            ]
+
+        x = np.arange(len(metrics))
+        n_profiles = len(profile_snaps)
+        bar_width = 0.25
+        offsets = np.linspace(
+            -(n_profiles - 1) * bar_width / 2,
+            (n_profiles - 1) * bar_width / 2,
+            n_profiles,
+        )
+
+        fig, ax = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+
+        for i, (profile_name, values) in enumerate(values_by_profile.items()):
+            color = PROFILE_COLORS.get(profile_name, "#888888")
+            bars = ax.bar(
+                x + offsets[i],
+                values,
+                bar_width,
+                label=profile_name.title(),
+                color=color,
+                edgecolor="white",
+                linewidth=0.5,
+            )
+            # Add value labels on bars
+            for bar, val in zip(bars, values, strict=True):
+                ax.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    bar.get_height() + max(max(v) for v in values_by_profile.values()) * 0.01,
+                    f"{int(val):,}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=FONT_TICK,
+                )
+
+        ax.set_ylabel("Count", fontsize=FONT_LABEL)
+        ax.set_title(
+            f"Profile Comparison at {common_scale:,} Employees", fontsize=FONT_TITLE
+        )
+        ax.set_xticks(x)
+        ax.set_xticklabels(metrics, fontsize=FONT_LABEL)
+        ax.legend(fontsize=FONT_TICK)
+        ax.grid(True, axis="y", alpha=0.3)
+        ax.tick_params(labelsize=FONT_TICK)
+
+        fig.tight_layout()
+        return self._save_figure(fig, "profile_comparison")
