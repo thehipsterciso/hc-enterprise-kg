@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.19.0] - 2026-02-20
+
+### Changed
+- **Proportional entity scaling** — Raise entity count ceilings and adjust scaling coefficients across all three industry profiles (tech, financial, healthcare) based on Gartner, MuleSoft, NIST, Hackett Group, and McKinsey research (#109)
+- Adjusted `ScalingCoefficients` for org_units, vendors, contracts, customers to match industry benchmarks
+- Raised ceilings on 16+ entity types to research-backed maximums for orgs up to 20,000 employees
+- Dynamic location formula replaces fixed caps (tech: emp÷400, financial: emp÷300, healthcare: emp÷200)
+
 ## [0.18.5] - 2026-02-20
 
 ### Fixed
