@@ -1,13 +1,16 @@
-.PHONY: install test test-cov lint format typecheck generate clean all
+.PHONY: install test test-fast test-cov lint format typecheck security generate clean all
 
 install:
-	poetry install --extras dev
+	poetry install --extras "dev mcp viz api"
 
 test:
 	poetry run pytest tests/ -v --tb=short
 
+test-fast:
+	poetry run pytest tests/ -v --tb=short -m "not slow"
+
 test-cov:
-	poetry run pytest tests/ --cov=src --cov-report=term-missing
+	poetry run pytest tests/ --cov=src --cov-report=term-missing --cov-report=html
 
 lint:
 	poetry run ruff check src/ tests/
@@ -15,8 +18,14 @@ lint:
 format:
 	poetry run ruff format src/ tests/
 
+format-check:
+	poetry run ruff format --check src/ tests/
+
 typecheck:
-	poetry run mypy src/
+	poetry run mypy src/ --ignore-missing-imports
+
+security:
+	poetry run pip-audit
 
 generate:
 	poetry run hckg generate org --profile tech --employees 100 --seed 42
@@ -28,4 +37,4 @@ clean:
 	find . -type d -name '*.egg-info' -exec rm -rf {} + 2>/dev/null || true
 	rm -rf dist/ build/ htmlcov/ .coverage
 
-all: lint typecheck test
+all: lint format-check typecheck test

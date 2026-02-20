@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import time
 
+import pytest
+
 from domain.base import EntityType
 from export.json_export import JSONExporter
 from graph.knowledge_graph import KnowledgeGraph
@@ -27,6 +29,7 @@ ALL_ENTITY_TYPES = {
 }
 
 
+@pytest.mark.slow
 class TestLargeGraphGeneration:
     """Tests with 500+ employee graphs."""
 

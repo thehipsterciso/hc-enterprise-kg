@@ -14,10 +14,10 @@ jobs:
         python-version: ["3.11", "3.12", "3.13"]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -29,10 +29,10 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Cache Poetry virtualenv
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: .venv
-          key: venv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('pyproject.toml') }}
+          key: venv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
 
       - name: Install dependencies
         run: poetry install --extras "dev mcp viz api"
@@ -40,12 +40,21 @@ jobs:
       - name: Lint
         run: poetry run ruff check src/ tests/
 
+      - name: Format check
+        run: poetry run ruff format --check src/ tests/
+
+      - name: Type check
+        run: poetry run mypy src/ --ignore-missing-imports
+
+      - name: Audit dependencies
+        run: pip install pip-audit && pip-audit --require-hashes=false --ignore-vuln PYSEC-2024-* || true
+
       - name: Test
-        run: poetry run pytest tests/ -v --tb=short --cov=src --cov-report=xml
+        run: poetry run pytest tests/ -v --tb=short --cov=src --cov-report=xml --cov-fail-under=60
 
       - name: Upload coverage
         if: matrix.python-version == '3.12'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v4
         with:
           file: coverage.xml
           fail_ci_if_error: false
