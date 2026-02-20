@@ -570,3 +570,80 @@ class TestChartRenderer:
 
         assert Path(path).exists()
         assert "quality_radar" in Path(path).name
+
+
+# ---------------------------------------------------------------------------
+# CLI command
+# ---------------------------------------------------------------------------
+
+
+class TestChartsCLI:
+    def test_cli_help(self):
+        """hckg charts --help should succeed."""
+        from click.testing import CliRunner
+
+        from cli.charts_cmd import charts
+
+        runner = CliRunner()
+        result = runner.invoke(charts, ["--help"])
+        assert result.exit_code == 0
+        assert "Generate analytics charts" in result.output
+
+    def test_cli_bad_profile(self):
+        """Unknown profile should fail with helpful message."""
+        from click.testing import CliRunner
+
+        from cli.charts_cmd import charts
+
+        runner = CliRunner()
+        result = runner.invoke(charts, ["--profiles", "unknown"])
+        assert result.exit_code != 0
+        assert "Unknown profile" in result.output
+
+    def test_cli_generates_charts(self, tmp_path):
+        """CLI should generate chart files to the output directory."""
+        from click.testing import CliRunner
+
+        from cli.charts_cmd import charts
+
+        runner = CliRunner()
+        result = runner.invoke(
+            charts,
+            [
+                "--scales", "100",
+                "--profiles", "tech",
+                "--output", str(tmp_path),
+                "--no-centrality",
+                "--no-quality",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "Generated" in result.output
+        # Check at least some files were created
+        png_files = list(tmp_path.glob("*.png"))
+        assert len(png_files) > 0
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+
+class TestGenerateAllCharts:
+    def test_generate_all_charts_api(self, tmp_path):
+        """generate_all_charts() should produce chart files."""
+        from analysis.charts import ChartConfig, generate_all_charts
+
+        config = ChartConfig(
+            output_dir=str(tmp_path),
+            format="png",
+            scales=[100],
+            profiles=["tech"],
+            render_centrality=False,
+            render_quality=False,
+        )
+        paths = generate_all_charts(config)
+
+        assert len(paths) > 0
+        for p in paths:
+            assert Path(p).exists()
