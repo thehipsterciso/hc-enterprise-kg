@@ -188,3 +188,133 @@ class TestTheme:
 
     def test_quality_dimension_labels_has_5(self):
         assert len(QUALITY_DIMENSION_LABELS) == 5
+
+
+# ---------------------------------------------------------------------------
+# ScaleDataCollector
+# ---------------------------------------------------------------------------
+
+
+class TestScaleDataCollector:
+    def test_collect_single_snapshot(self):
+        """Collector should produce one snapshot for one (profile, scale)."""
+        from analysis.charts.data_collector import ScaleDataCollector
+
+        cfg = ChartConfig(profiles=["tech"], scales=[100], seed=42)
+        collector = ScaleDataCollector(cfg)
+        dataset = collector.collect()
+
+        assert len(dataset.snapshots) == 1
+        snap = dataset.snapshots[0]
+        assert snap.profile == "tech"
+        assert snap.scale == 100
+
+    def test_snapshot_populates_entity_types(self):
+        """Snapshot should have multiple entity types with non-zero counts."""
+        from analysis.charts.data_collector import ScaleDataCollector
+
+        cfg = ChartConfig(profiles=["tech"], scales=[100], seed=42)
+        collector = ScaleDataCollector(cfg)
+        dataset = collector.collect()
+
+        snap = dataset.snapshots[0]
+        assert snap.entity_count > 0
+        assert snap.relationship_count > 0
+        assert len(snap.entity_types) > 0
+        assert len(snap.relationship_types) > 0
+        assert snap.density > 0
+
+    def test_snapshot_populates_quality_scores(self):
+        """Snapshot should have all 5 quality dimensions plus overall."""
+        from analysis.charts.data_collector import ScaleDataCollector
+
+        cfg = ChartConfig(profiles=["tech"], scales=[100], seed=42)
+        collector = ScaleDataCollector(cfg)
+        dataset = collector.collect()
+
+        snap = dataset.snapshots[0]
+        assert "overall_score" in snap.quality_scores
+        assert "risk_math_consistency" in snap.quality_scores
+        assert "description_quality" in snap.quality_scores
+        assert "tech_stack_coherence" in snap.quality_scores
+        assert "field_correlation_score" in snap.quality_scores
+        assert "encryption_classification_consistency" in snap.quality_scores
+
+    def test_snapshot_populates_centrality(self):
+        """Snapshot should have centrality data."""
+        from analysis.charts.data_collector import ScaleDataCollector
+
+        cfg = ChartConfig(profiles=["tech"], scales=[100], seed=42)
+        collector = ScaleDataCollector(cfg)
+        dataset = collector.collect()
+
+        snap = dataset.snapshots[0]
+        assert len(snap.centrality_top_n) > 0
+        # Each entry is (id, name, score)
+        eid, name, score = snap.centrality_top_n[0]
+        assert isinstance(eid, str)
+        assert isinstance(name, str)
+        assert isinstance(score, float)
+
+    def test_snapshot_populates_most_connected(self):
+        """Snapshot should have most-connected data."""
+        from analysis.charts.data_collector import ScaleDataCollector
+
+        cfg = ChartConfig(profiles=["tech"], scales=[100], seed=42)
+        collector = ScaleDataCollector(cfg)
+        dataset = collector.collect()
+
+        snap = dataset.snapshots[0]
+        assert len(snap.most_connected) > 0
+        eid, name, degree = snap.most_connected[0]
+        assert isinstance(degree, int)
+        assert degree > 0
+
+    def test_snapshot_populates_timing(self):
+        """Snapshot should have non-zero generation time and memory."""
+        from analysis.charts.data_collector import ScaleDataCollector
+
+        cfg = ChartConfig(profiles=["tech"], scales=[100], seed=42)
+        collector = ScaleDataCollector(cfg)
+        dataset = collector.collect()
+
+        snap = dataset.snapshots[0]
+        assert snap.generation_time_sec > 0
+        assert snap.peak_memory_mb > 0
+
+    def test_collect_multiple_scales(self):
+        """Collector should produce snapshots for each scale."""
+        from analysis.charts.data_collector import ScaleDataCollector
+
+        cfg = ChartConfig(profiles=["tech"], scales=[100, 200], seed=42)
+        collector = ScaleDataCollector(cfg)
+        dataset = collector.collect()
+
+        assert len(dataset.snapshots) == 2
+        assert dataset.snapshots[0].scale == 100
+        assert dataset.snapshots[1].scale == 200
+
+    def test_progress_callback_called(self):
+        """Progress callback should be called for each (profile, scale)."""
+        from analysis.charts.data_collector import ScaleDataCollector
+
+        cfg = ChartConfig(profiles=["tech"], scales=[100], seed=42)
+        collector = ScaleDataCollector(cfg)
+        calls: list[tuple[str, int]] = []
+        dataset = collector.collect(progress_callback=lambda p, s: calls.append((p, s)))
+
+        assert len(calls) == 1
+        assert calls[0] == ("tech", 100)
+        assert len(dataset.snapshots) == 1
+
+    def test_dataset_metadata(self):
+        """Dataset should carry profiles and scales metadata."""
+        from analysis.charts.data_collector import ScaleDataCollector
+
+        cfg = ChartConfig(profiles=["tech", "financial"], scales=[100], seed=42)
+        collector = ScaleDataCollector(cfg)
+        dataset = collector.collect()
+
+        assert dataset.profiles == ["tech", "financial"]
+        assert dataset.scales == [100]
+        assert len(dataset.snapshots) == 2
