@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from typing import Any
 
@@ -15,6 +16,8 @@ from domain.base import (
 )
 from domain.registry import EntityRegistry
 from engine.abstract import AbstractGraphEngine
+
+logger = logging.getLogger(__name__)
 
 
 class NetworkXGraphEngine(AbstractGraphEngine):
@@ -272,12 +275,14 @@ class NetworkXGraphEngine(AbstractGraphEngine):
             entity_type = EntityType(data["entity_type"])
             entity_class = EntityRegistry.get(entity_type)
             return entity_class.model_validate(data)
-        except (KeyError, ValueError):
+        except (KeyError, ValueError) as exc:
+            logger.debug("Failed to deserialize entity %s: %s", data.get("id", "?"), exc)
             return None
 
     def _deserialize_relationship(self, data: dict[str, Any]) -> BaseRelationship | None:
         try:
             data["relationship_type"] = RelationshipType(data["relationship_type"])
             return BaseRelationship.model_validate(data)
-        except (KeyError, ValueError):
+        except (KeyError, ValueError) as exc:
+            logger.debug("Failed to deserialize relationship %s: %s", data.get("id", "?"), exc)
             return None
