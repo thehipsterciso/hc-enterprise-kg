@@ -13,7 +13,7 @@ poetry install --extras dev
 ## Running Tests
 
 ```bash
-make test          # Run all tests (~679)
+make test          # Run all tests (~689)
 make test-cov      # Run with coverage report
 make lint          # Lint with ruff
 make typecheck     # Type check with mypy
@@ -100,6 +100,7 @@ Detailed reference documentation lives in `docs/`:
 | [CLI Reference](docs/cli.md) | All commands with options, defaults, examples |
 | [Python API Guide](docs/python-api.md) | Generation, querying, analysis, exporting |
 | [Organization Profiles](docs/profiles.md) | Industry profiles, scaling model, quality scoring |
+| [Performance & Benchmarking](docs/performance.md) | Benchmark results, scaling, memory, system requirements |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues, setup, examples |
 
 ## Questions

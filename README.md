@@ -106,6 +106,7 @@ tests/          679+ tests (unit, integration, stress)
 | `hckg serve <file>` | REST API server or MCP stdio for Claude Desktop |
 | `hckg install claude` | Register with Claude Desktop |
 | `hckg export` | Convert between JSON and GraphML formats |
+| `hckg benchmark` | Run performance benchmarks across profiles and scales |
 
 > See [CLI Reference](docs/cli.md) for full options and examples.
 
@@ -119,6 +120,7 @@ tests/          679+ tests (unit, integration, stress)
 | [CLI Reference](docs/cli.md) | All commands with options, defaults, examples, REST endpoints |
 | [Python API Guide](docs/python-api.md) | Generation, querying, analysis, auto-construction, exporting |
 | [Organization Profiles](docs/profiles.md) | Industry profiles, scaling model, quality scoring, custom profiles |
+| [Performance & Benchmarking](docs/performance.md) | Benchmark results, scaling characteristics, memory profile, system requirements |
 | [Architecture](ARCHITECTURE.md) | System design, layer pipeline, engine abstraction, data flow |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues, setup, runnable examples |
 | [Contributing](CONTRIBUTING.md) | Development setup, code style, adding entity types |
@@ -157,7 +159,7 @@ poetry install --extras dev         # Development tools (pytest, mypy, ruff)
 
 ```bash
 make install    # Install with dev dependencies
-make test       # Run all tests (~679)
+make test       # Run all tests (~689)
 make test-cov   # Tests with coverage report
 make lint       # Lint with ruff
 make format     # Auto-format with ruff
