@@ -274,3 +274,37 @@ hckg export --source graph.json --format graphml --output graph.graphml
 | `--source` | — | Source JSON knowledge graph file (required) |
 | `--format` | `json` | Output format: `json` or `graphml` |
 | `--output` | — | Output file path (required) |
+
+---
+
+## `hckg benchmark`
+
+Run performance benchmarks across organization profiles and employee scales. Measures generation time, memory, load/export, read latency, traversal, analysis, and search.
+
+```bash
+# Quick benchmark (tech profile, 100 + 500 employees)
+hckg benchmark
+
+# Full benchmark (all 3 profiles, 6 scales: 100-20,000)
+hckg benchmark --full
+
+# Custom profiles and scales
+hckg benchmark --profiles tech,financial --scales 100,1000,5000
+
+# Save report to file
+hckg benchmark --output report.md
+hckg benchmark --full --format json --output report.json
+```
+
+| Option | Default | Description |
+|---|---|---|
+| `--profiles` | `tech` | Comma-separated profile names: `tech`, `financial`, `healthcare` |
+| `--scales` | `100,500` | Comma-separated employee counts |
+| `--full` | off | Run all 3 profiles at 100, 500, 1,000, 5,000, 10,000, 20,000 employees |
+| `--output` | None | Save report to file (prints to stdout if omitted) |
+| `--format` | `markdown` | Report format: `markdown` or `json` |
+| `--seed` | `42` | Random seed for reproducible generation |
+
+**Output:** A markdown table (or JSON document) with per-profile, per-scale measurements including generation time, entity/relationship counts, peak memory, quality scores, and per-operation latency.
+
+> See [Performance & Benchmarking](performance.md) for detailed results and scaling characteristics.
