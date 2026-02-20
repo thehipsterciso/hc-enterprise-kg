@@ -27,12 +27,20 @@ ROLE_TEMPLATES = {
     "Compliance & Legal": ["Compliance Officer", "Legal Counsel", "Regulatory Analyst"],
     "IT Operations": ["System Administrator", "Network Engineer", "Help Desk Analyst", "DBA"],
     "IT": [
-        "System Administrator", "Network Engineer", "Help Desk Analyst", "DBA", "Cloud Engineer",
+        "System Administrator",
+        "Network Engineer",
+        "Help Desk Analyst",
+        "DBA",
+        "Cloud Engineer",
     ],
     "Technology": ["Software Engineer", "DevOps Engineer", "Cloud Architect", "Data Engineer"],
     "Security": ["Security Analyst", "Security Engineer", "SOC Analyst", "CISO"],
     "Information Security": [
-        "Security Analyst", "Security Engineer", "SOC Analyst", "Threat Hunter", "CISO",
+        "Security Analyst",
+        "Security Engineer",
+        "SOC Analyst",
+        "Threat Hunter",
+        "CISO",
     ],
     "Executive": ["CEO", "CTO", "CFO", "COO"],
     "Clinical Operations": ["Clinical Director", "Care Coordinator", "Medical Officer"],
@@ -68,8 +76,14 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
     "SOC Analyst": ["read:internal", "read:confidential", "access:vpn"],
     "Threat Hunter": ["read:confidential", "read:internal", "access:vpn"],
     "Penetration Tester": ["admin:systems", "read:confidential", "access:vpn"],
-    "CISO": ["admin:systems", "admin:users", "read:confidential", "write:confidential",
-             "approve:changes", "manage:budgets"],
+    "CISO": [
+        "admin:systems",
+        "admin:users",
+        "read:confidential",
+        "write:confidential",
+        "approve:changes",
+        "manage:budgets",
+    ],
     # Executive
     "CEO": ["admin:users", "manage:budgets", "approve:changes", "read:confidential"],
     "CTO": ["admin:systems", "admin:users", "deploy:production", "approve:changes"],
@@ -106,8 +120,16 @@ class RoleGenerator(AbstractGenerator):
                 is_privileged = any(
                     kw in role_name.lower()
                     for kw in [
-                        "admin", "lead", "manager", "director",
-                        "ciso", "cto", "ceo", "cfo", "coo", "cio",
+                        "admin",
+                        "lead",
+                        "manager",
+                        "director",
+                        "ciso",
+                        "cto",
+                        "ceo",
+                        "cfo",
+                        "coo",
+                        "cio",
                     ]
                 )
                 access = "privileged" if is_privileged else random.choice(ACCESS_LEVELS[:2])

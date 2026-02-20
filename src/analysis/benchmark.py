@@ -63,13 +63,15 @@ class BenchmarkReport:
         # Generation summary table
         gen_results = [r for r in self.results if r.operation == "generation"]
         if gen_results:
-            lines.extend([
-                "## Synthetic Generation",
-                "",
-                "| Profile | Employees | Time (s) | Entities | Relationships | "
-                "Peak Memory (MB) | Quality Score |",
-                "|---|---|---|---|---|---|---|",
-            ])
+            lines.extend(
+                [
+                    "## Synthetic Generation",
+                    "",
+                    "| Profile | Employees | Time (s) | Entities | Relationships | "
+                    "Peak Memory (MB) | Quality Score |",
+                    "|---|---|---|---|---|---|---|",
+                ]
+            )
             for r in sorted(gen_results, key=lambda x: (x.profile, x.scale)):
                 quality = r.extra.get("quality_score", "N/A")
                 lines.append(
@@ -87,20 +89,19 @@ class BenchmarkReport:
             for r in ops:
                 by_scale.setdefault((r.profile, r.scale), []).append(r)
 
-            lines.extend([
-                "## Operation Latency",
-                "",
-                "| Profile | Scale | Operation | Time (s) | Details |",
-                "|---|---|---|---|---|",
-            ])
+            lines.extend(
+                [
+                    "## Operation Latency",
+                    "",
+                    "| Profile | Scale | Operation | Time (s) | Details |",
+                    "|---|---|---|---|---|",
+                ]
+            )
             for (prof, scale), results in sorted(by_scale.items()):
                 for r in sorted(results, key=lambda x: x.operation):
-                    details = ", ".join(
-                        f"{k}={v}" for k, v in r.extra.items()
-                    ) if r.extra else ""
+                    details = ", ".join(f"{k}={v}" for k, v in r.extra.items()) if r.extra else ""
                     lines.append(
-                        f"| {prof} | {scale:,} | {r.operation} | "
-                        f"{r.elapsed_sec:.4f} | {details} |"
+                        f"| {prof} | {scale:,} | {r.operation} | {r.elapsed_sec:.4f} | {details} |"
                     )
             lines.append("")
 
@@ -203,23 +204,23 @@ class BenchmarkSuite:
         if orchestrator.quality_report:
             quality_score = f"{orchestrator.quality_report.overall_score:.2f}"
 
-        self._results.append(BenchmarkResult(
-            operation="generation",
-            scale=scale,
-            profile=profile_name,
-            elapsed_sec=elapsed,
-            peak_memory_mb=peak / (1024 * 1024),
-            entity_count=stats.get("entity_count", 0),
-            relationship_count=stats.get("relationship_count", 0),
-            extra={
-                "quality_score": quality_score,
-                "entity_types": len(stats.get("entity_types", {})),
-                "relationship_types": len(stats.get("relationship_types", {})),
-                "entities_per_sec": int(
-                    stats.get("entity_count", 0) / max(elapsed, 0.001)
-                ),
-            },
-        ))
+        self._results.append(
+            BenchmarkResult(
+                operation="generation",
+                scale=scale,
+                profile=profile_name,
+                elapsed_sec=elapsed,
+                peak_memory_mb=peak / (1024 * 1024),
+                entity_count=stats.get("entity_count", 0),
+                relationship_count=stats.get("relationship_count", 0),
+                extra={
+                    "quality_score": quality_score,
+                    "entity_types": len(stats.get("entity_types", {})),
+                    "relationship_types": len(stats.get("relationship_types", {})),
+                    "entities_per_sec": int(stats.get("entity_count", 0) / max(elapsed, 0.001)),
+                },
+            )
+        )
 
         self._graphs[key] = (kg, stats, counts)
         return kg, stats, counts
@@ -243,9 +244,7 @@ class BenchmarkSuite:
             for scale in self.scales:
                 kg, stats, _ = self._generate_graph(profile_name, scale)
 
-                with tempfile.NamedTemporaryFile(
-                    suffix=".json", delete=False
-                ) as f:
+                with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
                     tmp_path = Path(f.name)
 
                 try:
@@ -255,15 +254,17 @@ class BenchmarkSuite:
                     export_time = time.perf_counter() - start
                     file_size_mb = os.path.getsize(tmp_path) / (1024 * 1024)
 
-                    results.append(BenchmarkResult(
-                        operation="export:json",
-                        scale=scale,
-                        profile=profile_name,
-                        elapsed_sec=export_time,
-                        entity_count=stats.get("entity_count", 0),
-                        relationship_count=stats.get("relationship_count", 0),
-                        extra={"file_size_mb": round(file_size_mb, 2)},
-                    ))
+                    results.append(
+                        BenchmarkResult(
+                            operation="export:json",
+                            scale=scale,
+                            profile=profile_name,
+                            elapsed_sec=export_time,
+                            entity_count=stats.get("entity_count", 0),
+                            relationship_count=stats.get("relationship_count", 0),
+                            extra={"file_size_mb": round(file_size_mb, 2)},
+                        )
+                    )
 
                     # Load (parse + ingest)
                     ingestor = JSONIngestor()
@@ -282,19 +283,21 @@ class BenchmarkSuite:
                     rel_add_time = time.perf_counter() - start
 
                     total_load = parse_time + entity_add_time + rel_add_time
-                    results.append(BenchmarkResult(
-                        operation="load:total",
-                        scale=scale,
-                        profile=profile_name,
-                        elapsed_sec=total_load,
-                        entity_count=len(result.entities),
-                        relationship_count=len(result.relationships),
-                        extra={
-                            "parse_sec": round(parse_time, 4),
-                            "entity_add_sec": round(entity_add_time, 4),
-                            "rel_add_sec": round(rel_add_time, 4),
-                        },
-                    ))
+                    results.append(
+                        BenchmarkResult(
+                            operation="load:total",
+                            scale=scale,
+                            profile=profile_name,
+                            elapsed_sec=total_load,
+                            entity_count=len(result.entities),
+                            relationship_count=len(result.relationships),
+                            extra={
+                                "parse_sec": round(parse_time, 4),
+                                "entity_add_sec": round(entity_add_time, 4),
+                                "rel_add_sec": round(rel_add_time, 4),
+                            },
+                        )
+                    )
                 finally:
                     tmp_path.unlink(missing_ok=True)
 
@@ -319,35 +322,41 @@ class BenchmarkSuite:
                 for _ in range(100):
                     kg.get_entity(entity_id)
                 elapsed = (time.perf_counter() - start) / 100
-                results.append(BenchmarkResult(
-                    operation="read:single_lookup",
-                    scale=scale,
-                    profile=profile_name,
-                    elapsed_sec=elapsed,
-                    extra={"iterations": 100, "per_call_ms": round(elapsed * 1000, 3)},
-                ))
+                results.append(
+                    BenchmarkResult(
+                        operation="read:single_lookup",
+                        scale=scale,
+                        profile=profile_name,
+                        elapsed_sec=elapsed,
+                        extra={"iterations": 100, "per_call_ms": round(elapsed * 1000, 3)},
+                    )
+                )
 
                 # Filtered list
                 start = time.perf_counter()
                 kg.list_entities(entity_type=EntityType.PERSON)
                 elapsed = time.perf_counter() - start
-                results.append(BenchmarkResult(
-                    operation="read:list_filtered",
-                    scale=scale,
-                    profile=profile_name,
-                    elapsed_sec=elapsed,
-                ))
+                results.append(
+                    BenchmarkResult(
+                        operation="read:list_filtered",
+                        scale=scale,
+                        profile=profile_name,
+                        elapsed_sec=elapsed,
+                    )
+                )
 
                 # Query builder
                 start = time.perf_counter()
                 kg.query().entities(EntityType.SYSTEM).execute()
                 elapsed = time.perf_counter() - start
-                results.append(BenchmarkResult(
-                    operation="read:query_builder",
-                    scale=scale,
-                    profile=profile_name,
-                    elapsed_sec=elapsed,
-                ))
+                results.append(
+                    BenchmarkResult(
+                        operation="read:query_builder",
+                        scale=scale,
+                        profile=profile_name,
+                        elapsed_sec=elapsed,
+                    )
+                )
 
         self._results.extend(results)
         return results
@@ -368,36 +377,42 @@ class BenchmarkSuite:
                 start = time.perf_counter()
                 kg.neighbors(systems[0].id)
                 elapsed = time.perf_counter() - start
-                results.append(BenchmarkResult(
-                    operation="traversal:neighbors",
-                    scale=scale,
-                    profile=profile_name,
-                    elapsed_sec=elapsed,
-                ))
+                results.append(
+                    BenchmarkResult(
+                        operation="traversal:neighbors",
+                        scale=scale,
+                        profile=profile_name,
+                        elapsed_sec=elapsed,
+                    )
+                )
 
                 # Shortest path
                 if len(systems) >= 2:
                     start = time.perf_counter()
                     kg.shortest_path(systems[0].id, systems[1].id)
                     elapsed = time.perf_counter() - start
-                    results.append(BenchmarkResult(
-                        operation="traversal:shortest_path",
-                        scale=scale,
-                        profile=profile_name,
-                        elapsed_sec=elapsed,
-                    ))
+                    results.append(
+                        BenchmarkResult(
+                            operation="traversal:shortest_path",
+                            scale=scale,
+                            profile=profile_name,
+                            elapsed_sec=elapsed,
+                        )
+                    )
 
                 # Blast radius
                 start = time.perf_counter()
                 kg.blast_radius(systems[0].id, max_depth=3)
                 elapsed = time.perf_counter() - start
-                results.append(BenchmarkResult(
-                    operation="traversal:blast_radius",
-                    scale=scale,
-                    profile=profile_name,
-                    elapsed_sec=elapsed,
-                    extra={"max_depth": 3},
-                ))
+                results.append(
+                    BenchmarkResult(
+                        operation="traversal:blast_radius",
+                        scale=scale,
+                        profile=profile_name,
+                        elapsed_sec=elapsed,
+                        extra={"max_depth": 3},
+                    )
+                )
 
         self._results.extend(results)
         return results
@@ -429,21 +444,25 @@ class BenchmarkSuite:
                         fn()
                     except (ImportError, ModuleNotFoundError):
                         # Some analysis functions need optional deps (e.g. scipy)
-                        results.append(BenchmarkResult(
+                        results.append(
+                            BenchmarkResult(
+                                operation=name,
+                                scale=scale,
+                                profile=profile_name,
+                                elapsed_sec=0.0,
+                                extra={"skipped": "missing optional dependency"},
+                            )
+                        )
+                        continue
+                    elapsed = time.perf_counter() - start
+                    results.append(
+                        BenchmarkResult(
                             operation=name,
                             scale=scale,
                             profile=profile_name,
-                            elapsed_sec=0.0,
-                            extra={"skipped": "missing optional dependency"},
-                        ))
-                        continue
-                    elapsed = time.perf_counter() - start
-                    results.append(BenchmarkResult(
-                        operation=name,
-                        scale=scale,
-                        profile=profile_name,
-                        elapsed_sec=elapsed,
-                    ))
+                            elapsed_sec=elapsed,
+                        )
+                    )
 
                 # Risk score (needs a system entity)
                 systems = kg.list_entities(entity_type=EntityType.SYSTEM, limit=1)
@@ -451,12 +470,14 @@ class BenchmarkSuite:
                     start = time.perf_counter()
                     compute_risk_score(kg, systems[0].id)
                     elapsed = time.perf_counter() - start
-                    results.append(BenchmarkResult(
-                        operation="analysis:risk_score",
-                        scale=scale,
-                        profile=profile_name,
-                        elapsed_sec=elapsed,
-                    ))
+                    results.append(
+                        BenchmarkResult(
+                            operation="analysis:risk_score",
+                            scale=scale,
+                            profile=profile_name,
+                            elapsed_sec=elapsed,
+                        )
+                    )
 
         self._results.extend(results)
         return results
@@ -478,13 +499,15 @@ class BenchmarkSuite:
                 names = list({e.name for e in all_entities})
                 process.extract("server", names, scorer=fuzz.WRatio, limit=20)
                 elapsed = time.perf_counter() - start
-                results.append(BenchmarkResult(
-                    operation="search:fuzzy",
-                    scale=scale,
-                    profile=profile_name,
-                    elapsed_sec=elapsed,
-                    extra={"candidate_names": len(names)},
-                ))
+                results.append(
+                    BenchmarkResult(
+                        operation="search:fuzzy",
+                        scale=scale,
+                        profile=profile_name,
+                        elapsed_sec=elapsed,
+                        extra={"candidate_names": len(names)},
+                    )
+                )
 
         self._results.extend(results)
         return results

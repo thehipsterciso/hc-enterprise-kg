@@ -491,9 +491,7 @@ class RelationshipWeaver:
             mitigating = random.sample(controls, k=min(random.randint(1, 3), len(controls)))
             risk_level = getattr(risk, "inherent_risk_level", "Medium")
             for control in mitigating:
-                effectiveness = (
-                    "High" if random.random() < 0.6 else "Medium"
-                )
+                effectiveness = "High" if random.random() < 0.6 else "Medium"
                 rels.append(
                     self._make_rel(
                         RelationshipType.MITIGATES,

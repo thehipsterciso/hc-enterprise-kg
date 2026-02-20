@@ -50,6 +50,7 @@ def graph_1000() -> tuple[KnowledgeGraph, dict[str, Any]]:
 @pytest.fixture
 def memory_tracker():
     """Context manager fixture for tracking peak memory."""
+
     class Tracker:
         def __init__(self):
             self.peak_mb = 0.0

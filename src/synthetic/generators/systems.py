@@ -215,32 +215,59 @@ SYSTEM_TEMPLATES = [
 # Overflow system name patterns by type
 OVERFLOW_NAMES: dict[str, list[str]] = {
     "server": [
-        "File Archive Server", "Print Server", "FTP Server", "NTP Server",
-        "Build Server", "License Server", "Proxy Server",
+        "File Archive Server",
+        "Print Server",
+        "FTP Server",
+        "NTP Server",
+        "Build Server",
+        "License Server",
+        "Proxy Server",
     ],
     "application": [
-        "Inventory Management", "Workflow Engine", "Notification Service",
-        "Reporting Engine", "Scheduling System", "Document Management",
-        "Asset Tracker", "Audit Platform",
+        "Inventory Management",
+        "Workflow Engine",
+        "Notification Service",
+        "Reporting Engine",
+        "Scheduling System",
+        "Document Management",
+        "Asset Tracker",
+        "Audit Platform",
     ],
     "database": [
-        "Reporting Database", "Analytics DB", "Archive Database",
-        "Staging Database", "Replica Database",
+        "Reporting Database",
+        "Analytics DB",
+        "Archive Database",
+        "Staging Database",
+        "Replica Database",
     ],
     "saas": [
-        "Project Management SaaS", "Design Tool", "Survey Platform",
-        "Expense Management", "Travel Booking", "E-Signature Platform",
+        "Project Management SaaS",
+        "Design Tool",
+        "Survey Platform",
+        "Expense Management",
+        "Travel Booking",
+        "E-Signature Platform",
     ],
     "workstation": [
-        "Developer Workstation", "Admin Workstation", "Kiosk Terminal",
-        "Lab Workstation", "Trading Terminal",
+        "Developer Workstation",
+        "Admin Workstation",
+        "Kiosk Terminal",
+        "Lab Workstation",
+        "Trading Terminal",
     ],
     "appliance": [
-        "WAF Appliance", "DDoS Mitigation", "Email Gateway",
-        "Web Proxy", "Network TAP",
+        "WAF Appliance",
+        "DDoS Mitigation",
+        "Email Gateway",
+        "Web Proxy",
+        "Network TAP",
     ],
     "vm": [
-        "Test VM", "Dev VM", "Sandbox VM", "Build VM", "Staging VM",
+        "Test VM",
+        "Dev VM",
+        "Sandbox VM",
+        "Build VM",
+        "Staging VM",
     ],
 }
 
@@ -279,15 +306,18 @@ class SystemGenerator(AbstractGenerator):
                 elif sys_type == "saas":
                     os_choice = "Linux"
                 else:
-                    os_choice = random.choice(["Linux", "Ubuntu 22.04", "RHEL 9",
-                                                "Windows Server 2022"])
-                stack = random.choice([
-                    ["python", "flask", "postgresql"],
-                    ["java", "spring", "mysql"],
-                    ["node", "express", "mongodb"],
-                    ["go", "grpc", "redis"],
-                    [".net", "sql-server", "iis"],
-                ])
+                    os_choice = random.choice(
+                        ["Linux", "Ubuntu 22.04", "RHEL 9", "Windows Server 2022"]
+                    )
+                stack = random.choice(
+                    [
+                        ["python", "flask", "postgresql"],
+                        ["java", "spring", "mysql"],
+                        ["node", "express", "mongodb"],
+                        ["go", "grpc", "redis"],
+                        [".net", "sql-server", "iis"],
+                    ]
+                )
                 ports = random.sample([22, 80, 443, 3306, 5432, 8080, 8443], k=random.randint(1, 3))
                 criticality = random.choice(["low", "medium", "high", "critical"])
 
