@@ -119,7 +119,7 @@ class Regulation(BaseEntity):
     entity_type: Literal[EntityType.REGULATION] = EntityType.REGULATION
 
     # --- Identity ---
-    regulation_id: str = ""  # Format: RG-XXXXX
+    regulation_id: str = ""  # Format: REG-XXXXX
     short_name: str = ""  # e.g., "GDPR"
     regulation_type: str = ""  # Law/Statute, Regulation/Rule, Executive Order, etc.
     regulation_category: str = ""  # Data Privacy, Financial Reporting, Cybersecurity, etc.
