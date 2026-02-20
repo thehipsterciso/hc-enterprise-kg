@@ -26,7 +26,7 @@ Entity counts are derived from employee count using industry-specific coefficien
 | Entity Type | Technology | Financial | Healthcare |
 |---|---|---|---|
 | Systems | 8 | 12 | 15 |
-| Vendors | 40 | 35 | 50 |
+| Vendors | **25** | **20** | **30** |
 | Data Assets | 15 | 10 | **5** |
 | Policies | 100 | 40 | 50 |
 | Controls | 50 | **20** | 25 |
@@ -35,7 +35,7 @@ Entity counts are derived from employee count using industry-specific coefficien
 | Integrations | 30 | 40 | 35 |
 | Data Domains | 400 | 300 | 200 |
 | Data Flows | 25 | 20 | **15** |
-| Org Units | 150 | 100 | 120 |
+| Org Units | **80** | **60** | **70** |
 | Capabilities | 100 | 80 | 100 |
 | Sites | 500 | 400 | 300 |
 | Geographies | 1000 | 800 | 800 |
@@ -43,13 +43,63 @@ Entity counts are derived from employee count using industry-specific coefficien
 | Product Portfolios | 2000 | 1500 | 2000 |
 | Products | 200 | 150 | 200 |
 | Market Segments | 1000 | 800 | 1000 |
-| Customers | 100 | 50 | 80 |
-| Contracts | 60 | 40 | 50 |
+| Customers | **50** | **25** | **40** |
+| Contracts | **15** | **8** | **12** |
 | Initiatives | 200 | 150 | 200 |
 | Threat Actors | 250 | 200 | 300 |
 | Incidents | 200 | 150 | 100 |
 
-Bold values highlight where an industry differs most from the default.
+Bold values highlight where an industry differs most from the default. Coefficients for vendors, org units, customers, and contracts were adjusted in v0.19.0 based on Gartner, MuleSoft, NIST, Hackett Group, and McKinsey research benchmarks.
+
+---
+
+## Dynamic Department & Role Scaling
+
+For organizations above ~500 employees per department, departments are automatically subdivided into sub-departments for realistic scaling. Sub-departments are linked to their parent via `parent_department_id`.
+
+### How It Works
+
+1. Each department's headcount is computed from `employee_count * headcount_fraction`
+2. If headcount exceeds 500 and a sub-department template exists, the department is subdivided
+3. The parent department retains ~3% headcount (leadership positions)
+4. Sub-departments split the remaining headcount evenly
+5. Number of sub-departments: `min(template_count, max(2, headcount // 300))`
+
+### Sub-Department Templates
+
+30+ template sets cover all departments across the three profiles:
+
+| Department | Sub-department Examples |
+|---|---|
+| Engineering | Platform, Product, Infrastructure, Data, Mobile, Frontend, Backend, QA, SRE, Security Engineering |
+| Sales | Enterprise, Mid-Market, Inside Sales, Solutions Engineering, Sales Operations |
+| Clinical Operations | Emergency Medicine, Surgical Services, Outpatient, Inpatient, Diagnostics, Rehabilitation, Pediatrics, Cardiology |
+| Trading | Equities, Fixed Income, Derivatives, FX, Commodities |
+
+### Role Seniority Expansion
+
+Roles in sub-departments are expanded with seniority variants based on headcount:
+
+| Headcount Threshold | Seniority Variants Added |
+|---|---|
+| >= 100 | Senior {Role} |
+| >= 300 | Junior {Role} + Senior {Role} |
+| >= 500 | Junior {Role} + Senior {Role} + Staff {Role} |
+
+Roles containing management/leadership keywords (Manager, Director, VP, C-suite) are exempt from seniority expansion.
+
+### Scaling Results (Technology Profile)
+
+| Employees | Departments | Roles |
+|---|---|---|
+| 100 | 10 | 35 |
+| 500 | 10 | 38 |
+| 2,000 | 12 | 71 |
+| 5,000 | 17 | 127 |
+| 14,512 | 42 | 301 |
+| 20,000 | 49 | 382 |
+
+People are distributed to leaf departments (sub-departments where they exist, parent departments where they don't) using headcount-proportional assignment.
 
 ---
 
@@ -86,7 +136,7 @@ The function returns a `(low, high)` tuple. The orchestrator picks a random valu
 | 5,000 | Enterprise (1.2x) | 750 | 600 - 900 |
 | 20,000 | Large (1.4x) | 3,500 | 2,800 - capped |
 
-Location counts also scale: `max(1, min(30, employee_count // N + 1))` where N varies by industry (800 for tech, 600 for financial, 500 for healthcare).
+Location counts also scale dynamically: `max(1, min(100, employee_count // N + 1))` where N varies by industry (400 for tech, 300 for financial, 200 for healthcare).
 
 ---
 
