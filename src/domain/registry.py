@@ -63,6 +63,8 @@ class EntityRegistry:
             Vulnerability,
         )
         from domain.entities.control import Control
+        from domain.entities.data_domain import DataDomain
+        from domain.entities.data_flow import DataFlow
         from domain.entities.integration import Integration
         from domain.entities.regulation import Regulation
         from domain.entities.risk import Risk
@@ -70,8 +72,6 @@ class EntityRegistry:
             BusinessCapability,
             Contract,
             Customer,
-            DataDomain,
-            DataFlow,
             Geography,
             Initiative,
             Jurisdiction,
@@ -104,6 +104,7 @@ class EntityRegistry:
             Threat,
             # L02: Technology & Systems (full implementations)
             Integration,
+            # L03: Data Assets (full implementations)
             DataDomain,
             DataFlow,
             OrganizationalUnit,

@@ -25,21 +25,8 @@ from domain.base import BaseEntity, EntityType
 # See: integration.py (System extended in system.py)
 
 # --- L03: Data Assets ---
-
-
-class DataDomain(BaseEntity):
-    """Stub: data governance domain. Full implementation in L03."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.DATA_DOMAIN
-    entity_type: Literal[EntityType.DATA_DOMAIN] = EntityType.DATA_DOMAIN
-
-
-class DataFlow(BaseEntity):
-    """Stub: data movement between systems. Full implementation in L03."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.DATA_FLOW
-    entity_type: Literal[EntityType.DATA_FLOW] = EntityType.DATA_FLOW
-
+# DataDomain, DataFlow — replaced by full implementations in L03.
+# See: data_domain.py, data_flow.py (DataAsset extended in data_asset.py)
 
 # --- L04: Organization ---
 

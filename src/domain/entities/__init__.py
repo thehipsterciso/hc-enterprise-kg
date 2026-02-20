@@ -8,6 +8,8 @@ from pydantic import Field
 
 from domain.entities.control import Control
 from domain.entities.data_asset import DataAsset
+from domain.entities.data_domain import DataDomain
+from domain.entities.data_flow import DataFlow
 from domain.entities.department import Department
 from domain.entities.incident import Incident
 from domain.entities.integration import Integration
@@ -22,8 +24,6 @@ from domain.entities.stubs import (
     BusinessCapability,
     Contract,
     Customer,
-    DataDomain,
-    DataFlow,
     Geography,
     Initiative,
     Jurisdiction,
@@ -60,6 +60,7 @@ AnyEntity = Annotated[
     | Threat
     # L02: Technology & Systems (full implementations)
     | Integration
+    # L03: Data Assets (full implementations)
     | DataDomain
     | DataFlow
     | OrganizationalUnit
