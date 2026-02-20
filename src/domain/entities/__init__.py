@@ -15,12 +15,12 @@ from domain.entities.incident import Incident
 from domain.entities.integration import Integration
 from domain.entities.location import Location
 from domain.entities.network import Network
+from domain.entities.organizational_unit import OrganizationalUnit
 from domain.entities.person import Person
 from domain.entities.policy import Policy
 from domain.entities.regulation import Regulation
 from domain.entities.risk import Risk
 from domain.entities.role import Role
-from domain.entities.organizational_unit import OrganizationalUnit
 from domain.entities.stubs import (
     BusinessCapability,
     Contract,
