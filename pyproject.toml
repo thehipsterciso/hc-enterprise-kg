@@ -105,6 +105,7 @@ addopts = "-v --tb=short"
 markers = [
     "slow: marks tests as slow (500+ employee graphs, deselect with '-m \"not slow\"')",
     "integration: marks integration tests that exercise multiple subsystems",
+    "performance: marks performance regression tests (run with 'make benchmark')",
 ]
 
 [tool.mypy]
