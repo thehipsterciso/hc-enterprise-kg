@@ -435,7 +435,7 @@ class TestChartRenderer:
         renderer = ChartRenderer(dataset, cfg)
         paths = renderer.render_all()
 
-        assert len(paths) == 2  # scaling_curves + entity_distribution
+        assert len(paths) == 3  # scaling_curves + entity_distribution + relationship_distribution
         for p in paths:
             assert Path(p).exists()
 
@@ -466,5 +466,57 @@ class TestChartRenderer:
         renderer = ChartRenderer(dataset, cfg)
         paths = renderer.render_all()
 
-        assert len(paths) == 1  # only entity_distribution
+        assert len(paths) == 2  # entity_distribution + relationship_distribution
         assert "entity_distribution" in paths[0]
+
+    def test_render_relationship_distribution_creates_file(self, tmp_path):
+        """render_relationship_distribution() should produce a PNG file."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        path = renderer.render_relationship_distribution()
+
+        assert Path(path).exists()
+        assert "relationship_distribution" in path
+
+    def test_render_profile_comparison_creates_file(self, tmp_path):
+        """render_profile_comparison() should produce a PNG with 2+ profiles."""
+        from analysis.charts.renderer import ChartRenderer
+
+        # Need multi-profile dataset
+        snapshots = []
+        for profile in ["tech", "financial"]:
+            snapshots.append(
+                ScaleSnapshot(
+                    profile=profile,
+                    scale=500,
+                    entity_count=2000 if profile == "tech" else 1800,
+                    relationship_count=3500 if profile == "tech" else 3200,
+                    entity_types={"person": 500},
+                    relationship_types={"works_in": 500},
+                    density=0.004,
+                )
+            )
+        dataset = ChartDataSet(
+            snapshots=snapshots, profiles=["tech", "financial"], scales=[500]
+        )
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        path = renderer.render_profile_comparison()
+
+        assert Path(path).exists()
+        assert "profile_comparison" in path
+
+    def test_render_profile_comparison_skipped_single_profile(self, tmp_path):
+        """Profile comparison should not appear in render_all() with single profile."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()  # single profile
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        paths = renderer.render_all()
+
+        filenames = [Path(p).name for p in paths]
+        assert not any("profile_comparison" in f for f in filenames)
