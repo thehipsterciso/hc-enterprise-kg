@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, ClassVar
 
@@ -154,8 +154,8 @@ class RelationshipType(StrEnum):
 class TemporalMixin(BaseModel):
     """Mixin that adds temporal tracking to any entity or relationship."""
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     valid_from: datetime | None = None
     valid_until: datetime | None = None
     version: int = 1

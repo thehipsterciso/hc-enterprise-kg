@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import time
 
+import pytest
+
 from domain.base import EntityType
 from export.json_export import JSONExporter
 from graph.knowledge_graph import KnowledgeGraph
@@ -14,19 +16,40 @@ from synthetic.profiles.tech_company import mid_size_tech_company
 
 # All 30 entity types expected in a full generation
 ALL_ENTITY_TYPES = {
-    "person", "department", "role", "system", "network",
-    "data_asset", "policy", "vendor", "location",
-    "vulnerability", "threat_actor", "incident",
-    "regulation", "control", "risk", "threat",
-    "integration", "data_domain", "data_flow",
-    "organizational_unit", "business_capability",
-    "site", "geography", "jurisdiction",
-    "product_portfolio", "product",
-    "market_segment", "customer",
-    "contract", "initiative",
+    "person",
+    "department",
+    "role",
+    "system",
+    "network",
+    "data_asset",
+    "policy",
+    "vendor",
+    "location",
+    "vulnerability",
+    "threat_actor",
+    "incident",
+    "regulation",
+    "control",
+    "risk",
+    "threat",
+    "integration",
+    "data_domain",
+    "data_flow",
+    "organizational_unit",
+    "business_capability",
+    "site",
+    "geography",
+    "jurisdiction",
+    "product_portfolio",
+    "product",
+    "market_segment",
+    "customer",
+    "contract",
+    "initiative",
 }
 
 
+@pytest.mark.slow
 class TestLargeGraphGeneration:
     """Tests with 500+ employee graphs."""
 

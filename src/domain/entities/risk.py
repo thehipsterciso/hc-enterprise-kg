@@ -177,12 +177,8 @@ class Risk(BaseEntity):
     inherent_likelihood: str = ""  # Almost Certain, Likely, Possible, Unlikely, Rare
     inherent_impact: str = ""  # Catastrophic, Major, Moderate, Minor, Insignificant
     inherent_risk_level: str = ""  # Critical, High, Medium, Low, Minimal
-    inherent_financial_impact: FinancialImpact = Field(
-        default_factory=FinancialImpact
-    )
-    inherent_impact_dimensions: ImpactDimensions = Field(
-        default_factory=ImpactDimensions
-    )
+    inherent_financial_impact: FinancialImpact = Field(default_factory=FinancialImpact)
+    inherent_impact_dimensions: ImpactDimensions = Field(default_factory=ImpactDimensions)
 
     # --- Residual risk assessment ---
     residual_likelihood: str = ""
@@ -201,9 +197,7 @@ class Risk(BaseEntity):
     # --- Appetite, tolerance & materiality ---
     risk_appetite: str = ""  # Averse, Conservative, Moderate, Open, Aggressive
     risk_tolerance: RiskTolerance = Field(default_factory=RiskTolerance)
-    materiality_assessment: MaterialityAssessment = Field(
-        default_factory=MaterialityAssessment
-    )
+    materiality_assessment: MaterialityAssessment = Field(default_factory=MaterialityAssessment)
     board_reportable: bool = False
 
     # --- Ownership & treatment ---
@@ -228,6 +222,4 @@ class Risk(BaseEntity):
 
     # --- Temporal & provenance ---
     temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

@@ -411,28 +411,16 @@ class TestInitiative:
                     impact_description="Digitizes end-to-end customer journey",
                 )
             ],
-            impacts_org_units=[
-                ImpactsOrgUnit(org_unit_id="OU-00003", impact_type="Restructures")
-            ],
-            impacts_roles=[
-                ImpactsRole(role_id="R-00015", impact_type="Changes Responsibilities")
-            ],
-            impacts_locations=[
-                ImpactsLocation(site_id="SITE-00020", impact_type="Consolidates")
-            ],
+            impacts_org_units=[ImpactsOrgUnit(org_unit_id="OU-00003", impact_type="Restructures")],
+            impacts_roles=[ImpactsRole(role_id="R-00015", impact_type="Changes Responsibilities")],
+            impacts_locations=[ImpactsLocation(site_id="SITE-00020", impact_type="Consolidates")],
             impacts_systems=[
                 ImpactsSystem(system_id="SYS-00042", impact_type="Decommissions"),
                 ImpactsSystem(system_id="SYS-00099", impact_type="Implements New"),
             ],
-            impacts_data=[
-                ImpactsData(data_asset_id="DA-00030", impact_type="Migrates")
-            ],
-            impacts_products=[
-                ImpactsProduct(product_id="PRD-00005", impact_type="Enhances")
-            ],
-            impacts_customers=[
-                ImpactsCustomer(customer_id="CUST-00100", impact_type="Migrates")
-            ],
+            impacts_data=[ImpactsData(data_asset_id="DA-00030", impact_type="Migrates")],
+            impacts_products=[ImpactsProduct(product_id="PRD-00005", impact_type="Enhances")],
+            impacts_customers=[ImpactsCustomer(customer_id="CUST-00100", impact_type="Migrates")],
             impacts_vendors=[
                 ImpactsVendor(vendor_id="V-00010", impact_type="Transitions Away From")
             ],
@@ -476,9 +464,7 @@ class TestInitiative:
                     milestone_type="Go-Live",
                 )
             ],
-            impacts_systems=[
-                ImpactsSystem(system_id="SYS-001", impact_type="Migrates")
-            ],
+            impacts_systems=[ImpactsSystem(system_id="SYS-001", impact_type="Migrates")],
         )
         data = json.loads(init.model_dump_json())
         restored = Initiative(**data)

@@ -116,9 +116,7 @@ class AbstractGraphEngine(ABC):
         """Extract a subgraph containing only the specified entities."""
         ...
 
-    def blast_radius(
-        self, entity_id: str, max_depth: int = 3
-    ) -> dict[int, list[BaseEntity]]:
+    def blast_radius(self, entity_id: str, max_depth: int = 3) -> dict[int, list[BaseEntity]]:
         """Compute entities reachable within N hops via BFS.
 
         Returns a dict mapping hop depth to lists of entities at that depth.
@@ -145,6 +143,24 @@ class AbstractGraphEngine(ABC):
                         queue.append((neighbor.id, depth + 1))
 
         return by_depth
+
+    # --- Analytics ---
+
+    def degree_centrality(self, top_n: int = 20) -> list[tuple[str, float]]:
+        """Return top N entities by degree centrality. Override for efficiency."""
+        raise NotImplementedError("Subclass must implement degree_centrality")
+
+    def betweenness_centrality(self, top_n: int = 20) -> list[tuple[str, float]]:
+        """Return top N entities by betweenness centrality. Override for efficiency."""
+        raise NotImplementedError("Subclass must implement betweenness_centrality")
+
+    def pagerank(self, top_n: int = 20) -> list[tuple[str, float]]:
+        """Return top N entities by PageRank. Override for efficiency."""
+        raise NotImplementedError("Subclass must implement pagerank")
+
+    def most_connected(self, top_n: int = 10) -> list[tuple[str, int]]:
+        """Return top N entities by raw connection count. Override for efficiency."""
+        raise NotImplementedError("Subclass must implement most_connected")
 
     # --- Bulk Operations ---
 

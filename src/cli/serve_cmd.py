@@ -10,15 +10,25 @@ import click
 @click.option("--host", default="127.0.0.1", help="Bind address (default: 127.0.0.1).")
 @click.option("--port", default=8420, type=int, help="Port to listen on (default: 8420).")
 @click.option(
-    "--stdio", "use_stdio", is_flag=True, default=False,
+    "--stdio",
+    "use_stdio",
+    is_flag=True,
+    default=False,
     help="Run as MCP server over stdio (for Claude Desktop).",
 )
 @click.option(
-    "--reload", "use_reload", is_flag=True, default=False,
+    "--reload",
+    "use_reload",
+    is_flag=True,
+    default=False,
     help="Enable auto-reload for development.",
 )
 def serve_cmd(
-    source: str, host: str, port: int, use_stdio: bool, use_reload: bool,
+    source: str,
+    host: str,
+    port: int,
+    use_stdio: bool,
+    use_reload: bool,
 ) -> None:
     """Start the knowledge graph server.
 

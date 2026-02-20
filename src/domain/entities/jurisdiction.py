@@ -95,12 +95,8 @@ class TaxRegime(BaseModel):
     corporate_tax_rate: float | None = None  # 0-100
     effective_tax_rate: float | None = None  # 0-100
     vat_gst_rate: float | None = None  # 0-100
-    withholding_tax_rates: WithholdingTaxRates = Field(
-        default_factory=WithholdingTaxRates
-    )
-    transfer_pricing_rules: TransferPricingRules = Field(
-        default_factory=TransferPricingRules
-    )
+    withholding_tax_rates: WithholdingTaxRates = Field(default_factory=WithholdingTaxRates)
+    transfer_pricing_rules: TransferPricingRules = Field(default_factory=TransferPricingRules)
     tax_incentives: list[str] = Field(default_factory=list)
 
 

@@ -188,12 +188,8 @@ class TestVendorExtended:
                 last_assessed="2024-10-01",
             ),
             performance_dimensions=[
-                PerformanceDimension(
-                    dimension="Quality", score=4.5, weight=0.3
-                ),
-                PerformanceDimension(
-                    dimension="Responsiveness", score=3.8, weight=0.2
-                ),
+                PerformanceDimension(dimension="Quality", score=4.5, weight=0.3),
+                PerformanceDimension(dimension="Responsiveness", score=3.8, weight=0.2),
             ],
             sla_compliance=SLACompliance(
                 sla_count=15,
@@ -371,9 +367,7 @@ class TestVendorExtended:
         v = Vendor(
             name="Multi-Service Vendor",
             holds_contracts=["CT-MSA-001", "CT-SOW-001"],
-            supplies_products=[
-                SuppliesProduct(product_id="PR-WIDGET", supply_type="Component")
-            ],
+            supplies_products=[SuppliesProduct(product_id="PR-WIDGET", supply_type="Component")],
             managed_by_org_unit="OU-PROCUREMENT",
             provides_systems=[
                 ProvidesSystem(

@@ -232,9 +232,7 @@ class TestBusinessCapability:
             ),
             shared_service_model="Shared Service",
             funding_model="Centrally Funded",
-            funding_amount=FundingAmount(
-                annual_budget=5000000, currency="USD", fiscal_year="2024"
-            ),
+            funding_amount=FundingAmount(annual_budget=5000000, currency="USD", fiscal_year="2024"),
             headcount_allocation=HeadcountAllocation(
                 fte_count=25, contractor_count=5, vendor_fte_count=3, total=33
             ),

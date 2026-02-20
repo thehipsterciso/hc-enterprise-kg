@@ -99,9 +99,7 @@ class TestMCPFullLifecycle:
         assert "total_affected" in blast
 
         # find_shortest_path (self to self)
-        path_result = _call_tool(
-            "find_shortest_path", source_id=entity_id, target_id=entity_id
-        )
+        path_result = _call_tool("find_shortest_path", source_id=entity_id, target_id=entity_id)
         assert path_result["path_length"] == 0
 
     def test_auto_reload_after_regeneration(self):
@@ -133,16 +131,36 @@ class TestMCPFullLifecycle:
         entity_types = set(stats["entity_types"].keys())
 
         expected_types = {
-            "person", "department", "role", "system", "network",
-            "data_asset", "policy", "vendor", "location",
-            "vulnerability", "threat_actor", "incident",
-            "regulation", "control", "risk", "threat",
-            "integration", "data_domain", "data_flow",
-            "organizational_unit", "business_capability",
-            "site", "geography", "jurisdiction",
-            "product_portfolio", "product",
-            "market_segment", "customer",
-            "contract", "initiative",
+            "person",
+            "department",
+            "role",
+            "system",
+            "network",
+            "data_asset",
+            "policy",
+            "vendor",
+            "location",
+            "vulnerability",
+            "threat_actor",
+            "incident",
+            "regulation",
+            "control",
+            "risk",
+            "threat",
+            "integration",
+            "data_domain",
+            "data_flow",
+            "organizational_unit",
+            "business_capability",
+            "site",
+            "geography",
+            "jurisdiction",
+            "product_portfolio",
+            "product",
+            "market_segment",
+            "customer",
+            "contract",
+            "initiative",
         }
         missing = expected_types - entity_types
         assert not missing, f"Missing entity types: {missing}"

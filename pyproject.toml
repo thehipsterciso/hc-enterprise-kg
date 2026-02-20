@@ -64,8 +64,10 @@ dev = [
     "pytest>=7.4",
     "pytest-cov>=4.1",
     "pytest-mock>=3.12",
+    "hypothesis>=6.0",
     "mypy>=1.8",
     "ruff>=0.2",
+    "pre-commit>=3.0",
 ]
 
 [project.scripts]
@@ -100,6 +102,10 @@ packages = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+markers = [
+    "slow: marks tests as slow (500+ employee graphs, deselect with '-m \"not slow\"')",
+    "integration: marks integration tests that exercise multiple subsystems",
+]
 
 [tool.mypy]
 strict = true
@@ -110,4 +116,19 @@ line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "TCH"]
+select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "TCH", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S108"]
+"src/synthetic/**" = ["S311"]
+
+[tool.coverage.run]
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.",
+]

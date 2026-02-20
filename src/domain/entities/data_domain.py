@@ -148,9 +148,7 @@ class DataDomain(BaseEntity):
     data_classification: str = ""  # Highest classification in this domain
     sensitivity_flags: SensitivityFlags = Field(default_factory=SensitivityFlags)
     regulatory_sensitivity: list[RegulatorySensitivity] = Field(default_factory=list)
-    data_residency_requirements: list[DataResidencyRequirement] = Field(
-        default_factory=list
-    )
+    data_residency_requirements: list[DataResidencyRequirement] = Field(default_factory=list)
 
     # --- Retention ---
     retention_policy: RetentionPolicy = Field(default_factory=RetentionPolicy)
@@ -162,12 +160,8 @@ class DataDomain(BaseEntity):
 
     # --- Strategic Value ---
     strategic_value: str = ""  # Revenue Generating, Decision Enabling, Compliance Required, etc.
-    monetization_potential: MonetizationPotential = Field(
-        default_factory=MonetizationPotential
-    )
+    monetization_potential: MonetizationPotential = Field(default_factory=MonetizationPotential)
 
     # --- Temporal & Provenance ---
     temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

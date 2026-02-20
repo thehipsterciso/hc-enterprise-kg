@@ -16,9 +16,7 @@ class TestInstallClaude:
         runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = Path(tmpdir) / "claude_desktop_config.json"
-            result = runner.invoke(
-                cli, ["install", "claude", "--config", str(config_path)]
-            )
+            result = runner.invoke(cli, ["install", "claude", "--config", str(config_path)])
             assert result.exit_code == 0, result.output
             assert config_path.exists()
 
@@ -41,9 +39,7 @@ class TestInstallClaude:
             }
             config_path.write_text(json.dumps(existing))
 
-            result = runner.invoke(
-                cli, ["install", "claude", "--config", str(config_path)]
-            )
+            result = runner.invoke(cli, ["install", "claude", "--config", str(config_path)])
             assert result.exit_code == 0, result.output
 
             config = json.loads(config_path.read_text())
@@ -60,9 +56,12 @@ class TestInstallClaude:
             result = runner.invoke(
                 cli,
                 [
-                    "install", "claude",
-                    "--config", str(config_path),
-                    "--graph", str(graph_path),
+                    "install",
+                    "claude",
+                    "--config",
+                    str(config_path),
+                    "--graph",
+                    str(graph_path),
                 ],
             )
             assert result.exit_code == 0, result.output
@@ -77,12 +76,8 @@ class TestInstallClaude:
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = Path(tmpdir) / "claude_desktop_config.json"
 
-            runner.invoke(
-                cli, ["install", "claude", "--config", str(config_path)]
-            )
-            result = runner.invoke(
-                cli, ["install", "claude", "--config", str(config_path)]
-            )
+            runner.invoke(cli, ["install", "claude", "--config", str(config_path)])
+            result = runner.invoke(cli, ["install", "claude", "--config", str(config_path)])
             assert result.exit_code == 0, result.output
             assert "Updating" in result.output or "Registered" in result.output
 
@@ -92,11 +87,10 @@ class TestInstallStatus:
         runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = Path(tmpdir) / "claude_desktop_config.json"
-            runner.invoke(
-                cli, ["install", "claude", "--config", str(config_path)]
-            )
+            runner.invoke(cli, ["install", "claude", "--config", str(config_path)])
 
             from cli import install_cmd
+
             original = install_cmd._detect_claude_config_path
 
             try:
@@ -114,6 +108,7 @@ class TestInstallStatus:
             config_path.write_text(json.dumps({"mcpServers": {}}))
 
             from cli import install_cmd
+
             original = install_cmd._detect_claude_config_path
 
             try:
@@ -130,11 +125,10 @@ class TestInstallRemove:
         runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = Path(tmpdir) / "claude_desktop_config.json"
-            runner.invoke(
-                cli, ["install", "claude", "--config", str(config_path)]
-            )
+            runner.invoke(cli, ["install", "claude", "--config", str(config_path)])
 
             from cli import install_cmd
+
             original = install_cmd._detect_claude_config_path
 
             try:
@@ -155,6 +149,7 @@ class TestInstallRemove:
             config_path.write_text(json.dumps({"mcpServers": {}}))
 
             from cli import install_cmd
+
             original = install_cmd._detect_claude_config_path
 
             try:

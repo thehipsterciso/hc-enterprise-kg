@@ -413,18 +413,14 @@ class Person(BaseEntity):
     retention_actions: list[RetentionAction] = Field(default_factory=list)
 
     # --- Group 5: Risk & Compliance ---
-    background_check_status: BackgroundCheckStatus = Field(
-        default_factory=BackgroundCheckStatus
-    )
+    background_check_status: BackgroundCheckStatus = Field(default_factory=BackgroundCheckStatus)
     conflict_of_interest_declarations: list[ConflictOfInterestDeclaration] = Field(
         default_factory=list
     )
     regulatory_fitness: list[RegulatoryFitness] = Field(default_factory=list)
     access_privileges: list[AccessPrivilege] = Field(default_factory=list)
     insider_status: InsiderStatus = Field(default_factory=InsiderStatus)
-    mandatory_training_compliance: list[MandatoryTrainingCompliance] = Field(
-        default_factory=list
-    )
+    mandatory_training_compliance: list[MandatoryTrainingCompliance] = Field(default_factory=list)
 
     # --- Group 6: Edge Interface Ports ---
     holds_roles: list[str] = Field(default_factory=list)  # Role IDs

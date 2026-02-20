@@ -385,28 +385,20 @@ class Role(BaseEntity):
     )
     language_requirements: list[LanguageRequirement] = Field(default_factory=list)
     travel_requirement: TravelRequirement = Field(default_factory=TravelRequirement)
-    physical_requirements: PhysicalRequirements = Field(
-        default_factory=PhysicalRequirements
-    )
+    physical_requirements: PhysicalRequirements = Field(default_factory=PhysicalRequirements)
     authority_delegated: AuthorityDelegated = Field(default_factory=AuthorityDelegated)
 
     # --- Group 3: Governance & Accountability ---
     reports_to_role: str = ""  # Reference to parent Role
     dotted_line_to: list[DottedLineRelationship] = Field(default_factory=list)
-    direct_reports_target: DirectReportsTarget = Field(
-        default_factory=DirectReportsTarget
-    )
+    direct_reports_target: DirectReportsTarget = Field(default_factory=DirectReportsTarget)
     governance_memberships: list[GovernanceMembership] = Field(default_factory=list)
     decision_rights: list[DecisionRight] = Field(default_factory=list)
-    regulatory_accountability: list[RegulatoryAccountability] = Field(
-        default_factory=list
-    )
+    regulatory_accountability: list[RegulatoryAccountability] = Field(default_factory=list)
     succession_criticality: str = ""
     # Enum: Critical — Must Have Successor, Important — Should Have Plan,
     # Standard — Normal Replacement, Temporary — No Succession Needed
-    role_mandate_document: RoleMandateDocument = Field(
-        default_factory=RoleMandateDocument
-    )
+    role_mandate_document: RoleMandateDocument = Field(default_factory=RoleMandateDocument)
 
     # --- Group 4: Capacity & Allocation ---
     headcount_authorized: int | None = None

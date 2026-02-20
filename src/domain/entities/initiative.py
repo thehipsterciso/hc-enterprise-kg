@@ -509,9 +509,7 @@ class Initiative(BaseEntity):
     initiative_risk_profile: InitiativeRiskProfile | None = None
     active_risks: list[ActiveRisk] = Field(default_factory=list)
     active_issues: list[ActiveIssue] = Field(default_factory=list)
-    dependencies_on_other_initiatives: list[InitiativeDependency] = Field(
-        default_factory=list
-    )
+    dependencies_on_other_initiatives: list[InitiativeDependency] = Field(default_factory=list)
     constraints: list[Constraint] = Field(default_factory=list)
     lessons_learned: list[LessonLearned] = Field(default_factory=list)
 
@@ -535,9 +533,7 @@ class Initiative(BaseEntity):
     related_initiatives: list[RelatedInitiative] = Field(default_factory=list)
 
     # --- Group 9: Temporal & Provenance ---
-    temporal_and_versioning: TemporalAndVersioning = Field(
-        default_factory=TemporalAndVersioning
-    )
+    temporal_and_versioning: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
     provenance_and_confidence: ProvenanceAndConfidence = Field(
         default_factory=ProvenanceAndConfidence
     )

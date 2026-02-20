@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any
 
 from auto.base import PipelineResult
@@ -18,6 +19,8 @@ if TYPE_CHECKING:
     from auto.linkers.base import AbstractLinker
     from auto.resolvers.base import AbstractResolver
     from graph.knowledge_graph import KnowledgeGraph
+
+logger = logging.getLogger(__name__)
 
 
 class AutoKGPipeline:
@@ -146,7 +149,7 @@ class AutoKGPipeline:
                 self._kg.add_entity(entity)
                 entity_ids_in_kg.add(entity.id)
             except Exception:
-                pass  # Skip entities that fail validation
+                logger.debug("Skipping entity %s: failed validation", entity.id)
 
         loaded_rels = 0
         for rel in final_relationships:
@@ -155,7 +158,7 @@ class AutoKGPipeline:
                     self._kg.add_relationship(rel)
                     loaded_rels += 1
                 except Exception:
-                    pass
+                    logger.debug("Skipping relationship %s: failed to add", rel.id)
 
         result.entities = final_entities
         result.relationships = final_relationships

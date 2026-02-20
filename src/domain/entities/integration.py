@@ -152,30 +152,22 @@ class Integration(BaseEntity):
     direction: str = ""  # Unidirectional, Bidirectional
 
     # --- Middleware ---
-    middleware_platform: MiddlewarePlatform = Field(
-        default_factory=MiddlewarePlatform
-    )
+    middleware_platform: MiddlewarePlatform = Field(default_factory=MiddlewarePlatform)
 
     # --- Data profile ---
     data_exchanged: DataExchanged = Field(default_factory=DataExchanged)
     frequency: str = ""  # Real-Time, Near Real-Time, Hourly, Daily, etc.
 
     # --- Performance ---
-    latency_requirement: LatencyRequirement = Field(
-        default_factory=LatencyRequirement
-    )
+    latency_requirement: LatencyRequirement = Field(default_factory=LatencyRequirement)
     error_handling: ErrorHandling = Field(default_factory=ErrorHandling)
-    availability_sla: IntegrationAvailabilitySLA = Field(
-        default_factory=IntegrationAvailabilitySLA
-    )
+    availability_sla: IntegrationAvailabilitySLA = Field(default_factory=IntegrationAvailabilitySLA)
 
     # --- Status ---
     operational_status: str = ""  # Active, Degraded, Maintenance, Failed, etc.
 
     # --- Security ---
-    security_profile: IntegrationSecurityProfile = Field(
-        default_factory=IntegrationSecurityProfile
-    )
+    security_profile: IntegrationSecurityProfile = Field(default_factory=IntegrationSecurityProfile)
     crosses_boundary: CrossesBoundary = Field(default_factory=CrossesBoundary)
 
     # --- Ownership ---
@@ -187,9 +179,7 @@ class Integration(BaseEntity):
     annual_cost: IntegrationCost = Field(default_factory=IntegrationCost)
 
     # --- Technical debt ---
-    technical_debt_indicators: list[IntegrationTechDebt] = Field(
-        default_factory=list
-    )
+    technical_debt_indicators: list[IntegrationTechDebt] = Field(default_factory=list)
 
     # --- Monitoring ---
     monitoring_status: str = ""  # Fully Monitored, Partially, Not Monitored
@@ -202,14 +192,8 @@ class Integration(BaseEntity):
 
     # --- Provenance ---
     confidence_level: str = ""  # Verified, Assessed, Estimated, Assumed, Unknown
-    data_quality_score: DataQualityScore = Field(
-        default_factory=DataQualityScore
-    )
+    data_quality_score: DataQualityScore = Field(default_factory=DataQualityScore)
 
     # --- Temporal & Provenance ---
-    temporal: TemporalAndVersioning = Field(
-        default_factory=TemporalAndVersioning
-    )
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

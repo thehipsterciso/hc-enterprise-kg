@@ -180,9 +180,7 @@ class TestDataAssetExtended:
     def test_data_quality(self):
         da = DataAsset(
             name="Product Catalog",
-            quality_score_composite=QualityScoreComposite(
-                score=4.2, assessed_date="2024-09-01"
-            ),
+            quality_score_composite=QualityScoreComposite(score=4.2, assessed_date="2024-09-01"),
             quality_dimensions=[
                 QualityDimension(
                     dimension="Completeness",
@@ -378,9 +376,7 @@ class TestDataAssetExtended:
             data_type="financial",
             classification="restricted",
             quality_score_composite=QualityScoreComposite(score=3.8),
-            storage_technology=StorageTechnology(
-                system_id="SY-001", system_name="Postgres"
-            ),
+            storage_technology=StorageTechnology(system_id="SY-001", system_name="Postgres"),
             encryption_at_rest=EncryptionAtRest(encrypted=True, algorithm="AES-256"),
             total_data_cost=TotalDataCost(annual_total=50_000),
         )
@@ -577,13 +573,9 @@ class TestDataFlow:
                 transformation_type="Mapping",
             ),
             data_classification_in_flow="Confidential",
-            volume_per_execution=FlowVolume(
-                records=500_000, size=2.5, size_unit="GB"
-            ),
+            volume_per_execution=FlowVolume(records=500_000, size=2.5, size_unit="GB"),
             frequency="Daily",
-            latency=FlowLatency(
-                target_ms=300_000, actual_p95_ms=180_000, meets_target=True
-            ),
+            latency=FlowLatency(target_ms=300_000, actual_p95_ms=180_000, meets_target=True),
             quality_gates=[
                 QualityGate(
                     gate_type="Completeness Check",
@@ -609,9 +601,7 @@ class TestDataFlow:
             owner="Finance Data Engineer",
             support_team="Data Platform Team",
             operational_status="Active",
-            error_rate=FlowErrorRate(
-                current_pct=0.02, threshold_pct=1.0, trend="Stable"
-            ),
+            error_rate=FlowErrorRate(current_pct=0.02, threshold_pct=1.0, trend="Stable"),
             monitoring_status="Fully Monitored",
             sla=FlowSLA(
                 freshness_target="T+1 Day",

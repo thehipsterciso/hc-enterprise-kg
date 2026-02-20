@@ -15,17 +15,18 @@ def _detect_claude_config_path() -> Path | None:
     system = platform.system()
     if system == "Darwin":
         return (
-            Path.home() / "Library" / "Application Support"
-            / "Claude" / "claude_desktop_config.json"
+            Path.home()
+            / "Library"
+            / "Application Support"
+            / "Claude"
+            / "claude_desktop_config.json"
         )
     if system == "Windows":
         appdata = Path.home() / "AppData" / "Roaming" / "Claude"
         return appdata / "claude_desktop_config.json"
     if system == "Linux":
         config_home = Path(
-            __import__("os").environ.get(
-                "XDG_CONFIG_HOME", str(Path.home() / ".config")
-            )
+            __import__("os").environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))
         )
         return config_home / "claude" / "claude_desktop_config.json"
     return None
@@ -108,9 +109,7 @@ def install_claude(config_path: str | None, graph_path: str | None) -> None:
         server_entry["env"] = {"HCKG_DEFAULT_GRAPH": str(abs_graph)}
         click.echo(f"  Graph:   {abs_graph}")
 
-    existing = (
-        json.loads(conf_file.read_text()) if conf_file.exists() else {}
-    )
+    existing = json.loads(conf_file.read_text()) if conf_file.exists() else {}
 
     if "mcpServers" not in existing:
         existing["mcpServers"] = {}
@@ -126,7 +125,7 @@ def install_claude(config_path: str | None, graph_path: str | None) -> None:
     click.echo(f"\n  Registered in {conf_file}")
     click.echo("\n  Next steps:")
     click.echo("    1. Restart Claude Desktop")
-    click.echo("    2. Ask Claude: \"Load the graph and show me statistics\"")
+    click.echo('    2. Ask Claude: "Load the graph and show me statistics"')
 
 
 @install_group.command("status")
@@ -147,9 +146,7 @@ def install_status() -> None:
             if "cwd" in entry:
                 click.echo(f"    CWD:     {entry['cwd']}")
             if "env" in entry and "HCKG_DEFAULT_GRAPH" in entry["env"]:
-                click.echo(
-                    f"    Graph:   {entry['env']['HCKG_DEFAULT_GRAPH']}"
-                )
+                click.echo(f"    Graph:   {entry['env']['HCKG_DEFAULT_GRAPH']}")
         else:
             click.echo("    Not registered")
             click.echo("    Run: hckg install claude")

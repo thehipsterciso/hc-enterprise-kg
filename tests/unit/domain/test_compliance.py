@@ -345,7 +345,9 @@ class TestControl:
             control_status="Implemented",
             control_weighting=9,
             applicability_dimensions=ApplicabilityDimensions(
-                technology=True, data=True, process=True,
+                technology=True,
+                data=True,
+                process=True,
             ),
             assessment_question="Is AES-256 encryption applied to all restricted data at rest?",
             control_owner="Security Engineering Lead",

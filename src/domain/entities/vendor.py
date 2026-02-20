@@ -518,9 +518,7 @@ class Vendor(BaseEntity):
     vendor_compliance_certifications: list[VendorComplianceCertification] = Field(
         default_factory=list
     )
-    regulatory_applicability: list[RegulatoryApplicability] = Field(
-        default_factory=list
-    )
+    regulatory_applicability: list[RegulatoryApplicability] = Field(default_factory=list)
     sanctions_screening: VendorSanctionsScreening | None = None
     data_processing: DataProcessing | None = None
     insurance_coverage: VendorInsuranceCoverage | None = None
@@ -552,9 +550,7 @@ class Vendor(BaseEntity):
     serves_customers_through: list[str] = Field(default_factory=list)
 
     # --- Group 9: Temporal & Provenance ---
-    temporal_and_versioning: TemporalAndVersioning = Field(
-        default_factory=TemporalAndVersioning
-    )
+    temporal_and_versioning: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
     provenance_and_confidence: ProvenanceAndConfidence = Field(
         default_factory=ProvenanceAndConfidence
     )

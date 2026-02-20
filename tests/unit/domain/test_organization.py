@@ -122,9 +122,7 @@ class TestOrganizationalUnit:
             name="APAC Operations",
             operational_status="Active",
             operational_status_rationale="Fully operational across all geographies",
-            employee_count=EmployeeCount(
-                fte=2500, contractor=300, vendor_fte=150, total=2950
-            ),
+            employee_count=EmployeeCount(fte=2500, contractor=300, vendor_fte=150, total=2950),
             employee_count_by_location=[
                 EmployeeCountByLocation(
                     location_id="SITE-001",
@@ -446,9 +444,7 @@ class TestOrganizationalUnit:
                     parent_unit_id="OU-00001",
                 ),
             ],
-            cost_structure=CostStructure(
-                total_annual_cost=2_000_000, fiscal_year="FY2024"
-            ),
+            cost_structure=CostStructure(total_annual_cost=2_000_000, fiscal_year="FY2024"),
         )
         data = ou.model_dump()
         ou2 = OrganizationalUnit.model_validate(data)

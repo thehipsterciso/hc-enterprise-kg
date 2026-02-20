@@ -56,16 +56,12 @@ class TestSearchByAttribute:
 
     def test_search_by_attribute_finds_match(self, populated_kg):
         """Searching by an attribute value should find matching entities."""
-        results = GraphSearch.search_by_attribute(
-            populated_kg, "email", "alice.smith@acme.com"
-        )
+        results = GraphSearch.search_by_attribute(populated_kg, "email", "alice.smith@acme.com")
         assert len(results) == 1
         assert results[0].name == "Alice Smith"
 
     def test_search_by_attribute_case_insensitive(self, populated_kg):
         """Attribute search should be case-insensitive."""
-        results = GraphSearch.search_by_attribute(
-            populated_kg, "email", "ALICE.SMITH@ACME.COM"
-        )
+        results = GraphSearch.search_by_attribute(populated_kg, "email", "ALICE.SMITH@ACME.COM")
         assert len(results) == 1
         assert results[0].name == "Alice Smith"

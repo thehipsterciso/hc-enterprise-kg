@@ -269,9 +269,7 @@ class TestProduct:
                 target_margin_pct=50.0,
                 margin_trend="Improving",
             ),
-            cost_to_deliver=CostToDeliver(
-                annual_cost=10_000_000, cost_type="Fully Loaded"
-            ),
+            cost_to_deliver=CostToDeliver(annual_cost=10_000_000, cost_type="Fully Loaded"),
             customer_count=CustomerCount(
                 active_customers=850,
                 total_customers_lifetime=1200,
@@ -448,9 +446,7 @@ class TestProduct:
         p = Product(
             name="SecureConnect",
             belongs_to_portfolio=[
-                PortfolioMembership(
-                    portfolio_id="PP-SEC", relationship_type="Primary"
-                )
+                PortfolioMembership(portfolio_id="PP-SEC", relationship_type="Primary")
             ],
             enabled_by_capabilities=[
                 CapabilityLink(
@@ -464,11 +460,7 @@ class TestProduct:
                 engineering_lead="RL-ENG-SC",
             ),
             delivered_from_locations=["ST-AWS-USEAST", "ST-AWS-EUWEST"],
-            enabled_by_systems=[
-                SystemLink(
-                    system_id="SYS-K8S", enablement_type="Core Platform"
-                )
-            ],
+            enabled_by_systems=[SystemLink(system_id="SYS-K8S", enablement_type="Core Platform")],
             serves_customers=[],
             depends_on_vendors=[
                 VendorLink(

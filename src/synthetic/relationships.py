@@ -361,11 +361,13 @@ class RelationshipWeaver:
             return rels
         for control in controls:
             reg = random.choice(regulations)
-            rels.append(BaseRelationship(
-                relationship_type=RelationshipType.IMPLEMENTS,
-                source_id=control.id,
-                target_id=reg.id,
-            ))
+            rels.append(
+                BaseRelationship(
+                    relationship_type=RelationshipType.IMPLEMENTS,
+                    source_id=control.id,
+                    target_id=reg.id,
+                )
+            )
         return rels
 
     def _link_risks_to_controls(self) -> list[BaseRelationship]:
@@ -378,11 +380,13 @@ class RelationshipWeaver:
         for risk in risks:
             mitigating = random.sample(controls, k=min(random.randint(1, 3), len(controls)))
             for control in mitigating:
-                rels.append(BaseRelationship(
-                    relationship_type=RelationshipType.MITIGATES,
-                    source_id=control.id,
-                    target_id=risk.id,
-                ))
+                rels.append(
+                    BaseRelationship(
+                        relationship_type=RelationshipType.MITIGATES,
+                        source_id=control.id,
+                        target_id=risk.id,
+                    )
+                )
         return rels
 
     def _link_integrations_to_systems(self) -> list[BaseRelationship]:
@@ -394,11 +398,13 @@ class RelationshipWeaver:
             return rels
         for integration in integrations:
             target_sys = random.choice(systems)
-            rels.append(BaseRelationship(
-                relationship_type=RelationshipType.INTEGRATES_WITH,
-                source_id=integration.id,
-                target_id=target_sys.id,
-            ))
+            rels.append(
+                BaseRelationship(
+                    relationship_type=RelationshipType.INTEGRATES_WITH,
+                    source_id=integration.id,
+                    target_id=target_sys.id,
+                )
+            )
         return rels
 
     def _link_data_flows_to_domains(self) -> list[BaseRelationship]:
@@ -410,11 +416,13 @@ class RelationshipWeaver:
             return rels
         for flow in flows:
             domain = random.choice(domains)
-            rels.append(BaseRelationship(
-                relationship_type=RelationshipType.BELONGS_TO,
-                source_id=flow.id,
-                target_id=domain.id,
-            ))
+            rels.append(
+                BaseRelationship(
+                    relationship_type=RelationshipType.BELONGS_TO,
+                    source_id=flow.id,
+                    target_id=domain.id,
+                )
+            )
         return rels
 
     def _link_capabilities_to_systems(self) -> list[BaseRelationship]:
@@ -427,11 +435,13 @@ class RelationshipWeaver:
         for cap in capabilities:
             supporting = random.sample(systems, k=min(random.randint(1, 3), len(systems)))
             for sys in supporting:
-                rels.append(BaseRelationship(
-                    relationship_type=RelationshipType.SUPPORTS,
-                    source_id=sys.id,
-                    target_id=cap.id,
-                ))
+                rels.append(
+                    BaseRelationship(
+                        relationship_type=RelationshipType.SUPPORTS,
+                        source_id=sys.id,
+                        target_id=cap.id,
+                    )
+                )
         return rels
 
     def _link_products_to_portfolios(self) -> list[BaseRelationship]:
@@ -443,11 +453,13 @@ class RelationshipWeaver:
             return rels
         for product in products:
             portfolio = random.choice(portfolios)
-            rels.append(BaseRelationship(
-                relationship_type=RelationshipType.BELONGS_TO,
-                source_id=product.id,
-                target_id=portfolio.id,
-            ))
+            rels.append(
+                BaseRelationship(
+                    relationship_type=RelationshipType.BELONGS_TO,
+                    source_id=product.id,
+                    target_id=portfolio.id,
+                )
+            )
         return rels
 
     def _link_customers_to_products(self) -> list[BaseRelationship]:
@@ -460,11 +472,13 @@ class RelationshipWeaver:
         for customer in customers:
             bought = random.sample(products, k=min(random.randint(1, 3), len(products)))
             for product in bought:
-                rels.append(BaseRelationship(
-                    relationship_type=RelationshipType.BUYS,
-                    source_id=customer.id,
-                    target_id=product.id,
-                ))
+                rels.append(
+                    BaseRelationship(
+                        relationship_type=RelationshipType.BUYS,
+                        source_id=customer.id,
+                        target_id=product.id,
+                    )
+                )
         return rels
 
     def _link_contracts_to_vendors(self) -> list[BaseRelationship]:
@@ -476,11 +490,13 @@ class RelationshipWeaver:
             return rels
         for contract in contracts:
             vendor = random.choice(vendors)
-            rels.append(BaseRelationship(
-                relationship_type=RelationshipType.CONTRACTS_WITH,
-                source_id=contract.id,
-                target_id=vendor.id,
-            ))
+            rels.append(
+                BaseRelationship(
+                    relationship_type=RelationshipType.CONTRACTS_WITH,
+                    source_id=contract.id,
+                    target_id=vendor.id,
+                )
+            )
         return rels
 
     def _link_initiatives_to_entities(self) -> list[BaseRelationship]:
@@ -494,18 +510,22 @@ class RelationshipWeaver:
         for initiative in initiatives:
             if systems:
                 target = random.choice(systems)
-                rels.append(BaseRelationship(
-                    relationship_type=RelationshipType.IMPACTS,
-                    source_id=initiative.id,
-                    target_id=target.id,
-                ))
+                rels.append(
+                    BaseRelationship(
+                        relationship_type=RelationshipType.IMPACTS,
+                        source_id=initiative.id,
+                        target_id=target.id,
+                    )
+                )
             if capabilities:
                 target = random.choice(capabilities)
-                rels.append(BaseRelationship(
-                    relationship_type=RelationshipType.IMPACTS,
-                    source_id=initiative.id,
-                    target_id=target.id,
-                ))
+                rels.append(
+                    BaseRelationship(
+                        relationship_type=RelationshipType.IMPACTS,
+                        source_id=initiative.id,
+                        target_id=target.id,
+                    )
+                )
         return rels
 
     def _link_sites_to_geographies(self) -> list[BaseRelationship]:
@@ -517,9 +537,11 @@ class RelationshipWeaver:
             return rels
         for site in sites:
             geo = random.choice(geos)
-            rels.append(BaseRelationship(
-                relationship_type=RelationshipType.LOCATED_AT,
-                source_id=site.id,
-                target_id=geo.id,
-            ))
+            rels.append(
+                BaseRelationship(
+                    relationship_type=RelationshipType.LOCATED_AT,
+                    source_id=site.id,
+                    target_id=geo.id,
+                )
+            )
         return rels

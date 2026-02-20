@@ -319,9 +319,7 @@ class BusinessCapability(BaseEntity):
     """
 
     ENTITY_TYPE: ClassVar[EntityType] = EntityType.BUSINESS_CAPABILITY
-    entity_type: Literal[EntityType.BUSINESS_CAPABILITY] = (
-        EntityType.BUSINESS_CAPABILITY
-    )
+    entity_type: Literal[EntityType.BUSINESS_CAPABILITY] = EntityType.BUSINESS_CAPABILITY
 
     # --- Group 1: Identity & Classification ---
     capability_id: str = ""  # BC-{L1}.{L2}.{L3}
@@ -351,9 +349,7 @@ class BusinessCapability(BaseEntity):
     maturity_composite_score: float | None = None  # 1.0–5.0
     maturity_dimensions: list[MaturityDimension] = Field(default_factory=list)
     maturity_by_region: list[MaturityByRegion] = Field(default_factory=list)
-    maturity_by_business_unit: list[MaturityByBusinessUnit] = Field(
-        default_factory=list
-    )
+    maturity_by_business_unit: list[MaturityByBusinessUnit] = Field(default_factory=list)
     maturity_target: MaturityTarget | None = None
     maturity_trajectory: str = ""  # Improving, Stable, Declining, Unknown
     lifecycle_state: str = ""
@@ -411,9 +407,7 @@ class BusinessCapability(BaseEntity):
     control_coverage: str = ""
     # Enum: Comprehensive, Substantial, Partial, Minimal, None, Unknown
     control_references: list[ControlReference] = Field(default_factory=list)
-    regulatory_applicability: list[RegulatoryApplicability] = Field(
-        default_factory=list
-    )
+    regulatory_applicability: list[RegulatoryApplicability] = Field(default_factory=list)
     audit_findings: list[AuditFinding] = Field(default_factory=list)
     resilience_tier: str = ""  # Platinum, Gold, Silver, Bronze
     rto: float | None = None  # hours

@@ -154,13 +154,15 @@ class TestCSVRelationshipMappings:
                 f, fieldnames=["name", "first_name", "last_name", "email", "department"]
             )
             writer.writeheader()
-            writer.writerow({
-                "name": "Engineering",
-                "first_name": "",
-                "last_name": "",
-                "email": "",
-                "department": "",
-            })
+            writer.writerow(
+                {
+                    "name": "Engineering",
+                    "first_name": "",
+                    "last_name": "",
+                    "email": "",
+                    "department": "",
+                }
+            )
 
         # Create a mapping with both entity and relationship mappings
         # For simplicity, create two departments where one references the other
