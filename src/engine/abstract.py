@@ -144,6 +144,24 @@ class AbstractGraphEngine(ABC):
 
         return by_depth
 
+    # --- Analytics ---
+
+    def degree_centrality(self, top_n: int = 20) -> list[tuple[str, float]]:
+        """Return top N entities by degree centrality. Override for efficiency."""
+        raise NotImplementedError("Subclass must implement degree_centrality")
+
+    def betweenness_centrality(self, top_n: int = 20) -> list[tuple[str, float]]:
+        """Return top N entities by betweenness centrality. Override for efficiency."""
+        raise NotImplementedError("Subclass must implement betweenness_centrality")
+
+    def pagerank(self, top_n: int = 20) -> list[tuple[str, float]]:
+        """Return top N entities by PageRank. Override for efficiency."""
+        raise NotImplementedError("Subclass must implement pagerank")
+
+    def most_connected(self, top_n: int = 10) -> list[tuple[str, int]]:
+        """Return top N entities by raw connection count. Override for efficiency."""
+        raise NotImplementedError("Subclass must implement most_connected")
+
     # --- Bulk Operations ---
 
     @abstractmethod

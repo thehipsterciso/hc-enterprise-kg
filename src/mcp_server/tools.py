@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import networkx as nx
 from rapidfuzz import fuzz, process
 
 from domain.base import BaseEntity, EntityType, RelationshipType
@@ -244,20 +243,18 @@ def register_tools(mcp):  # noqa: ANN001
         except NoGraphError:
             return [{"error": "No graph loaded. Call load_graph first."}]
 
-        g = kg.engine.get_native_graph()
+        engine = kg.engine
 
         if metric == "degree":
-            scores = nx.degree_centrality(g)
+            ranked = engine.degree_centrality(top_n=20)
         elif metric == "betweenness":
-            scores = nx.betweenness_centrality(g)
+            ranked = engine.betweenness_centrality(top_n=20)
         elif metric == "pagerank":
-            scores = nx.pagerank(g)
+            ranked = engine.pagerank(top_n=20)
         else:
             return [
                 {"error": f"Unknown metric '{metric}'. Choose degree, betweenness, or pagerank."}
             ]
-
-        ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:20]
 
         results = []
         for eid, score in ranked:
@@ -289,11 +286,10 @@ def register_tools(mcp):  # noqa: ANN001
         except NoGraphError:
             return [{"error": "No graph loaded. Call load_graph first."}]
 
-        g = kg.engine.get_native_graph()
-        degrees = sorted(g.degree(), key=lambda x: x[1], reverse=True)[:top_n]
+        ranked = kg.engine.most_connected(top_n=top_n)
 
         results = []
-        for eid, degree in degrees:
+        for eid, degree in ranked:
             entity = kg.get_entity(eid)
             if entity:
                 results.append(

@@ -234,6 +234,23 @@ class NetworkXGraphEngine(AbstractGraphEngine):
             sub._relationship_index[rel_id] = (src, tgt, key)
         return sub
 
+    # --- Analytics ---
+
+    def degree_centrality(self, top_n: int = 20) -> list[tuple[str, float]]:
+        scores = nx.degree_centrality(self._graph)
+        return sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
+
+    def betweenness_centrality(self, top_n: int = 20) -> list[tuple[str, float]]:
+        scores = nx.betweenness_centrality(self._graph)
+        return sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
+
+    def pagerank(self, top_n: int = 20) -> list[tuple[str, float]]:
+        scores = nx.pagerank(self._graph)
+        return sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_n]
+
+    def most_connected(self, top_n: int = 10) -> list[tuple[str, int]]:
+        return sorted(self._graph.degree(), key=lambda x: x[1], reverse=True)[:top_n]
+
     # --- Bulk Operations ---
 
     def add_entities_bulk(self, entities: list[BaseEntity]) -> list[str]:
