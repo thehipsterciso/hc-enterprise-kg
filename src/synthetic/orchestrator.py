@@ -15,8 +15,10 @@ if TYPE_CHECKING:
     from graph.knowledge_graph import KnowledgeGraph
     from synthetic.profiles.base_profile import OrgProfile
 
-# Generation order matters: some entities reference others
+# Generation order matters: some entities reference others.
+# v0.1 types first, then enterprise types in layer dependency order.
 GENERATION_ORDER: list[tuple[EntityType, str]] = [
+    # --- v0.1 original types ---
     (EntityType.LOCATION, "location_count"),
     (EntityType.DEPARTMENT, "_department_count"),
     (EntityType.ROLE, "_role_count"),
@@ -29,6 +31,34 @@ GENERATION_ORDER: list[tuple[EntityType, str]] = [
     (EntityType.VULNERABILITY, "_vuln_count"),
     (EntityType.THREAT_ACTOR, "threat_actor_count_range"),
     (EntityType.INCIDENT, "incident_count_range"),
+    # --- L01: Compliance & Governance ---
+    (EntityType.REGULATION, "regulation_count_range"),
+    (EntityType.CONTROL, "control_count_range"),
+    (EntityType.RISK, "risk_count_range"),
+    (EntityType.THREAT, "threat_count_range"),
+    # --- L02: Technology & Systems ---
+    (EntityType.INTEGRATION, "integration_count_range"),
+    # --- L03: Data Assets ---
+    (EntityType.DATA_DOMAIN, "data_domain_count_range"),
+    (EntityType.DATA_FLOW, "data_flow_count_range"),
+    # --- L04: Organization ---
+    (EntityType.ORGANIZATIONAL_UNIT, "org_unit_count_range"),
+    # --- L06: Business Capabilities ---
+    (EntityType.BUSINESS_CAPABILITY, "capability_count_range"),
+    # --- L07: Locations & Facilities ---
+    (EntityType.SITE, "site_count_range"),
+    (EntityType.GEOGRAPHY, "geography_count_range"),
+    (EntityType.JURISDICTION, "jurisdiction_count_range"),
+    # --- L08: Products & Services ---
+    (EntityType.PRODUCT_PORTFOLIO, "product_portfolio_count_range"),
+    (EntityType.PRODUCT, "product_count_range"),
+    # --- L09: Customers & Markets ---
+    (EntityType.MARKET_SEGMENT, "market_segment_count_range"),
+    (EntityType.CUSTOMER, "customer_count_range"),
+    # --- L10: Vendors & Partners ---
+    (EntityType.CONTRACT, "contract_count_range"),
+    # --- L11: Strategic Initiatives ---
+    (EntityType.INITIATIVE, "initiative_count_range"),
 ]
 
 

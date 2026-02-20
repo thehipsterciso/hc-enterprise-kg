@@ -42,6 +42,181 @@
       "name": "CVE-2024-1234",
       "severity": "critical",
       "description": "Remote code execution in web framework"
+    },
+    {
+      "id": "reg-gdpr",
+      "entity_type": "regulation",
+      "name": "General Data Protection Regulation",
+      "regulation_id": "REG-00001",
+      "short_name": "GDPR",
+      "regulation_category": "Data Privacy",
+      "applicability_status": "Applicable",
+      "effective_date": "2018-05-25"
+    },
+    {
+      "id": "ctl-access",
+      "entity_type": "control",
+      "name": "Access Control — NIST 800-53",
+      "control_id": "CTL-00001",
+      "control_type": "Preventive",
+      "control_domain": "Access Control",
+      "control_owner": "Security Team"
+    },
+    {
+      "id": "rsk-data-breach",
+      "entity_type": "risk",
+      "name": "Data Breach Risk",
+      "risk_id": "RSK-00001",
+      "risk_category": "Cybersecurity",
+      "inherent_risk_level": "High",
+      "residual_risk_level": "Medium",
+      "risk_status": "Open",
+      "risk_owner": "CISO"
+    },
+    {
+      "id": "thr-ransomware",
+      "entity_type": "threat",
+      "name": "Ransomware Attack",
+      "threat_id": "THR-00001",
+      "threat_category": "Cyber",
+      "threat_type": "Targeted",
+      "likelihood": "High",
+      "threat_status": "Active"
+    },
+    {
+      "id": "int-api-etl",
+      "entity_type": "integration",
+      "name": "API Integration — CRM to ERP",
+      "integration_id": "INT-00001",
+      "integration_type": "API",
+      "protocol": "REST",
+      "direction": "Bidirectional",
+      "status": "Active",
+      "criticality": "High"
+    },
+    {
+      "id": "dd-customer",
+      "entity_type": "data_domain",
+      "name": "Customer Data",
+      "domain_id": "DD-00001",
+      "domain_owner": "Data Governance Lead",
+      "classification_level": "Confidential",
+      "governance_status": "Governed"
+    },
+    {
+      "id": "df-crm-to-dw",
+      "entity_type": "data_flow",
+      "name": "Flow: CRM → Data Warehouse",
+      "flow_id": "DF-00001",
+      "data_classification": "Confidential",
+      "transfer_method": "ETL",
+      "frequency": "Daily",
+      "status": "Active"
+    },
+    {
+      "id": "ou-tech",
+      "entity_type": "organizational_unit",
+      "name": "Technology Division",
+      "unit_id": "OU-00001",
+      "unit_type": "Division",
+      "operational_status": "Active",
+      "geographic_scope": "Global",
+      "unit_leader": "VP Engineering"
+    },
+    {
+      "id": "bc-crm",
+      "entity_type": "business_capability",
+      "name": "Customer Relationship Management",
+      "capability_id": "BC-00001",
+      "capability_level": "L1 — Domain",
+      "maturity_level": "Managed",
+      "strategic_importance": "Differentiating",
+      "business_criticality": "Critical"
+    },
+    {
+      "id": "site-hq",
+      "entity_type": "site",
+      "name": "New York HQ",
+      "site_id": "SITE-00001",
+      "site_type": "Headquarters",
+      "site_status": "Active",
+      "address": {
+        "street_line_1": "100 Park Avenue",
+        "city": "New York",
+        "state_province": "NY",
+        "postal_code": "10017",
+        "country_code": "US"
+      }
+    },
+    {
+      "id": "geo-na",
+      "entity_type": "geography",
+      "name": "North America",
+      "geography_id": "GEO-00001",
+      "geography_type": "Region"
+    },
+    {
+      "id": "jur-us-fed",
+      "entity_type": "jurisdiction",
+      "name": "US Federal Jurisdiction",
+      "jurisdiction_id": "JUR-00001",
+      "jurisdiction_type": "Federal",
+      "jurisdiction_code": "US"
+    },
+    {
+      "id": "pf-enterprise",
+      "entity_type": "product_portfolio",
+      "name": "Enterprise Solutions",
+      "portfolio_id": "PF-00001",
+      "portfolio_type": "Product",
+      "lifecycle_stage": "Growth"
+    },
+    {
+      "id": "prd-platform",
+      "entity_type": "product",
+      "name": "Enterprise Platform",
+      "product_id": "PRD-00001",
+      "product_type": "SaaS",
+      "lifecycle_stage": "Growth",
+      "business_criticality": "Critical"
+    },
+    {
+      "id": "seg-enterprise",
+      "entity_type": "market_segment",
+      "name": "Enterprise",
+      "segment_id": "SEG-00001",
+      "segment_type": "Company Size",
+      "strategic_priority": "Primary"
+    },
+    {
+      "id": "cust-acme",
+      "entity_type": "customer",
+      "name": "Acme Corp",
+      "customer_id": "CUST-00001",
+      "customer_type": "Enterprise",
+      "relationship_status": "Active",
+      "account_tier": "Strategic",
+      "industry": "Technology"
+    },
+    {
+      "id": "ctr-msa",
+      "entity_type": "contract",
+      "name": "Master Services Agreement — CloudVendor",
+      "contract_id": "CTR-00001",
+      "contract_type": "Master Services Agreement",
+      "contract_status": "Active",
+      "total_value": 2500000.00,
+      "currency": "USD"
+    },
+    {
+      "id": "si-digital",
+      "entity_type": "initiative",
+      "name": "Digital Transformation — Cloud Migration",
+      "initiative_id": "SI-00001",
+      "initiative_type": "Digital Transformation",
+      "current_status": "In Progress",
+      "phase": "Execution",
+      "executive_sponsor": "CTO"
     }
   ],
   "relationships": [
@@ -63,6 +238,51 @@
     {
       "relationship_type": "affects",
       "source_id": "vuln-001",
+      "target_id": "sys-webapp"
+    },
+    {
+      "relationship_type": "implements",
+      "source_id": "ctl-access",
+      "target_id": "reg-gdpr"
+    },
+    {
+      "relationship_type": "mitigates",
+      "source_id": "ctl-access",
+      "target_id": "rsk-data-breach"
+    },
+    {
+      "relationship_type": "integrates_with",
+      "source_id": "int-api-etl",
+      "target_id": "sys-webapp"
+    },
+    {
+      "relationship_type": "belongs_to",
+      "source_id": "df-crm-to-dw",
+      "target_id": "dd-customer"
+    },
+    {
+      "relationship_type": "supports",
+      "source_id": "sys-webapp",
+      "target_id": "bc-crm"
+    },
+    {
+      "relationship_type": "located_at",
+      "source_id": "site-hq",
+      "target_id": "geo-na"
+    },
+    {
+      "relationship_type": "buys",
+      "source_id": "cust-acme",
+      "target_id": "prd-platform"
+    },
+    {
+      "relationship_type": "contracts_with",
+      "source_id": "ctr-msa",
+      "target_id": "dept-eng"
+    },
+    {
+      "relationship_type": "impacts",
+      "source_id": "si-digital",
       "target_id": "sys-webapp"
     }
   ]
