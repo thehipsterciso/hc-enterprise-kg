@@ -134,6 +134,12 @@ class KnowledgeGraph:
     def shortest_path(self, source_id: str, target_id: str) -> list[str] | None:
         return self._engine.shortest_path(source_id, target_id)
 
+    def blast_radius(
+        self, entity_id: str, max_depth: int = 3
+    ) -> dict[int, list[BaseEntity]]:
+        """Compute entities reachable within N hops (blast radius analysis)."""
+        return self._engine.blast_radius(entity_id, max_depth)
+
     # --- Query ---
 
     def query(self) -> QueryBuilder:

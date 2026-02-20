@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections import deque
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -114,6 +115,36 @@ class AbstractGraphEngine(ABC):
     def subgraph(self, entity_ids: list[str]) -> AbstractGraphEngine:
         """Extract a subgraph containing only the specified entities."""
         ...
+
+    def blast_radius(
+        self, entity_id: str, max_depth: int = 3
+    ) -> dict[int, list[BaseEntity]]:
+        """Compute entities reachable within N hops via BFS.
+
+        Returns a dict mapping hop depth to lists of entities at that depth.
+        Override in subclasses for more efficient implementations.
+        """
+        visited: set[str] = set()
+        queue: deque[tuple[str, int]] = deque([(entity_id, 0)])
+        by_depth: dict[int, list[BaseEntity]] = {}
+
+        while queue:
+            current_id, depth = queue.popleft()
+            if current_id in visited or depth > max_depth:
+                continue
+            visited.add(current_id)
+
+            if current_id != entity_id:
+                entity = self.get_entity(current_id)
+                if entity:
+                    by_depth.setdefault(depth, []).append(entity)
+
+            if depth < max_depth:
+                for neighbor in self.neighbors(current_id):
+                    if neighbor.id not in visited:
+                        queue.append((neighbor.id, depth + 1))
+
+        return by_depth
 
     # --- Bulk Operations ---
 
