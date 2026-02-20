@@ -24,6 +24,7 @@ class RelationshipWeaver:
     def weave_all(self) -> list[BaseRelationship]:
         """Generate all relationship types. Returns flat list."""
         rels: list[BaseRelationship] = []
+        # v0.1 relationships
         rels.extend(self._assign_people_to_departments())
         rels.extend(self._create_management_chains())
         rels.extend(self._assign_people_to_roles())
@@ -35,6 +36,17 @@ class RelationshipWeaver:
         rels.extend(self._assign_threats_to_vulns())
         rels.extend(self._assign_vendors_to_systems())
         rels.extend(self._assign_locations())
+        # Enterprise cross-layer relationships (L01-L11)
+        rels.extend(self._link_controls_to_regulations())
+        rels.extend(self._link_risks_to_controls())
+        rels.extend(self._link_integrations_to_systems())
+        rels.extend(self._link_data_flows_to_domains())
+        rels.extend(self._link_capabilities_to_systems())
+        rels.extend(self._link_products_to_portfolios())
+        rels.extend(self._link_customers_to_products())
+        rels.extend(self._link_contracts_to_vendors())
+        rels.extend(self._link_initiatives_to_entities())
+        rels.extend(self._link_sites_to_geographies())
         return rels
 
     def _assign_people_to_departments(self) -> list[BaseRelationship]:
@@ -334,4 +346,180 @@ class RelationshipWeaver:
                 )
             )
 
+        return rels
+
+    # ------------------------------------------------------------------
+    # Enterprise cross-layer relationships (L01-L11)
+    # ------------------------------------------------------------------
+
+    def _link_controls_to_regulations(self) -> list[BaseRelationship]:
+        """Controls IMPLEMENTS Regulations."""
+        controls = self._ctx.get_entities(EntityType.CONTROL)
+        regulations = self._ctx.get_entities(EntityType.REGULATION)
+        rels: list[BaseRelationship] = []
+        if not controls or not regulations:
+            return rels
+        for control in controls:
+            reg = random.choice(regulations)
+            rels.append(BaseRelationship(
+                relationship_type=RelationshipType.IMPLEMENTS,
+                source_id=control.id,
+                target_id=reg.id,
+            ))
+        return rels
+
+    def _link_risks_to_controls(self) -> list[BaseRelationship]:
+        """Controls MITIGATES Risks."""
+        controls = self._ctx.get_entities(EntityType.CONTROL)
+        risks = self._ctx.get_entities(EntityType.RISK)
+        rels: list[BaseRelationship] = []
+        if not controls or not risks:
+            return rels
+        for risk in risks:
+            mitigating = random.sample(controls, k=min(random.randint(1, 3), len(controls)))
+            for control in mitigating:
+                rels.append(BaseRelationship(
+                    relationship_type=RelationshipType.MITIGATES,
+                    source_id=control.id,
+                    target_id=risk.id,
+                ))
+        return rels
+
+    def _link_integrations_to_systems(self) -> list[BaseRelationship]:
+        """Integrations INTEGRATES_WITH Systems."""
+        integrations = self._ctx.get_entities(EntityType.INTEGRATION)
+        systems = self._ctx.get_entities(EntityType.SYSTEM)
+        rels: list[BaseRelationship] = []
+        if not integrations or not systems:
+            return rels
+        for integration in integrations:
+            target_sys = random.choice(systems)
+            rels.append(BaseRelationship(
+                relationship_type=RelationshipType.INTEGRATES_WITH,
+                source_id=integration.id,
+                target_id=target_sys.id,
+            ))
+        return rels
+
+    def _link_data_flows_to_domains(self) -> list[BaseRelationship]:
+        """DataFlows BELONGS_TO DataDomains."""
+        flows = self._ctx.get_entities(EntityType.DATA_FLOW)
+        domains = self._ctx.get_entities(EntityType.DATA_DOMAIN)
+        rels: list[BaseRelationship] = []
+        if not flows or not domains:
+            return rels
+        for flow in flows:
+            domain = random.choice(domains)
+            rels.append(BaseRelationship(
+                relationship_type=RelationshipType.BELONGS_TO,
+                source_id=flow.id,
+                target_id=domain.id,
+            ))
+        return rels
+
+    def _link_capabilities_to_systems(self) -> list[BaseRelationship]:
+        """Systems SUPPORTS BusinessCapabilities."""
+        capabilities = self._ctx.get_entities(EntityType.BUSINESS_CAPABILITY)
+        systems = self._ctx.get_entities(EntityType.SYSTEM)
+        rels: list[BaseRelationship] = []
+        if not capabilities or not systems:
+            return rels
+        for cap in capabilities:
+            supporting = random.sample(systems, k=min(random.randint(1, 3), len(systems)))
+            for sys in supporting:
+                rels.append(BaseRelationship(
+                    relationship_type=RelationshipType.SUPPORTS,
+                    source_id=sys.id,
+                    target_id=cap.id,
+                ))
+        return rels
+
+    def _link_products_to_portfolios(self) -> list[BaseRelationship]:
+        """Products BELONGS_TO ProductPortfolios."""
+        products = self._ctx.get_entities(EntityType.PRODUCT)
+        portfolios = self._ctx.get_entities(EntityType.PRODUCT_PORTFOLIO)
+        rels: list[BaseRelationship] = []
+        if not products or not portfolios:
+            return rels
+        for product in products:
+            portfolio = random.choice(portfolios)
+            rels.append(BaseRelationship(
+                relationship_type=RelationshipType.BELONGS_TO,
+                source_id=product.id,
+                target_id=portfolio.id,
+            ))
+        return rels
+
+    def _link_customers_to_products(self) -> list[BaseRelationship]:
+        """Customers BUYS Products."""
+        customers = self._ctx.get_entities(EntityType.CUSTOMER)
+        products = self._ctx.get_entities(EntityType.PRODUCT)
+        rels: list[BaseRelationship] = []
+        if not customers or not products:
+            return rels
+        for customer in customers:
+            bought = random.sample(products, k=min(random.randint(1, 3), len(products)))
+            for product in bought:
+                rels.append(BaseRelationship(
+                    relationship_type=RelationshipType.BUYS,
+                    source_id=customer.id,
+                    target_id=product.id,
+                ))
+        return rels
+
+    def _link_contracts_to_vendors(self) -> list[BaseRelationship]:
+        """Contracts CONTRACTS_WITH Vendors."""
+        contracts = self._ctx.get_entities(EntityType.CONTRACT)
+        vendors = self._ctx.get_entities(EntityType.VENDOR)
+        rels: list[BaseRelationship] = []
+        if not contracts or not vendors:
+            return rels
+        for contract in contracts:
+            vendor = random.choice(vendors)
+            rels.append(BaseRelationship(
+                relationship_type=RelationshipType.CONTRACTS_WITH,
+                source_id=contract.id,
+                target_id=vendor.id,
+            ))
+        return rels
+
+    def _link_initiatives_to_entities(self) -> list[BaseRelationship]:
+        """Initiatives IMPACTS various entity types."""
+        initiatives = self._ctx.get_entities(EntityType.INITIATIVE)
+        systems = self._ctx.get_entities(EntityType.SYSTEM)
+        capabilities = self._ctx.get_entities(EntityType.BUSINESS_CAPABILITY)
+        rels: list[BaseRelationship] = []
+        if not initiatives:
+            return rels
+        for initiative in initiatives:
+            if systems:
+                target = random.choice(systems)
+                rels.append(BaseRelationship(
+                    relationship_type=RelationshipType.IMPACTS,
+                    source_id=initiative.id,
+                    target_id=target.id,
+                ))
+            if capabilities:
+                target = random.choice(capabilities)
+                rels.append(BaseRelationship(
+                    relationship_type=RelationshipType.IMPACTS,
+                    source_id=initiative.id,
+                    target_id=target.id,
+                ))
+        return rels
+
+    def _link_sites_to_geographies(self) -> list[BaseRelationship]:
+        """Sites LOCATED_AT Geographies."""
+        sites = self._ctx.get_entities(EntityType.SITE)
+        geos = self._ctx.get_entities(EntityType.GEOGRAPHY)
+        rels: list[BaseRelationship] = []
+        if not sites or not geos:
+            return rels
+        for site in sites:
+            geo = random.choice(geos)
+            rels.append(BaseRelationship(
+                relationship_type=RelationshipType.LOCATED_AT,
+                source_id=site.id,
+                target_id=geo.id,
+            ))
         return rels
