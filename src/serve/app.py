@@ -747,14 +747,14 @@ def create_app(graph_path: str | None = None) -> Any:
 
             handler = dispatch.get(name)
             if handler is None:
-                return _error(f"Unknown tool '{name}'. Available: {list(dispatch.keys())}")
+                return _error(f"Unknown tool. Available: {list(dispatch.keys())}")
 
             result = handler(arguments)
             return _json_response({"result": result})
 
         except _NoGraphError:
             return _error("No graph loaded. POST to /load first.", 409)
-        except KeyError as exc:
-            return _error(f"Missing required argument: {exc}")
+        except KeyError:
+            return _error("Missing required argument in tool call.")
 
     return app
