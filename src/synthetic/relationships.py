@@ -173,8 +173,9 @@ class RelationshipWeaver:
                 )
             )
 
-        # Add some inter-system dependencies
-        for _i in range(min(len(systems) // 3, 20)):
+        # Add inter-system dependencies — scale cap with system count
+        dep_cap = max(5, len(systems) // 3)
+        for _i in range(dep_cap):
             src, tgt = random.sample(systems, 2)
             rels.append(
                 BaseRelationship(
