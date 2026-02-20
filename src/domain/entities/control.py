@@ -178,7 +178,7 @@ class Control(BaseEntity):
     entity_type: Literal[EntityType.CONTROL] = EntityType.CONTROL
 
     # --- Identity & classification ---
-    control_id: str = ""  # Format: CL-XXXXX
+    control_id: str = ""  # Format: CTL-XXXXX
     control_type: str = ""  # Preventive, Detective, Corrective, Deterrent, Compensating
     control_category: str = ""  # Technical, Administrative, Physical
     control_class: str = ""  # Automated, Semi-Automated, Manual

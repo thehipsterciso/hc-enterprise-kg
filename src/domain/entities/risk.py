@@ -165,7 +165,7 @@ class Risk(BaseEntity):
     entity_type: Literal[EntityType.RISK] = EntityType.RISK
 
     # --- Identity & classification ---
-    risk_id: str = ""  # Format: RS-XXXXX
+    risk_id: str = ""  # Format: RSK-XXXXX
     risk_category: str = ""  # Cybersecurity, Data Privacy, Strategic, Financial, etc.
     risk_subcategory: str = ""
     risk_source: str = ""  # Internal, External, Third Party, Regulatory, etc.

@@ -100,7 +100,7 @@ class Threat(BaseEntity):
     entity_type: Literal[EntityType.THREAT] = EntityType.THREAT
 
     # --- Identity & classification ---
-    threat_id: str = ""  # Format: TH-XXXXX
+    threat_id: str = ""  # Format: THR-XXXXX
     threat_group: str = ""  # Natural Threat, Man-Made Intentional/Unintentional/Systemic, etc.
     threat_category: str = ""  # Environmental/Weather, Cyber — External Actor, etc.
     threat_source_type: str = ""  # Nation State, Organized Criminal, Hacktivist, etc.
