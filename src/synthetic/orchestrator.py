@@ -115,8 +115,7 @@ class SyntheticOrchestrator:
         self._quality_report = assess_quality(self._context)
         if self._quality_report.overall_score < 0.7:
             logger.warning(
-                "Synthetic data quality score %.2f is below 0.7 threshold. "
-                "Warnings: %d",
+                "Synthetic data quality score %.2f is below 0.7 threshold. Warnings: %d",
                 self._quality_report.overall_score,
                 len(self._quality_report.warnings),
             )

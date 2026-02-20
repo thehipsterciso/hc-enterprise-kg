@@ -133,8 +133,7 @@ class TestMirrorFields:
         """At least some persons should have holds_roles populated."""
         people = self.ctx.get_entities(EntityType.PERSON)
         with_roles = [
-            p for p in people
-            if getattr(p, "holds_roles", None) and len(p.holds_roles) > 0
+            p for p in people if getattr(p, "holds_roles", None) and len(p.holds_roles) > 0
         ]
         assert len(with_roles) > 0, "No persons have holds_roles populated"
 
@@ -142,7 +141,8 @@ class TestMirrorFields:
         """At least some roles should have filled_by_persons populated."""
         roles = self.ctx.get_entities(EntityType.ROLE)
         with_persons = [
-            r for r in roles
+            r
+            for r in roles
             if getattr(r, "filled_by_persons", None) and len(r.filled_by_persons) > 0
         ]
         assert len(with_persons) > 0, "No roles have filled_by_persons populated"
@@ -163,8 +163,7 @@ class TestMirrorFields:
         """At least some persons should have located_at populated."""
         people = self.ctx.get_entities(EntityType.PERSON)
         with_location = [
-            p for p in people
-            if getattr(p, "located_at", None) and len(p.located_at) > 0
+            p for p in people if getattr(p, "located_at", None) and len(p.located_at) > 0
         ]
         assert len(with_location) > 0, "No persons have located_at populated"
 
@@ -172,7 +171,8 @@ class TestMirrorFields:
         """~20% of people should have initiative participation."""
         people = self.ctx.get_entities(EntityType.PERSON)
         participating = [
-            p for p in people
+            p
+            for p in people
             if getattr(p, "participates_in_initiatives", None)
             and len(p.participates_in_initiatives) > 0
         ]

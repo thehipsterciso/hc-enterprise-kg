@@ -147,7 +147,7 @@ def test_single_lookup_latency(graph_100: tuple[KnowledgeGraph, dict[str, Any]])
         kg.get_entity(entity_id)
     elapsed = (time.perf_counter() - start) / 1000
 
-    assert elapsed < 0.001, f"Single lookup took {elapsed*1000:.3f}ms, expected < 1ms"
+    assert elapsed < 0.001, f"Single lookup took {elapsed * 1000:.3f}ms, expected < 1ms"
 
 
 # --- Traversal ---
@@ -165,8 +165,7 @@ def test_blast_radius_100(graph_100: tuple[KnowledgeGraph, dict[str, Any]]) -> N
     elapsed = time.perf_counter() - start
 
     assert elapsed < THRESHOLDS[100]["blast_radius_sec"], (
-        f"Blast radius took {elapsed:.2f}s, threshold is "
-        f"{THRESHOLDS[100]['blast_radius_sec']}s"
+        f"Blast radius took {elapsed:.2f}s, threshold is {THRESHOLDS[100]['blast_radius_sec']}s"
     )
 
 
@@ -200,8 +199,7 @@ def test_degree_centrality_100(graph_100: tuple[KnowledgeGraph, dict[str, Any]])
     elapsed = time.perf_counter() - start
 
     assert elapsed < THRESHOLDS[100]["centrality_sec"], (
-        f"Centrality took {elapsed:.2f}s, threshold is "
-        f"{THRESHOLDS[100]['centrality_sec']}s"
+        f"Centrality took {elapsed:.2f}s, threshold is {THRESHOLDS[100]['centrality_sec']}s"
     )
 
 
@@ -217,8 +215,7 @@ def test_betweenness_centrality_500(graph_500: tuple[KnowledgeGraph, dict[str, A
     elapsed = time.perf_counter() - start
 
     assert elapsed < THRESHOLDS[500]["centrality_sec"], (
-        f"Betweenness took {elapsed:.2f}s, threshold is "
-        f"{THRESHOLDS[500]['centrality_sec']}s"
+        f"Betweenness took {elapsed:.2f}s, threshold is {THRESHOLDS[500]['centrality_sec']}s"
     )
 
 

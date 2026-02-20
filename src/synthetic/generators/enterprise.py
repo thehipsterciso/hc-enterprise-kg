@@ -83,73 +83,152 @@ REGULATION_NAMES = [
 
 # Control templates: (framework, domain, type) tuples
 CONTROL_TEMPLATES = [
-    ("NIST 800-53", "Access Control", "Preventive",
-     "Enforce least-privilege access to systems and data"),
-    ("NIST 800-53", "Audit & Accountability", "Detective",
-     "Monitor and log all access to sensitive resources"),
-    ("NIST 800-53", "Incident Response", "Corrective",
-     "Contain and remediate security incidents within SLA"),
-    ("NIST 800-53", "Configuration Management", "Preventive",
-     "Maintain secure baseline configurations for all systems"),
-    ("NIST 800-53", "Risk Assessment", "Detective",
-     "Conduct periodic risk assessments and vulnerability scans"),
-    ("ISO 27001", "Asset Management", "Preventive",
-     "Maintain accurate inventory of information assets"),
-    ("ISO 27001", "Data Protection", "Preventive",
-     "Encrypt sensitive data at rest and in transit"),
-    ("ISO 27001", "Physical Security", "Preventive",
-     "Control physical access to facilities and server rooms"),
-    ("ISO 27001", "System & Communications Protection", "Preventive",
-     "Segment networks and enforce boundary controls"),
-    ("CIS Controls", "Vulnerability Management", "Detective",
-     "Scan for and remediate vulnerabilities per severity SLA"),
-    ("CIS Controls", "Access Control", "Preventive",
-     "Implement multi-factor authentication for privileged access"),
-    ("CIS Controls", "Change Management", "Preventive",
-     "Require approval workflow for production changes"),
-    ("COBIT", "Audit & Accountability", "Detective",
-     "Maintain audit trails for all critical transactions"),
-    ("COBIT", "Risk Assessment", "Detective",
-     "Assess IT-related risks and report to governance board"),
-    ("SOC2 TSC", "Data Protection", "Preventive",
-     "Protect confidentiality of customer data per trust criteria"),
-    ("SOC2 TSC", "Access Control", "Preventive",
-     "Validate access controls per SOC2 trust service criteria"),
+    (
+        "NIST 800-53",
+        "Access Control",
+        "Preventive",
+        "Enforce least-privilege access to systems and data",
+    ),
+    (
+        "NIST 800-53",
+        "Audit & Accountability",
+        "Detective",
+        "Monitor and log all access to sensitive resources",
+    ),
+    (
+        "NIST 800-53",
+        "Incident Response",
+        "Corrective",
+        "Contain and remediate security incidents within SLA",
+    ),
+    (
+        "NIST 800-53",
+        "Configuration Management",
+        "Preventive",
+        "Maintain secure baseline configurations for all systems",
+    ),
+    (
+        "NIST 800-53",
+        "Risk Assessment",
+        "Detective",
+        "Conduct periodic risk assessments and vulnerability scans",
+    ),
+    (
+        "ISO 27001",
+        "Asset Management",
+        "Preventive",
+        "Maintain accurate inventory of information assets",
+    ),
+    ("ISO 27001", "Data Protection", "Preventive", "Encrypt sensitive data at rest and in transit"),
+    (
+        "ISO 27001",
+        "Physical Security",
+        "Preventive",
+        "Control physical access to facilities and server rooms",
+    ),
+    (
+        "ISO 27001",
+        "System & Communications Protection",
+        "Preventive",
+        "Segment networks and enforce boundary controls",
+    ),
+    (
+        "CIS Controls",
+        "Vulnerability Management",
+        "Detective",
+        "Scan for and remediate vulnerabilities per severity SLA",
+    ),
+    (
+        "CIS Controls",
+        "Access Control",
+        "Preventive",
+        "Implement multi-factor authentication for privileged access",
+    ),
+    (
+        "CIS Controls",
+        "Change Management",
+        "Preventive",
+        "Require approval workflow for production changes",
+    ),
+    (
+        "COBIT",
+        "Audit & Accountability",
+        "Detective",
+        "Maintain audit trails for all critical transactions",
+    ),
+    (
+        "COBIT",
+        "Risk Assessment",
+        "Detective",
+        "Assess IT-related risks and report to governance board",
+    ),
+    (
+        "SOC2 TSC",
+        "Data Protection",
+        "Preventive",
+        "Protect confidentiality of customer data per trust criteria",
+    ),
+    (
+        "SOC2 TSC",
+        "Access Control",
+        "Preventive",
+        "Validate access controls per SOC2 trust service criteria",
+    ),
 ]
 
 # Risk category → name suffixes (replaces faker.bs())
 RISK_NAME_TEMPLATES: dict[str, list[str]] = {
     "Operational": [
-        "Process Failure", "Service Disruption", "Capacity Overrun",
-        "Key Personnel Loss", "Vendor Dependency Failure",
+        "Process Failure",
+        "Service Disruption",
+        "Capacity Overrun",
+        "Key Personnel Loss",
+        "Vendor Dependency Failure",
     ],
     "Cybersecurity": [
-        "Unpatched Critical Systems", "Credential Compromise",
-        "Ransomware Exposure", "Data Exfiltration", "Zero-Day Exploitation",
+        "Unpatched Critical Systems",
+        "Credential Compromise",
+        "Ransomware Exposure",
+        "Data Exfiltration",
+        "Zero-Day Exploitation",
     ],
     "Compliance": [
-        "Regulatory Non-Compliance", "Audit Finding Backlog",
-        "Policy Violation", "Licensing Gap", "Data Retention Breach",
+        "Regulatory Non-Compliance",
+        "Audit Finding Backlog",
+        "Policy Violation",
+        "Licensing Gap",
+        "Data Retention Breach",
     ],
     "Financial": [
-        "Revenue Shortfall", "Budget Overrun", "Fraud Exposure",
-        "Currency Fluctuation", "Credit Default",
+        "Revenue Shortfall",
+        "Budget Overrun",
+        "Fraud Exposure",
+        "Currency Fluctuation",
+        "Credit Default",
     ],
     "Strategic": [
-        "Market Position Erosion", "Technology Obsolescence",
-        "Competitive Disruption", "M&A Integration Failure",
+        "Market Position Erosion",
+        "Technology Obsolescence",
+        "Competitive Disruption",
+        "M&A Integration Failure",
     ],
     "Reputational": [
-        "Public Data Breach", "Customer Trust Erosion",
-        "Media Negative Coverage", "Social Media Crisis",
+        "Public Data Breach",
+        "Customer Trust Erosion",
+        "Media Negative Coverage",
+        "Social Media Crisis",
     ],
     "Third-Party": [
-        "Vendor Data Breach", "Supply Chain Disruption",
-        "Contractor Misconduct", "SLA Violation",
+        "Vendor Data Breach",
+        "Supply Chain Disruption",
+        "Contractor Misconduct",
+        "SLA Violation",
     ],
     "Technology": [
-        "Legacy System Failure", "Cloud Outage",
-        "Data Center Failure", "Integration Breakdown",
+        "Legacy System Failure",
+        "Cloud Outage",
+        "Data Center Failure",
+        "Integration Breakdown",
     ],
 }
 
@@ -159,56 +238,71 @@ THREAT_CATEGORY_MAP: dict[str, dict] = {
         "types": ["Targeted", "Opportunistic"],
         "sources": ["External", "Partner"],
         "names": [
-            "Advanced Persistent Threat", "Ransomware Campaign",
-            "Phishing Operation", "DDoS Attack", "Credential Stuffing",
+            "Advanced Persistent Threat",
+            "Ransomware Campaign",
+            "Phishing Operation",
+            "DDoS Attack",
+            "Credential Stuffing",
         ],
     },
     "Physical": {
         "types": ["Environmental", "Opportunistic"],
         "sources": ["External", "Environmental"],
         "names": [
-            "Facility Intrusion", "Equipment Theft",
-            "Sabotage Attempt", "Unauthorized Physical Access",
+            "Facility Intrusion",
+            "Equipment Theft",
+            "Sabotage Attempt",
+            "Unauthorized Physical Access",
         ],
     },
     "Insider": {
         "types": ["Targeted"],
         "sources": ["Internal"],
         "names": [
-            "Data Theft by Employee", "Privilege Abuse",
-            "Intellectual Property Theft", "Unauthorized Access Escalation",
+            "Data Theft by Employee",
+            "Privilege Abuse",
+            "Intellectual Property Theft",
+            "Unauthorized Access Escalation",
         ],
     },
     "Supply Chain": {
         "types": ["Targeted", "Systemic"],
         "sources": ["Partner", "External"],
         "names": [
-            "Compromised Dependency", "Vendor Software Backdoor",
-            "Third-Party Data Breach", "Supply Chain Interruption",
+            "Compromised Dependency",
+            "Vendor Software Backdoor",
+            "Third-Party Data Breach",
+            "Supply Chain Interruption",
         ],
     },
     "Natural Disaster": {
         "types": ["Environmental"],
         "sources": ["Environmental"],
         "names": [
-            "Severe Weather Event", "Earthquake Risk",
-            "Flooding", "Power Grid Failure",
+            "Severe Weather Event",
+            "Earthquake Risk",
+            "Flooding",
+            "Power Grid Failure",
         ],
     },
     "Geopolitical": {
         "types": ["Systemic"],
         "sources": ["External"],
         "names": [
-            "Sanctions Impact", "Trade Restriction",
-            "Political Instability", "Cross-Border Data Transfer Block",
+            "Sanctions Impact",
+            "Trade Restriction",
+            "Political Instability",
+            "Cross-Border Data Transfer Block",
         ],
     },
     "Regulatory Change": {
         "types": ["Systemic"],
         "sources": ["External"],
         "names": [
-            "New Privacy Regulation", "Compliance Framework Update",
-            "Licensing Requirement Change", "Reporting Mandate",
+            "New Privacy Regulation",
+            "Compliance Framework Update",
+            "Licensing Requirement Change",
+            "Reporting Mandate",
         ],
     },
 }
@@ -238,9 +332,18 @@ INTEGRATION_TYPE_FORMATS: dict[str, list[str]] = {
 }
 
 DATA_DOMAIN_NAMES = [
-    "Customer Data", "Financial Data", "Employee Data", "Product Data",
-    "Operational Data", "Marketing Data", "Compliance Data", "Clinical Data",
-    "Trading Data", "Risk Data", "Supply Chain Data", "Research Data",
+    "Customer Data",
+    "Financial Data",
+    "Employee Data",
+    "Product Data",
+    "Operational Data",
+    "Marketing Data",
+    "Compliance Data",
+    "Clinical Data",
+    "Trading Data",
+    "Risk Data",
+    "Supply Chain Data",
+    "Research Data",
 ]
 
 DATA_DOMAIN_DESCRIPTIONS: dict[str, str] = {
@@ -290,8 +393,12 @@ IMPORTANCE_INVESTMENT: dict[str, list[str]] = {
 }
 
 SITE_TYPES = [
-    "Headquarters", "Regional Office", "Data Center",
-    "Branch Office", "Operations Center", "R&D Facility",
+    "Headquarters",
+    "Regional Office",
+    "Data Center",
+    "Branch Office",
+    "Operations Center",
+    "R&D Facility",
 ]
 
 # Site type → security tier correlation
@@ -341,28 +448,51 @@ SEGMENT_TYPE_MAP: dict[str, str] = {
 # OrgUnit name templates by type (replaces faker.company_suffix())
 OU_NAME_TEMPLATES: dict[str, list[str]] = {
     "Business Unit": [
-        "North America", "EMEA", "APAC", "Latin America",
-        "Enterprise", "Consumer", "Government",
+        "North America",
+        "EMEA",
+        "APAC",
+        "Latin America",
+        "Enterprise",
+        "Consumer",
+        "Government",
     ],
     "Division": [
-        "Technology", "Operations", "Commercial", "Financial Services",
-        "Healthcare", "Corporate Services",
+        "Technology",
+        "Operations",
+        "Commercial",
+        "Financial Services",
+        "Healthcare",
+        "Corporate Services",
     ],
     "Department": [
-        "Engineering", "Product", "Sales", "Marketing",
-        "Finance", "Compliance", "Security",
+        "Engineering",
+        "Product",
+        "Sales",
+        "Marketing",
+        "Finance",
+        "Compliance",
+        "Security",
     ],
     "Team": [
-        "Platform", "Infrastructure", "Data", "Customer Success",
-        "Incident Response", "DevOps",
+        "Platform",
+        "Infrastructure",
+        "Data",
+        "Customer Success",
+        "Incident Response",
+        "DevOps",
     ],
     "Shared Service Center": [
-        "Global IT Services", "HR Shared Services", "Finance Operations",
+        "Global IT Services",
+        "HR Shared Services",
+        "Finance Operations",
         "Procurement Center",
     ],
     "Center of Excellence": [
-        "Cloud CoE", "Data & AI CoE", "Security CoE",
-        "Agile CoE", "Automation CoE",
+        "Cloud CoE",
+        "Data & AI CoE",
+        "Security CoE",
+        "Agile CoE",
+        "Automation CoE",
     ],
 }
 
@@ -371,52 +501,77 @@ OU_TYPES = list(OU_NAME_TEMPLATES.keys())
 # Initiative type → name suffixes (replaces faker.bs())
 INITIATIVE_NAME_TEMPLATES: dict[str, list[str]] = {
     "Digital Transformation": [
-        "Cloud Migration Program", "Digital Workplace Modernization",
-        "Customer Experience Digitization", "Process Automation Initiative",
+        "Cloud Migration Program",
+        "Digital Workplace Modernization",
+        "Customer Experience Digitization",
+        "Process Automation Initiative",
     ],
     "Technology Migration / Modernization": [
-        "Legacy System Replacement", "Platform Consolidation",
-        "Infrastructure Modernization", "Database Migration",
+        "Legacy System Replacement",
+        "Platform Consolidation",
+        "Infrastructure Modernization",
+        "Database Migration",
     ],
     "Process Improvement": [
-        "Operational Excellence Program", "Lean Process Optimization",
-        "Workflow Automation", "Service Delivery Enhancement",
+        "Operational Excellence Program",
+        "Lean Process Optimization",
+        "Workflow Automation",
+        "Service Delivery Enhancement",
     ],
     "Regulatory Compliance": [
-        "GDPR Compliance Program", "SOX Remediation",
-        "Privacy Framework Implementation", "Regulatory Reporting Upgrade",
+        "GDPR Compliance Program",
+        "SOX Remediation",
+        "Privacy Framework Implementation",
+        "Regulatory Reporting Upgrade",
     ],
     "Security Remediation": [
-        "Zero Trust Architecture", "Vulnerability Remediation Sprint",
-        "Identity Governance Overhaul", "SOC Modernization",
+        "Zero Trust Architecture",
+        "Vulnerability Remediation Sprint",
+        "Identity Governance Overhaul",
+        "SOC Modernization",
     ],
     "AI / ML Initiative": [
-        "AI-Powered Analytics", "Machine Learning Platform",
-        "Intelligent Automation", "Predictive Risk Modeling",
+        "AI-Powered Analytics",
+        "Machine Learning Platform",
+        "Intelligent Automation",
+        "Predictive Risk Modeling",
     ],
     "Cost Optimization": [
-        "Cloud Cost Optimization", "License Rationalization",
-        "Vendor Consolidation", "Infrastructure Right-Sizing",
+        "Cloud Cost Optimization",
+        "License Rationalization",
+        "Vendor Consolidation",
+        "Infrastructure Right-Sizing",
     ],
     "Customer Experience": [
-        "Omnichannel Engagement", "Self-Service Portal",
-        "Customer Journey Optimization", "Personalization Engine",
+        "Omnichannel Engagement",
+        "Self-Service Portal",
+        "Customer Journey Optimization",
+        "Personalization Engine",
     ],
     "Data Governance": [
-        "Enterprise Data Catalog", "Data Quality Program",
-        "Master Data Management", "Data Lineage Implementation",
+        "Enterprise Data Catalog",
+        "Data Quality Program",
+        "Master Data Management",
+        "Data Lineage Implementation",
     ],
     "Infrastructure": [
-        "Network Refresh", "Data Center Consolidation",
-        "Edge Computing Deployment", "Hybrid Cloud Implementation",
+        "Network Refresh",
+        "Data Center Consolidation",
+        "Edge Computing Deployment",
+        "Hybrid Cloud Implementation",
     ],
 }
 
 INITIATIVE_TYPES = list(INITIATIVE_NAME_TEMPLATES.keys())
 
 INITIATIVE_STATUSES = [
-    "Proposed", "Approved", "Planning", "In Progress",
-    "On Hold", "At Risk", "Completed",
+    "Proposed",
+    "Approved",
+    "Planning",
+    "In Progress",
+    "On Hold",
+    "At Risk",
+    "Completed",
 ]
 
 # Contract type → description
@@ -575,9 +730,7 @@ class RiskGenerator(AbstractGenerator):
                 risk_owner=faker.name(),
                 risk_status=random.choice(["Open", "Mitigated", "Accepted", "Transferred"]),
                 risk_response_strategy=random.choice(["Mitigate", "Accept", "Transfer", "Avoid"]),
-                last_assessment_date=str(
-                    faker.date_between(start_date="-6m", end_date="today")
-                ),
+                last_assessment_date=str(faker.date_between(start_date="-6m", end_date="today")),
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance=ProvenanceAndConfidence(
                     primary_data_source="ERM Platform",
@@ -713,9 +866,7 @@ class DataDomainGenerator(AbstractGenerator):
                 classification_level=random.choice(
                     ["Public", "Internal", "Confidential", "Restricted"]
                 ),
-                governance_status=random.choice(
-                    ["Governed", "Partially Governed", "Ungoverned"]
-                ),
+                governance_status=random.choice(["Governed", "Partially Governed", "Ungoverned"]),
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance=ProvenanceAndConfidence(
                     primary_data_source="Data Governance Platform",
@@ -751,12 +902,8 @@ class DataFlowGenerator(AbstractGenerator):
                 src = "External Source"
                 tgt = "External Target"
 
-            classification = random.choice(
-                ["Public", "Internal", "Confidential", "Restricted"]
-            )
-            method = random.choice(
-                ["API", "ETL", "File Transfer", "Streaming", "Replication"]
-            )
+            classification = random.choice(["Public", "Internal", "Confidential", "Restricted"])
+            method = random.choice(["API", "ETL", "File Transfer", "Streaming", "Replication"])
             # Encryption required for sensitive classifications
             encrypted = classification in ("Restricted", "Confidential") or random.random() < 0.3
 
@@ -768,9 +915,7 @@ class DataFlowGenerator(AbstractGenerator):
                 flow_id=f"DF-{i + 1:05d}",
                 data_classification=classification,
                 transfer_method=method,
-                frequency=random.choice(
-                    ["Real-time", "Hourly", "Daily", "Weekly", "On Demand"]
-                ),
+                frequency=random.choice(["Real-time", "Hourly", "Daily", "Weekly", "On Demand"]),
                 encryption_in_transit=encrypted,
                 status=random.choice(["Active", "Inactive", "Under Review"]),
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
@@ -808,23 +953,33 @@ class OrgUnitGenerator(AbstractGenerator):
 
             # Map functional domain from name
             domain_map = {
-                "Technology": "Technology", "Engineering": "Technology",
-                "Platform": "Technology", "Infrastructure": "Technology",
-                "Data": "Technology", "DevOps": "Technology",
-                "Cloud CoE": "Technology", "Data & AI CoE": "Technology",
-                "Security CoE": "Technology", "Agile CoE": "Technology",
-                "Automation CoE": "Technology", "Incident Response": "Technology",
-                "Sales": "Sales", "Commercial": "Sales", "Customer Success": "Sales",
+                "Technology": "Technology",
+                "Engineering": "Technology",
+                "Platform": "Technology",
+                "Infrastructure": "Technology",
+                "Data": "Technology",
+                "DevOps": "Technology",
+                "Cloud CoE": "Technology",
+                "Data & AI CoE": "Technology",
+                "Security CoE": "Technology",
+                "Agile CoE": "Technology",
+                "Automation CoE": "Technology",
+                "Incident Response": "Technology",
+                "Sales": "Sales",
+                "Commercial": "Sales",
+                "Customer Success": "Sales",
                 "Marketing": "Marketing",
-                "Finance": "Finance", "Finance Operations": "Finance",
+                "Finance": "Finance",
+                "Finance Operations": "Finance",
                 "HR Shared Services": "HR",
-                "Compliance": "Compliance", "Legal": "Legal",
-                "Operations": "Operations", "Procurement Center": "Operations",
+                "Compliance": "Compliance",
+                "Legal": "Legal",
+                "Operations": "Operations",
+                "Procurement Center": "Operations",
                 "Global IT Services": "Technology",
             }
             func_domain = domain_map.get(
-                base_name,
-                random.choice(["Technology", "Finance", "Operations", "Sales"])
+                base_name, random.choice(["Technology", "Finance", "Operations", "Sales"])
             )
 
             unit = OrganizationalUnit(
@@ -942,9 +1097,7 @@ class SiteGenerator(AbstractGenerator):
                     headcount=random.randint(20, 4000),
                 ),
                 physical_security_tier=security_tier,
-                business_continuity_tier=random.choice(
-                    ["Tier 1", "Tier 2", "Tier 3", "Tier 4"]
-                ),
+                business_continuity_tier=random.choice(["Tier 1", "Tier 2", "Tier 3", "Tier 4"]),
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance=ProvenanceAndConfidence(
                     primary_data_source="Facilities Management",
@@ -1159,9 +1312,7 @@ class MarketSegmentGenerator(AbstractGenerator):
                 segment_id=f"SEG-{i + 1:05d}",
                 segment_type=seg_type,
                 segment_owner=faker.name(),
-                strategic_priority=random.choice(
-                    ["Primary", "Secondary", "Emerging", "Declining"]
-                ),
+                strategic_priority=random.choice(["Primary", "Secondary", "Emerging", "Declining"]),
                 temporal_and_versioning=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance_and_confidence=ProvenanceAndConfidence(
                     primary_data_source="Strategy Team",
@@ -1196,9 +1347,7 @@ class CustomerGenerator(AbstractGenerator):
                 description=f"{customer_type} customer in {industry}",
                 customer_id=f"CUST-{i + 1:05d}",
                 customer_type=customer_type,
-                relationship_status=random.choice(
-                    ["Active", "Prospect", "Churned", "Dormant"]
-                ),
+                relationship_status=random.choice(["Active", "Prospect", "Churned", "Dormant"]),
                 account_tier=random.choice(["Strategic", "Key", "Standard", "Growth"]),
                 industry=industry,
                 account_manager=faker.name(),
@@ -1295,30 +1444,34 @@ class InitiativeGenerator(AbstractGenerator):
                 name=f"{init_type} — {name_suffix}",
                 description=f"Strategic initiative: {name_suffix}",
                 initiative_id=f"SI-{i + 1:05d}",
-                initiative_tier=random.choice(
-                    ["Portfolio", "Program", "Project", "Workstream"]
-                ),
+                initiative_tier=random.choice(["Portfolio", "Program", "Project", "Workstream"]),
                 initiative_type=init_type,
                 initiative_category=random.choice(
                     ["Strategic", "Operational", "Regulatory", "Remediation"]
                 ),
                 strategic_priority=random.choice(["Must Do", "Should Do", "Could Do"]),
-                origin=random.choice([
-                    "Strategic Planning", "Board Directive",
-                    "Regulatory Requirement", "Audit Finding",
-                    "Competitive Response", "Technology End-of-Life",
-                ]),
+                origin=random.choice(
+                    [
+                        "Strategic Planning",
+                        "Board Directive",
+                        "Regulatory Requirement",
+                        "Audit Finding",
+                        "Competitive Response",
+                        "Technology End-of-Life",
+                    ]
+                ),
                 current_status=status,
-                phase=random.choice([
-                    "Initiation", "Planning", "Execution",
-                    "Monitoring & Control", "Closing",
-                ]),
-                planned_start_date=str(
-                    faker.date_between(start_date="-1y", end_date="today")
+                phase=random.choice(
+                    [
+                        "Initiation",
+                        "Planning",
+                        "Execution",
+                        "Monitoring & Control",
+                        "Closing",
+                    ]
                 ),
-                planned_end_date=str(
-                    faker.date_between(start_date="today", end_date="+2y")
-                ),
+                planned_start_date=str(faker.date_between(start_date="-1y", end_date="today")),
+                planned_end_date=str(faker.date_between(start_date="today", end_date="+2y")),
                 total_budget=TotalBudget(
                     approved_budget=budget,
                     currency="USD",
@@ -1343,9 +1496,13 @@ class InitiativeGenerator(AbstractGenerator):
                     ),
                 ],
                 funding_source=FundingSource(
-                    source_type=random.choice([
-                        "Operating Budget", "Capital Budget", "Innovation Fund",
-                    ]),
+                    source_type=random.choice(
+                        [
+                            "Operating Budget",
+                            "Capital Budget",
+                            "Innovation Fund",
+                        ]
+                    ),
                 ),
                 business_case_summary=BusinessCaseSummary(
                     expected_costs=budget,
@@ -1386,9 +1543,7 @@ class InitiativeGenerator(AbstractGenerator):
                 key_milestones=[
                     KeyMilestone(
                         milestone_name="Go-Live",
-                        planned_date=str(
-                            faker.date_between(start_date="today", end_date="+2y")
-                        ),
+                        planned_date=str(faker.date_between(start_date="today", end_date="+2y")),
                         status=random.choice(["Not Started", "On Track", "At Risk"]),
                         milestone_type="Go-Live",
                     ),
@@ -1396,9 +1551,14 @@ class InitiativeGenerator(AbstractGenerator):
                 impacts_systems=[
                     ImpactsSystem(
                         system_id=random.choice(systems).id if systems else "",
-                        impact_type=random.choice([
-                            "Implements New", "Migrates", "Upgrades", "Decommissions",
-                        ]),
+                        impact_type=random.choice(
+                            [
+                                "Implements New",
+                                "Migrates",
+                                "Upgrades",
+                                "Decommissions",
+                            ]
+                        ),
                     ),
                 ]
                 if systems

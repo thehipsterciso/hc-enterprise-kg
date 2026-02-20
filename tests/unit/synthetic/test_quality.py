@@ -24,8 +24,7 @@ class TestQualityScoring:
         ctx, orch = _make_context(100)
         report = assess_quality(ctx)
         assert report.overall_score >= 0.7, (
-            f"Quality score {report.overall_score:.2f} below threshold.\n"
-            f"{report.summary()}"
+            f"Quality score {report.overall_score:.2f} below threshold.\n{report.summary()}"
         )
 
     def test_risk_math_consistency(self):

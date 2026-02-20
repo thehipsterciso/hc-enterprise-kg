@@ -122,11 +122,21 @@ def _check_risk_math(context: GenerationContext, report: QualityReport) -> float
 def _check_description_quality(context: GenerationContext, report: QualityReport) -> float:
     """Check that descriptions are not lorem ipsum or faker junk."""
     entity_types = [
-        EntityType.PERSON, EntityType.SYSTEM, EntityType.DATA_ASSET,
-        EntityType.VENDOR, EntityType.INCIDENT, EntityType.VULNERABILITY,
-        EntityType.RISK, EntityType.THREAT, EntityType.CONTROL,
-        EntityType.INTEGRATION, EntityType.DATA_FLOW, EntityType.CUSTOMER,
-        EntityType.CONTRACT, EntityType.INITIATIVE, EntityType.POLICY,
+        EntityType.PERSON,
+        EntityType.SYSTEM,
+        EntityType.DATA_ASSET,
+        EntityType.VENDOR,
+        EntityType.INCIDENT,
+        EntityType.VULNERABILITY,
+        EntityType.RISK,
+        EntityType.THREAT,
+        EntityType.CONTROL,
+        EntityType.INTEGRATION,
+        EntityType.DATA_FLOW,
+        EntityType.CUSTOMER,
+        EntityType.CONTRACT,
+        EntityType.INITIATIVE,
+        EntityType.POLICY,
     ]
 
     total = 0
@@ -188,9 +198,7 @@ def _check_field_correlations(context: GenerationContext, report: QualityReport)
             if risk_level_order.get(res, 0) <= risk_level_order.get(inh, 3):
                 passes += 1
             else:
-                report.warnings.append(
-                    f"Risk '{risk.name}': residual ({res}) > inherent ({inh})"
-                )
+                report.warnings.append(f"Risk '{risk.name}': residual ({res}) > inherent ({inh})")
 
     # Vulnerability: patch_available correlates with status
     vulns = context.get_entities(EntityType.VULNERABILITY)
@@ -217,16 +225,12 @@ def _check_field_correlations(context: GenerationContext, report: QualityReport)
             if security == "Restricted":
                 passes += 1
             else:
-                report.warnings.append(
-                    f"Site '{site.name}': Data Center with {security} security"
-                )
+                report.warnings.append(f"Site '{site.name}': Data Center with {security} security")
 
     return passes / checks if checks > 0 else 1.0
 
 
-def _check_encryption_classification(
-    context: GenerationContext, report: QualityReport
-) -> float:
+def _check_encryption_classification(context: GenerationContext, report: QualityReport) -> float:
     """Check that data flows with restricted/confidential data are encrypted."""
     flows = context.get_entities(EntityType.DATA_FLOW)
     if not flows:

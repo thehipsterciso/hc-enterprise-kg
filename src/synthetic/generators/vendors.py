@@ -49,9 +49,26 @@ VENDOR_PROFILES: dict[str, dict] = {
 }
 
 VENDOR_PREFIXES = [
-    "Apex", "Summit", "Crest", "Vertex", "Pinnacle", "Horizon", "Nexus",
-    "Vanguard", "Catalyst", "Meridian", "Prism", "Atlas", "Aegis",
-    "Forge", "Onyx", "Nova", "Zenith", "Stratos", "Citadel", "Quantum",
+    "Apex",
+    "Summit",
+    "Crest",
+    "Vertex",
+    "Pinnacle",
+    "Horizon",
+    "Nexus",
+    "Vanguard",
+    "Catalyst",
+    "Meridian",
+    "Prism",
+    "Atlas",
+    "Aegis",
+    "Forge",
+    "Onyx",
+    "Nova",
+    "Zenith",
+    "Stratos",
+    "Citadel",
+    "Quantum",
 ]
 
 
