@@ -12,10 +12,6 @@ detailed entity class is built.
 
 from __future__ import annotations
 
-from typing import ClassVar, Literal
-
-from domain.base import BaseEntity, EntityType
-
 # --- L01: Compliance & Governance ---
 # Regulation, Control, Risk, Threat — replaced by full implementations in L01.
 # See: regulation.py, control.py, risk.py, threat.py
@@ -53,10 +49,7 @@ from domain.base import BaseEntity, EntityType
 # See: contract.py
 
 # --- L11: Strategic Initiatives ---
+# Initiative — replaced by full implementation in L11.
+# See: initiative.py
 
-
-class Initiative(BaseEntity):
-    """Stub: strategic initiative. Full implementation in L11."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.INITIATIVE
-    entity_type: Literal[EntityType.INITIATIVE] = EntityType.INITIATIVE
+# All stubs have been replaced by full implementations.

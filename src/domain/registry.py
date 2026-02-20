@@ -69,6 +69,7 @@ class EntityRegistry:
         from domain.entities.data_domain import DataDomain
         from domain.entities.data_flow import DataFlow
         from domain.entities.geography import Geography
+        from domain.entities.initiative import Initiative
         from domain.entities.integration import Integration
         from domain.entities.jurisdiction import Jurisdiction
         from domain.entities.market_segment import MarketSegment
@@ -78,9 +79,6 @@ class EntityRegistry:
         from domain.entities.regulation import Regulation
         from domain.entities.risk import Risk
         from domain.entities.site import Site
-        from domain.entities.stubs import (
-            Initiative,
-        )
         from domain.entities.threat import Threat
 
         for entity_class in [
@@ -123,6 +121,7 @@ class EntityRegistry:
             Customer,
             # L10: Vendors & Partners (full implementations)
             Contract,
+            # L11: Strategic Initiatives (full implementations)
             Initiative,
         ]:
             cls.register(entity_class.ENTITY_TYPE, entity_class)
