@@ -7,32 +7,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 ## [0.17.0] - 2026-02-20
 
 ### Added
-- **CSVIngestor transforms** — `FieldMapping.transform` now applied during ingestion (lowercase, uppercase, strip, int, float, bool)
-- **CSVIngestor relationship mappings** — `SchemaMapping.relationship_mappings` processed after entity ingestion
-- **JSONIngestor.ingest_string()** — In-memory JSON ingestion with shared core logic
-- **25 new ingestor tests**
+- **12 new relationship types** — CREATES_RISK, SUBJECT_TO, ADDRESSES, HOSTS, FLOWS_TO, CLASSIFIED_AS, REALIZED_BY, CONTAINS, DELIVERS, SERVES, IMPACTS (initiative→risk), MEMBER_OF (person→orgunit) (#77)
+- **Entity mirror field population** — Person.holds_roles, Person.located_at, Person.participates_in_initiatives, Role.filled_by_persons, Role.headcount_filled populated from woven relationships (#78)
+- **20 relationship enrichment tests** — metadata validation, new type coverage, mirror field assertions
+
+### Changed
+- **Relationship metadata enrichment** — All 33 weaver methods now produce contextual weight (severity-based, variance), confidence (0.70-0.95), and properties (dependency_type, exploit_maturity, enforcement, etc.) instead of default 1.0/1.0/{} (#76)
+- **`_make_rel()` helper** — Consistent relationship construction with explicit metadata across all weaver methods
+- Total woven relationship types: >=30 (up from 22)
 
 ## [0.16.0] - 2026-02-20
 
+### Added
+- **Quality scoring module** (`src/synthetic/quality.py`) — Automated post-generation assessment with 5 metrics: risk math consistency, description quality, tech stack coherence, field correlation, encryption↔classification (#72)
+- **QualityReport dataclass** — Scores, warnings, human-readable summary
+- **Post-generation quality check** in orchestrator — warns if overall score < 0.7
+- **8 quality tests** — threshold assertions for all metrics
+
 ### Changed
-- **MCP server modularization** — Split monolithic server.py into `state.py`, `helpers.py`, `tools.py`, `server.py`
-- **Blast radius to engine layer** — Moved BFS from MCP tool to `AbstractGraphEngine.blast_radius()`
-- **Safe update_entity** — Copy-validate-write pattern prevents in-place corruption; invalid updates raise `ValueError`
-- **ID prefix comments** — Aligned schema comments with generator output (REG-/CTL-/RSK-/THR-)
+- **Semantic coherence overhaul for all 30 generators** (#71):
+  - Coordinated template dicts replace independent random selection (system name ↔ OS ↔ stack ↔ ports)
+  - Domain-specific descriptions replace faker.sentence()/faker.bs()/faker.paragraph() (#73)
+  - RISK_MATRIX[likelihood][impact] → deterministic risk_level; residual ≤ inherent (#74)
+  - APT attribution hardcoded for 12 named threat actors
+  - Field correlations enforced: encryption↔classification, patch↔status, site security↔type (#75)
+  - Budget correlated with headcount, clearance weighted distribution, role permissions mapped
 
 ### Fixed
-- `datetime.utcnow()` deprecation in `update_entity` (now uses `datetime.now(UTC)`)
+- **Location double-city bug** — name and city field now use same faker.city() call
+- **Policy overflow truncation** — generates valid overflow policies for count > template count
 
 ## [0.15.0] - 2026-02-20
 
-### Fixed
-- **MCP auto-reload** — Server detects graph file changes via mtime checking, transparently reloads on every tool call
-- **RoleGenerator** — Now executes; roles generated for all departments (was returning count 0)
-- **Version sync** — `__version__` uses `importlib.metadata` for single-source truth
-- **Deserialization logging** — `_deserialize_entity/relationship` now logs errors instead of silently swallowing them
+**Version reset from v1.1.0 → 0.15.0** — Pre-production semver (0.x) to reflect that synthetic data quality, scaling, and relationship completeness are not yet production-grade. (#65)
 
-### Removed
-- **stubs.py** — Empty file removed; all entity stubs replaced by full implementations
+### Added
+- **Industry-aware profile scaling** — `ScalingCoefficients` per industry (tech, financial, healthcare) with size-tier maturity multipliers (startup 0.7x, mid-market 1.0x, enterprise 1.2x, large 1.4x) (#66)
+- **`scaled_range()` function** — Entity counts derived from `(employee_count / coefficient) * tier_mult` with floor/ceiling clamping
+- **Financial services profile** (`financial_org.py`) — SOX/PCI-dense, 2x controls vs tech
+- **Healthcare profile** (`healthcare_org.py`) — HIPAA-driven, 3x data assets vs tech
+- **Parametrized stress tests** for 100, 500, 1k, 5k, 10k, 20k employees with time gates (#67)
+- **Scaling ratio test** — 20k org must have >10x non-person entities vs 100
+- **Industry comparison tests** — financial has denser controls, healthcare has denser data assets
+
+### Changed
+- **DEPENDS_ON cap scales with system count** — `max(5, len(systems) // 3)` replaces hardcoded `min(len(systems) // 3, 20)`
+
+### Fixed
+- **`scaled_range()` ceiling clamping** — low no longer exceeds high at large employee counts
 
 ## [0.14.0] - 2026-02-19
 

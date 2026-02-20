@@ -155,7 +155,7 @@ Each knowledge graph contains **30 interconnected entity types** modelling a rea
 | **Contract** | L10 Vendors | Vendor contracts with SLAs |
 | **Initiative** | L11 Initiatives | Strategic programs and projects |
 
-These entities are connected by **50 relationship types**: `works_in`, `reports_to`, `manages`, `connects_to`, `depends_on`, `stores`, `governs`, `exploits`, `implements`, `mitigates`, `regulates`, and more.
+These entities are connected by **50 relationship types** (30+ actively woven): `works_in`, `reports_to`, `manages`, `connects_to`, `depends_on`, `stores`, `governs`, `exploits`, `implements`, `mitigates`, `creates_risk`, `addresses`, `hosts`, `flows_to`, `classified_as`, `realized_by`, `contains`, `delivers`, `serves`, and more. Each relationship carries contextual **weight**, **confidence**, and **properties** (e.g., dependency type, severity, enforcement status).
 
 ## CLI Reference
 
@@ -314,15 +314,29 @@ hckg export --source graph.json --format graphml --output graph.graphml
 
 ## Organization Profiles
 
-Three industry profiles are included, each with realistic department structures, system counts, network segments, and security postures:
+Three industry profiles are included, each with **industry-aware scaling** — entity counts scale proportionally with employee count using sector-specific coefficients:
 
-| Profile | Default Org Name | Departments | Focus |
-|---|---|---|---|
-| `tech` | Acme Technologies | Engineering, Product, Sales, Marketing, IT Ops, Security | Software company with DevOps, multiple dev environments |
-| `healthcare` | MedCare Health Systems | Clinical Ops, Nursing, Pharmacy, Research, Compliance | HIPAA-sensitive, medical device networks, restricted zones |
-| `financial` | Atlas Financial Group | Trading, Risk Mgmt, Compliance, Internal Audit | SOX/PCI focus, trading floor network, high contractor ratio |
+| Profile | Default Org Name | Departments | Focus | Scaling Traits |
+|---|---|---|---|---|
+| `tech` | Acme Technologies | Engineering, Product, Sales, Marketing, IT Ops, Security | Software company with DevOps, multiple dev environments | Dense systems (1:8), heavy integrations |
+| `healthcare` | MedCare Health Systems | Clinical Ops, Nursing, Pharmacy, Research, Compliance | HIPAA-sensitive, medical device networks, restricted zones | 3x data assets, heavy regulated data flows |
+| `financial` | Atlas Financial Group | Trading, Risk Mgmt, Compliance, Internal Audit | SOX/PCI focus, trading floor network, high contractor ratio | 2x controls/risks, dense compliance |
+
+Profiles scale across **size tiers**: startup (<250, 0.7x), mid-market (250-2k, 1.0x), enterprise (2k-10k, 1.2x), and large enterprise (>10k, 1.4x). A 20,000-employee tech company generates ~2,000 systems, ~500 vendors, and ~400 controls — not the same 40-120 as a 100-person org.
 
 Profiles control department distribution, system counts, network architecture, vulnerability probability, and threat actor characteristics. You can create custom profiles by defining an `OrgProfile` object (see `src/synthetic/profiles/base_profile.py`).
+
+## Synthetic Data Quality
+
+Generated data is validated by an automated **quality scoring module** that checks:
+
+- **Risk math consistency** — risk levels derived deterministically from likelihood × impact matrix
+- **Description quality** — no lorem ipsum or faker-generated gibberish; all descriptions are domain-specific
+- **Tech stack coherence** — system types match their OS, frameworks, and port configurations
+- **Field correlation** — residual risk ≤ inherent risk, encryption matches data classification, patch status correlates with vulnerability status
+- **Encryption ↔ classification** — restricted/confidential data always encrypted in transit
+
+The orchestrator warns if the overall quality score falls below 0.7. Quality reports are accessible via `orchestrator.quality_report`.
 
 ## Python API
 
@@ -457,7 +471,7 @@ src/
   rag/          # GraphRAG retrieval pipeline (search, context builder, retriever)
   serve/        # REST API server (Flask, OpenAI-compatible endpoints)
   mcp_server/   # MCP server for Claude Desktop (state, helpers, tools, server)
-tests/          # 488+ tests (unit + integration)
+tests/          # 679+ tests (unit + integration + stress)
 examples/       # Runnable example scripts
 ```
 
@@ -489,7 +503,7 @@ poetry install --extras dev
 
 ```bash
 make install    # Install with dev dependencies
-make test       # Run all tests (~488)
+make test       # Run all tests (~679)
 make test-cov   # Run tests with coverage report
 make lint       # Lint with ruff
 make format     # Auto-format with ruff

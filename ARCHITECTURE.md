@@ -73,9 +73,11 @@ All relationships use `BaseRelationship`:
 - `id` (UUID, auto-generated)
 - `relationship_type` (RelationshipType enum)
 - `source_id`, `target_id`
-- `weight`, `properties`
+- `weight` (contextual: severity-based, variance, or fixed — not all 1.0)
+- `confidence` (0.70 for uncertain attribution to 0.95 for organizational fact)
+- `properties` (contextual key-value pairs: dependency_type, exploit_maturity, severity, enforcement, etc.)
 
-50 relationship types connect entities across layers (e.g., `works_in`, `implements`, `mitigates`, `regulates`).
+50 relationship types defined, 30+ actively woven by `RelationshipWeaver`. Domain/range constraints enforced via `RELATIONSHIP_SCHEMA` in `relationship_schema.py`.
 
 ## Engine Abstraction
 
@@ -93,14 +95,37 @@ The engine is pluggable — `AbstractGraphEngine` can be implemented with Neo4j 
 
 ```
 OrgProfile → SyntheticOrchestrator → [Generator per type] → KnowledgeGraph
-                                   → RelationshipWeaver → relationships
+                                   → RelationshipWeaver  → relationships (enriched)
+                                   → QualityAssessment   → QualityReport
 ```
 
-1. `OrgProfile` defines department specs, counts, and configuration
-2. `SyntheticOrchestrator` resolves counts and runs generators in layer order
-3. Each generator (e.g., `PersonGenerator`, `RegulationGenerator`) produces entities
-4. `RelationshipWeaver` creates edges between generated entities
-5. Enterprise generators add cross-layer relationships (e.g., controls → regulations)
+1. `OrgProfile` defines department specs and industry-specific `ScalingCoefficients`
+2. `SyntheticOrchestrator` resolves counts via `scaled_range()` (industry coefficient × size-tier multiplier) and runs generators in layer order
+3. Each generator uses **coordinated template dicts** — related fields are pre-mapped (e.g., system name ↔ OS ↔ tech stack ↔ ports), not independently random
+4. `RelationshipWeaver` creates 30+ relationship types with contextual weight, confidence, and properties via `_make_rel()` helper
+5. `_populate_mirror_fields()` denormalizes relationship edges into entity fields (Person.holds_roles, Role.filled_by_persons, etc.)
+6. `assess_quality()` runs 5 automated checks (risk math, description quality, tech coherence, field correlation, encryption↔classification) and produces a `QualityReport`
+
+### Industry-Aware Scaling
+
+Entity counts scale with employee count using `ScalingCoefficients` per industry:
+
+| Industry | Systems (coeff) | Controls (coeff) | Data Assets (coeff) |
+|---|---|---|---|
+| Technology | 1:8 employees | 1:50 | 1:15 |
+| Financial Services | 1:12 | 1:20 (2.5x tech) | 1:10 |
+| Healthcare | 1:15 | 1:25 | 1:5 (3x tech) |
+
+Size-tier multipliers: startup 0.7x (<250), mid-market 1.0x, enterprise 1.2x (2k-10k), large 1.4x (>10k).
+
+### Quality Scoring
+
+`src/synthetic/quality.py` provides `assess_quality(context) → QualityReport`:
+- **Risk math consistency**: level = RISK_MATRIX[likelihood][impact]
+- **Description quality**: regex detection of lorem ipsum / faker patterns
+- **Tech stack coherence**: appliance types shouldn't have web frameworks
+- **Field correlation**: residual ≤ inherent, patch ↔ status, site security ↔ type
+- **Encryption ↔ classification**: restricted/confidential data encrypted in transit
 
 ## MCP Server
 
