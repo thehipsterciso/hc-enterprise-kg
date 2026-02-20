@@ -7,11 +7,13 @@
 ## Quick Commands
 
 ```bash
-poetry run pytest tests/ -v          # Run all tests (~692)
+poetry run pytest tests/ -v          # Run all tests (~740)
 poetry run pytest tests/performance/ -v  # Performance regression tests
 poetry run ruff check src/ tests/    # Lint
 poetry run hckg demo --clean         # Generate fresh graph.json
 poetry run hckg demo --employees 200 # Larger org
+poetry run hckg charts               # Generate analytics charts (default: tech, 100-5000)
+poetry run hckg charts --full        # All 3 profiles, 6 scales
 ```
 
 ## Architecture
@@ -25,9 +27,9 @@ src/
   auto/         # Auto KG from CSV/text (rule-based + optional LLM)
   ingest/       # CSVIngestor, JSONIngestor with schema mappings
   export/       # JSONExporter, GraphMLExporter
-  analysis/     # Centrality, risk scoring, attack paths, blast radius, benchmarking
+  analysis/     # Centrality, risk scoring, attack paths, blast radius, benchmarking, charts
   rag/          # GraphRAG retrieval pipeline
-  cli/          # Click CLI (demo, generate, inspect, auto, serve, install, visualize, export, benchmark)
+  cli/          # Click CLI (demo, generate, inspect, auto, serve, install, visualize, export, benchmark, charts)
   mcp_server/   # MCP server for Claude Desktop (state.py, helpers.py, tools.py, server.py)
   serve/        # REST API server (Flask)
 ```
@@ -65,6 +67,22 @@ L00 Foundation → L01 Compliance → L02 Technology → L03 Data → L04 Organi
 4. **Relationship types are lowercase** — Stats show `"implements"` not `"IMPLEMENTS"`. The `RelationshipType` enum values are lowercase strings.
 
 5. **EntityRegistry.auto_discover()** — Must be called before using `EntityRegistry.get()` in ingestion contexts.
+
+## Analytics Charts
+
+The charts module (`src/analysis/charts/`) auto-generates 8 chart types from synthetic data:
+
+1. **Scaling Curves** — entity/relationship count vs employee count (demonstrates linearity)
+2. **Entity Distribution** — stacked bar of 30 entity types across scales
+3. **Relationship Distribution** — horizontal bar of top-20 relationship types
+4. **Profile Comparison** — grouped bar comparing tech/financial/healthcare (requires 2+ profiles)
+5. **Performance Scaling** — dual-axis: generation time + peak memory vs employee count
+6. **Density vs Scale** — graph density trend as org grows
+7. **Centrality Distribution** — top-15 entities by degree centrality
+8. **Quality Radar** — 5-axis spider chart from QualityReport dimensions
+
+**CLI:** `hckg charts --profiles tech,financial --scales 100,500,1000,5000 --output ./charts`
+**API:** `from analysis.charts import generate_all_charts, ChartConfig`
 
 ## MCP Server
 
