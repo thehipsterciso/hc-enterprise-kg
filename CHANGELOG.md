@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.17.1] - 2026-02-20
+
+### Changed
+- **Codify versioning discipline** — every discrete change gets its own patch bump; documented execution order in CLAUDE.md (#81)
+
 ## [0.17.0] - 2026-02-20
 
 ### Added

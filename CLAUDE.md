@@ -71,14 +71,22 @@ The MCP server (`src/mcp_server/`) provides 10 tools for Claude Desktop:
 
 **Auto-reload:** The server detects graph file changes via mtime checking on every tool call. After `hckg demo --clean`, Claude Desktop tools automatically pick up the new graph.
 
-## Git Workflow
+## Engineering Discipline (non-negotiable)
 
-- Create GitHub issue(s) before any work
-- Branch from `main`, push immediately
-- Push commits as they're made
-- PR → merge → bump version → tag → `gh release create`
-- Close issues referencing the PR
-- Update CHANGELOG, README, ARCHITECTURE with each release
+### Versioning: Major.Minor.Patch
+- **Every discrete change gets its own patch bump** — never batch multiple changes into one version
+- Minor bump: new feature area or capability grouping
+- Patch bump: each individual enhancement, bug fix, or doc change
+
+### Execution Order for ANY Change
+1. Create GitHub issue (one per discrete change)
+2. Create branch from `main`, push to remote
+3. Implement the single change
+4. Tests pass, lint clean
+5. Commit, push, create PR referencing issue
+6. Merge → bump version (patch) → tag → `gh release create`
+7. Close issue
+8. Update CHANGELOG, README, ARCHITECTURE, CLAUDE.md
 
 ## Testing Patterns
 
