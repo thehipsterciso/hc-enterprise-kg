@@ -113,23 +113,49 @@ After that, all examples below work without the `poetry run` prefix. The rest of
 
 ## What Gets Generated
 
-Each knowledge graph contains interconnected entities that model a real organization:
+Each knowledge graph contains **30 interconnected entity types** modelling a real organization across 12 layers:
 
-| Entity Type | Description | Example Fields |
+**Core Entities (12)**
+
+| Entity Type | Description |
+|---|---|
+| **Person** | Employees, contractors — name, email, title, clearance |
+| **Department** | Organizational units — headcount, budget |
+| **Role** | Job roles — title, level, permissions |
+| **System** | Servers, apps, SaaS — hostname, IP, OS, criticality |
+| **Network** | Network segments — CIDR, zone |
+| **Data Asset** | Databases, file stores — classification |
+| **Vendor** | Third-party suppliers — risk tier |
+| **Policy** | Governance documents — framework, status |
+| **Vulnerability** | Security weaknesses — CVE, CVSS, patch status |
+| **Threat Actor** | Adversaries — motivation, sophistication |
+| **Incident** | Security events — severity, affected systems |
+| **Location** | Physical sites — city, country |
+
+**Enterprise Entities (18)**
+
+| Entity Type | Layer | Description |
 |---|---|---|
-| **Person** | Employees, contractors | name, email, title, department, clearance level |
-| **Department** | Organizational units | name, headcount, budget, data sensitivity |
-| **System** | Servers, applications, SaaS | hostname, IP, OS, criticality, internet-facing |
-| **Network** | Network segments | CIDR, zone (internal/DMZ/guest) |
-| **Data Asset** | Databases, file stores | classification (public/internal/confidential/restricted) |
-| **Vendor** | Third-party suppliers | contract value, risk tier |
-| **Policy** | Governance documents | compliance framework, enforcement status |
-| **Vulnerability** | Security weaknesses | CVE ID, CVSS score, severity, patch status |
-| **Threat Actor** | Adversaries | motivation, sophistication, target sectors |
-| **Incident** | Security events | severity, status, affected systems |
-| **Location** | Physical sites | city, country, building type |
+| **Regulation** | L01 Compliance | Laws and standards (GDPR, SOX, HIPAA) |
+| **Control** | L01 Compliance | Security/compliance controls (SCF-aligned) |
+| **Risk** | L01 Compliance | Enterprise risks with scoring and treatment |
+| **Threat** | L01 Compliance | Threat catalog (MITRE ATT&CK-aligned) |
+| **Integration** | L02 Technology | System-to-system integrations |
+| **Data Domain** | L03 Data | Logical data groupings with ownership |
+| **Data Flow** | L03 Data | Data movement between systems |
+| **Organizational Unit** | L04 Organization | Business units, divisions, subsidiaries |
+| **Business Capability** | L06 Capabilities | Capability map (L1/L2/L3 hierarchy) |
+| **Site** | L07 Locations | Physical facilities with address and capacity |
+| **Geography** | L07 Locations | Geographic regions and territories |
+| **Jurisdiction** | L07 Locations | Regulatory jurisdictions |
+| **Product Portfolio** | L08 Products | Product groupings and strategy |
+| **Product** | L08 Products | Individual products and services |
+| **Market Segment** | L09 Customers | Target markets and segments |
+| **Customer** | L09 Customers | Customer accounts and relationships |
+| **Contract** | L10 Vendors | Vendor contracts with SLAs |
+| **Initiative** | L11 Initiatives | Strategic programs and projects |
 
-These entities are connected by 19 relationship types: `works_in`, `reports_to`, `manages`, `connects_to`, `depends_on`, `stores`, `governs`, `exploits`, `affects`, `supplied_by`, and more.
+These entities are connected by **50 relationship types**: `works_in`, `reports_to`, `manages`, `connects_to`, `depends_on`, `stores`, `governs`, `exploits`, `implements`, `mitigates`, `regulates`, and more.
 
 ## CLI Reference
 
@@ -420,18 +446,18 @@ json_string = JSONExporter().export_string(kg.engine)
 ```
 src/
   cli/          # Click-based CLI (demo, generate, auto, inspect, export, serve, mcp, visualize)
-  domain/       # Pydantic v2 entity models (Person, System, Vulnerability, etc.)
+  domain/       # Pydantic v2 entity models (30 types), enums, registry
   engine/       # Graph backend abstraction (NetworkX; swappable to Neo4j)
   graph/        # KnowledgeGraph facade, event bus, query builder
   synthetic/    # Profile-driven synthetic data generation + relationship weaving
   auto/         # Auto KG construction (rule-based, CSV, LLM extraction + linking)
-  ingest/       # Data ingestion (JSON)
+  ingest/       # Data ingestion (JSON, CSV with schema mappings + transforms)
   export/       # Export (JSON, GraphML)
   analysis/     # Graph metrics (centrality, PageRank) + security queries
   rag/          # GraphRAG retrieval pipeline (search, context builder, retriever)
   serve/        # REST API server (Flask, OpenAI-compatible endpoints)
-  mcp_server/   # MCP server for Claude Desktop integration
-tests/          # 217 tests (unit + integration)
+  mcp_server/   # MCP server for Claude Desktop (state, helpers, tools, server)
+tests/          # 488+ tests (unit + integration)
 examples/       # Runnable example scripts
 ```
 
@@ -463,7 +489,7 @@ poetry install --extras dev
 
 ```bash
 make install    # Install with dev dependencies
-make test       # Run 217 tests
+make test       # Run all tests (~488)
 make test-cov   # Run tests with coverage report
 make lint       # Lint with ruff
 make format     # Auto-format with ruff
