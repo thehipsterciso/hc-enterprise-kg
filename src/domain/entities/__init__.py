@@ -6,6 +6,7 @@ from typing import Annotated
 
 from pydantic import Field
 
+from domain.entities.control import Control
 from domain.entities.data_asset import DataAsset
 from domain.entities.department import Department
 from domain.entities.incident import Incident
@@ -13,10 +14,9 @@ from domain.entities.location import Location
 from domain.entities.network import Network
 from domain.entities.person import Person
 from domain.entities.policy import Policy
-from domain.entities.role import Role
-from domain.entities.control import Control
 from domain.entities.regulation import Regulation
 from domain.entities.risk import Risk
+from domain.entities.role import Role
 from domain.entities.stubs import (
     BusinessCapability,
     Contract,
@@ -33,8 +33,8 @@ from domain.entities.stubs import (
     ProductPortfolio,
     Site,
 )
-from domain.entities.threat import Threat
 from domain.entities.system import System
+from domain.entities.threat import Threat
 from domain.entities.threat_actor import ThreatActor
 from domain.entities.vendor import Vendor
 from domain.entities.vulnerability import Vulnerability

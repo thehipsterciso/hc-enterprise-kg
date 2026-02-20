@@ -15,7 +15,6 @@ from pydantic import BaseModel, Field
 from domain.base import BaseEntity, EntityType
 from domain.shared import ProvenanceAndConfidence, TemporalAndVersioning
 
-
 # ---------------------------------------------------------------------------
 # Sub-models
 # ---------------------------------------------------------------------------

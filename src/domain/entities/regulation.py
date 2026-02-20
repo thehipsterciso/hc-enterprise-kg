@@ -11,8 +11,7 @@ from typing import ClassVar, Literal
 from pydantic import BaseModel, Field
 
 from domain.base import BaseEntity, EntityType
-from domain.shared import MaterialityAssessment, ProvenanceAndConfidence, TemporalAndVersioning
-
+from domain.shared import ProvenanceAndConfidence, TemporalAndVersioning
 
 # ---------------------------------------------------------------------------
 # Sub-models
