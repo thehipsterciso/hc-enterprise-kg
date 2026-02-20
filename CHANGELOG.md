@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.19.4] - 2026-02-20
+
+### Changed
+- **Update README, ARCHITECTURE, CLAUDE.md** — Document department subdivision, role seniority scaling, entity count override flags, research-backed coefficients, update test count to 692 (#117)
+
 ## [0.19.3] - 2026-02-20
 
 ### Added
