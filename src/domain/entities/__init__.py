@@ -15,6 +15,7 @@ from domain.entities.incident import Incident
 from domain.entities.integration import Integration
 from domain.entities.location import Location
 from domain.entities.network import Network
+from domain.entities.organizational_unit import OrganizationalUnit
 from domain.entities.person import Person
 from domain.entities.policy import Policy
 from domain.entities.regulation import Regulation
@@ -28,7 +29,6 @@ from domain.entities.stubs import (
     Initiative,
     Jurisdiction,
     MarketSegment,
-    OrganizationalUnit,
     Product,
     ProductPortfolio,
     Site,
@@ -63,6 +63,7 @@ AnyEntity = Annotated[
     # L03: Data Assets (full implementations)
     | DataDomain
     | DataFlow
+    # L04: Organization (full implementations)
     | OrganizationalUnit
     | BusinessCapability
     | Site

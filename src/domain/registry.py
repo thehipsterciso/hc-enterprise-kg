@@ -66,6 +66,7 @@ class EntityRegistry:
         from domain.entities.data_domain import DataDomain
         from domain.entities.data_flow import DataFlow
         from domain.entities.integration import Integration
+        from domain.entities.organizational_unit import OrganizationalUnit
         from domain.entities.regulation import Regulation
         from domain.entities.risk import Risk
         from domain.entities.stubs import (
@@ -76,7 +77,6 @@ class EntityRegistry:
             Initiative,
             Jurisdiction,
             MarketSegment,
-            OrganizationalUnit,
             Product,
             ProductPortfolio,
             Site,
@@ -107,6 +107,7 @@ class EntityRegistry:
             # L03: Data Assets (full implementations)
             DataDomain,
             DataFlow,
+            # L04: Organization (full implementations)
             OrganizationalUnit,
             BusinessCapability,
             Site,
