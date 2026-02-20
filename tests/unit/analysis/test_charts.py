@@ -435,7 +435,7 @@ class TestChartRenderer:
         renderer = ChartRenderer(dataset, cfg)
         paths = renderer.render_all()
 
-        assert len(paths) == 3  # scaling_curves + entity_distribution + relationship_distribution
+        assert len(paths) == 5  # scaling + entity + relationship + performance + density
         for p in paths:
             assert Path(p).exists()
 
@@ -466,7 +466,7 @@ class TestChartRenderer:
         renderer = ChartRenderer(dataset, cfg)
         paths = renderer.render_all()
 
-        assert len(paths) == 2  # entity_distribution + relationship_distribution
+        assert len(paths) == 4  # entity + relationship + performance + density
         assert "entity_distribution" in paths[0]
 
     def test_render_relationship_distribution_creates_file(self, tmp_path):
@@ -520,3 +520,27 @@ class TestChartRenderer:
 
         filenames = [Path(p).name for p in paths]
         assert not any("profile_comparison" in f for f in filenames)
+
+    def test_render_performance_scaling_creates_file(self, tmp_path):
+        """render_performance_scaling() should produce a PNG file."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        path = renderer.render_performance_scaling()
+
+        assert Path(path).exists()
+        assert "performance_scaling" in Path(path).name
+
+    def test_render_density_vs_scale_creates_file(self, tmp_path):
+        """render_density_vs_scale() should produce a PNG file."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        path = renderer.render_density_vs_scale()
+
+        assert Path(path).exists()
+        assert "density_vs_scale" in Path(path).name
