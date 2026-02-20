@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.19.2] - 2026-02-20
+
+### Changed
+- **Update docs for entity scaling** — Update `docs/profiles.md` with dynamic department scaling section, revised coefficients table, role seniority expansion docs, and scaling results table (#113)
+- CHANGELOG entries for v0.19.0 and v0.19.1
+
+## [0.19.1] - 2026-02-20
+
+### Added
+- **Dynamic department and role scaling** — Departments exceeding 500 headcount are subdivided into sub-departments using 30+ industry-specific templates. Roles expanded with seniority variants (Junior/Senior/Staff) based on headcount (#111)
+- At 14,512 employees (tech): departments 10→42, roles 35→301
+- People distributed to leaf departments using headcount-proportional assignment
+- Sub-departments linked via `parent_department_id`
+
 ## [0.19.0] - 2026-02-20
 
 ### Changed
