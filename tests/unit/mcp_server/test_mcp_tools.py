@@ -14,11 +14,21 @@ from pathlib import Path
 import pytest
 
 mcp_available = pytest.importorskip("mcp", reason="mcp package not installed")
-import mcp_server.server as srv  # noqa: E402
+import mcp_server.state as state  # noqa: E402
 from export.json_export import JSONExporter  # noqa: E402
 from graph.knowledge_graph import KnowledgeGraph  # noqa: E402
+from mcp_server.server import mcp  # noqa: E402
 from synthetic.orchestrator import SyntheticOrchestrator  # noqa: E402
 from synthetic.profiles.tech_company import mid_size_tech_company  # noqa: E402
+
+
+def _call_tool(name: str, **kwargs):
+    """Call an MCP tool by name via the FastMCP registry."""
+    # FastMCP stores tools in _tool_manager; access them directly for testing
+    for tool in mcp._tool_manager._tools.values():
+        if tool.name == name:
+            return tool.fn(**kwargs)
+    raise ValueError(f"Tool '{name}' not found")
 
 
 @pytest.fixture(scope="module")
@@ -38,13 +48,13 @@ def graph_json_path() -> str:
 @pytest.fixture(autouse=True)
 def _reset_server_state():
     """Ensure each test starts with a clean server state."""
-    srv._kg = None
-    srv._loaded_path = None
-    srv._loaded_mtime = 0.0
+    state._kg = None
+    state._loaded_path = None
+    state._loaded_mtime = 0.0
     yield
-    srv._kg = None
-    srv._loaded_path = None
-    srv._loaded_mtime = 0.0
+    state._kg = None
+    state._loaded_path = None
+    state._loaded_mtime = 0.0
 
 
 # ---------------------------------------------------------------
@@ -54,7 +64,7 @@ def _reset_server_state():
 
 class TestLoadGraph:
     def test_load_graph_returns_stats(self, graph_json_path: str):
-        result = srv.load_graph(graph_json_path)
+        result = state.load_graph(graph_json_path)
         assert result["status"] == "ok"
         assert result["entity_count"] > 0
         assert result["relationship_count"] > 0
@@ -62,7 +72,7 @@ class TestLoadGraph:
         assert "person" in result["entity_types"]
 
     def test_load_graph_nonexistent_file(self):
-        result = srv.load_graph("/tmp/does_not_exist_hckg.json")
+        result = state.load_graph("/tmp/does_not_exist_hckg.json")
         assert "error" in result
 
 
@@ -73,13 +83,13 @@ class TestLoadGraph:
 
 class TestGetStatistics:
     def test_get_statistics_without_load(self):
-        result = srv.get_statistics()
+        result = _call_tool("get_statistics")
         assert "error" in result
         assert "load_graph" in result["error"].lower()
 
     def test_get_statistics_after_load(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.get_statistics()
+        state.load_graph(graph_json_path)
+        result = _call_tool("get_statistics")
         assert "entity_count" in result
         assert result["entity_count"] > 0
 
@@ -91,30 +101,29 @@ class TestGetStatistics:
 
 class TestListEntities:
     def test_list_entities_all(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.list_entities()
+        state.load_graph(graph_json_path)
+        result = _call_tool("list_entities")
         assert isinstance(result, list)
         assert len(result) > 0
-        # Each entry should have id, name, entity_type
         assert "id" in result[0]
         assert "name" in result[0]
         assert "entity_type" in result[0]
 
     def test_list_entities_by_type(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.list_entities(entity_type="person")
+        state.load_graph(graph_json_path)
+        result = _call_tool("list_entities", entity_type="person")
         assert isinstance(result, list)
         assert len(result) > 0
         assert all(e["entity_type"] == "person" for e in result)
 
     def test_list_entities_respects_limit(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.list_entities(limit=3)
+        state.load_graph(graph_json_path)
+        result = _call_tool("list_entities", limit=3)
         assert len(result) <= 3
 
     def test_list_entities_invalid_type(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.list_entities(entity_type="unicorn")
+        state.load_graph(graph_json_path)
+        result = _call_tool("list_entities", entity_type="unicorn")
         assert isinstance(result, list)
         assert "error" in result[0]
 
@@ -126,18 +135,17 @@ class TestListEntities:
 
 class TestGetEntity:
     def test_get_entity_found(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        # Grab the first person entity to get a valid ID
-        entities = srv.list_entities(entity_type="person", limit=1)
+        state.load_graph(graph_json_path)
+        entities = _call_tool("list_entities", entity_type="person", limit=1)
         entity_id = entities[0]["id"]
 
-        result = srv.get_entity(entity_id)
+        result = _call_tool("get_entity", entity_id=entity_id)
         assert result["id"] == entity_id
         assert "name" in result
 
     def test_get_entity_not_found(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.get_entity("nonexistent-id-12345")
+        state.load_graph(graph_json_path)
+        result = _call_tool("get_entity", entity_id="nonexistent-id-12345")
         assert "error" in result
 
 
@@ -148,14 +156,12 @@ class TestGetEntity:
 
 class TestGetNeighbors:
     def test_get_neighbors(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        # Get a person who likely has connections
-        entities = srv.list_entities(entity_type="person", limit=1)
+        state.load_graph(graph_json_path)
+        entities = _call_tool("list_entities", entity_type="person", limit=1)
         entity_id = entities[0]["id"]
 
-        result = srv.get_neighbors(entity_id)
+        result = _call_tool("get_neighbors", entity_id=entity_id)
         assert isinstance(result, list)
-        # Persons typically have at least a department or role connection
         if len(result) > 0:
             assert "entity" in result[0]
             assert "relationships" in result[0]
@@ -168,19 +174,16 @@ class TestGetNeighbors:
 
 class TestSearchEntities:
     def test_search_entities_finds_match(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        # Search for a department name that we know exists
-        result = srv.search_entities(query="Engineering")
+        state.load_graph(graph_json_path)
+        result = _call_tool("search_entities", query="Engineering")
         assert isinstance(result, list)
         assert len(result) > 0
         assert "match_score" in result[0]
 
     def test_search_entities_no_match(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.search_entities(query="zzzzxqnonexistent9999")
+        state.load_graph(graph_json_path)
+        result = _call_tool("search_entities", query="zzzzxqnonexistent9999")
         assert isinstance(result, list)
-        # Should return empty or very low-scoring results (filtered by threshold)
-        # All results should have score >= 50 or be empty
         for entry in result:
             if "match_score" in entry:
                 assert entry["match_score"] >= 50.0
@@ -193,62 +196,62 @@ class TestSearchEntities:
 
 class TestAdditionalTools:
     def test_find_most_connected(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.find_most_connected(top_n=5)
+        state.load_graph(graph_json_path)
+        result = _call_tool("find_most_connected", top_n=5)
         assert isinstance(result, list)
         assert len(result) <= 5
         if result:
             assert "degree" in result[0]
 
     def test_compute_centrality_degree(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.compute_centrality(metric="degree")
+        state.load_graph(graph_json_path)
+        result = _call_tool("compute_centrality", metric="degree")
         assert isinstance(result, list)
         assert len(result) <= 20
         if result:
             assert "score" in result[0]
 
     def test_compute_centrality_invalid(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        result = srv.compute_centrality(metric="invalid_metric")
+        state.load_graph(graph_json_path)
+        result = _call_tool("compute_centrality", metric="invalid_metric")
         assert isinstance(result, list)
         assert "error" in result[0]
 
     def test_get_blast_radius(self, graph_json_path: str):
-        srv.load_graph(graph_json_path)
-        entities = srv.list_entities(limit=1)
+        state.load_graph(graph_json_path)
+        entities = _call_tool("list_entities", limit=1)
         entity_id = entities[0]["id"]
 
-        result = srv.get_blast_radius(entity_id, max_depth=2)
+        result = _call_tool("get_blast_radius", entity_id=entity_id, max_depth=2)
         assert "total_affected" in result
         assert "by_depth" in result
 
     def test_find_shortest_path_no_graph(self):
-        result = srv.find_shortest_path("a", "b")
+        result = _call_tool("find_shortest_path", source_id="a", target_id="b")
         assert "error" in result
 
 
 # ---------------------------------------------------------------
-# _auto_load_default_graph
+# auto_load_default_graph
 # ---------------------------------------------------------------
 
 
 class TestAutoLoadDefaultGraph:
     def test_auto_load_from_env(self, graph_json_path: str, monkeypatch):
         monkeypatch.setenv("HCKG_DEFAULT_GRAPH", graph_json_path)
-        srv._auto_load_default_graph()
-        assert srv._kg is not None
-        assert srv._kg.statistics["entity_count"] > 0
+        state.auto_load_default_graph()
+        assert state._kg is not None
+        assert state._kg.statistics["entity_count"] > 0
 
     def test_auto_load_skipped_when_no_env(self, monkeypatch):
         monkeypatch.delenv("HCKG_DEFAULT_GRAPH", raising=False)
-        srv._auto_load_default_graph()
-        assert srv._kg is None
+        state.auto_load_default_graph()
+        assert state._kg is None
 
     def test_auto_load_skipped_when_path_missing(self, monkeypatch):
         monkeypatch.setenv("HCKG_DEFAULT_GRAPH", "/tmp/nonexistent_hckg.json")
-        srv._auto_load_default_graph()
-        assert srv._kg is None
+        state.auto_load_default_graph()
+        assert state._kg is None
 
 
 # ---------------------------------------------------------------
@@ -261,59 +264,53 @@ class TestAutoReload:
 
     def test_reload_detects_file_change(self, graph_json_path: str):
         """After loading a graph, modifying the file triggers a reload."""
-        srv.load_graph(graph_json_path)
-        original_count = srv._kg.statistics["entity_count"]
-        original_mtime = srv._loaded_mtime
+        state.load_graph(graph_json_path)
+        original_count = state._kg.statistics["entity_count"]
+        original_mtime = state._loaded_mtime
 
-        # Wait to ensure filesystem mtime granularity differs
         time.sleep(0.05)
 
-        # Rewrite the file with only entities (no relationships) to change content
         with open(graph_json_path) as f:
             data = json.load(f)
-        # Keep only the first 5 entities to produce a different graph
         data["entities"] = data["entities"][:5]
         data["relationships"] = []
         with open(graph_json_path, "w") as f:
             json.dump(data, f)
 
-        # _require_graph should detect the change and reload
-        kg = srv._require_graph()
+        kg = state.require_graph()
         assert kg.statistics["entity_count"] == 5
         assert kg.statistics["entity_count"] != original_count
-        assert srv._loaded_mtime != original_mtime
+        assert state._loaded_mtime != original_mtime
 
     def test_no_reload_when_file_unchanged(self, graph_json_path: str):
-        """When the file hasn't changed, _require_graph returns the same instance."""
-        srv.load_graph(graph_json_path)
-        kg_before = srv._kg
-        mtime_before = srv._loaded_mtime
+        """When the file hasn't changed, require_graph returns the same instance."""
+        state.load_graph(graph_json_path)
+        kg_before = state._kg
+        mtime_before = state._loaded_mtime
 
-        kg_after = srv._require_graph()
+        kg_after = state.require_graph()
         assert kg_after is kg_before
-        assert srv._loaded_mtime == mtime_before
+        assert state._loaded_mtime == mtime_before
 
     def test_reload_graceful_when_file_deleted(self, graph_json_path: str):
         """If the graph file is deleted, the server keeps the last loaded graph."""
-        srv.load_graph(graph_json_path)
+        state.load_graph(graph_json_path)
 
-        # Point to a file that will be deleted
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
             tmp.write(Path(graph_json_path).read_bytes())
             tmp_path = tmp.name
 
-        srv.load_graph(tmp_path)
+        state.load_graph(tmp_path)
         Path(tmp_path).unlink()
 
-        # _maybe_reload should gracefully skip (OSError on stat)
-        kg = srv._require_graph()
-        assert kg is not None  # Still serves the last loaded graph
+        kg = state.require_graph()
+        assert kg is not None
 
     def test_loaded_path_set_after_load(self, graph_json_path: str):
         """load_graph sets _loaded_path and _loaded_mtime."""
-        assert srv._loaded_path is None
-        assert srv._loaded_mtime == 0.0
+        assert state._loaded_path is None
+        assert state._loaded_mtime == 0.0
 
-        srv.load_graph(graph_json_path)
-        assert srv._loaded_path == str(Path(graph_json_path).resolve())
-        assert srv._loaded_mtime > 0
+        state.load_graph(graph_json_path)
+        assert state._loaded_path == str(Path(graph_json_path).resolve())
+        assert state._loaded_mtime > 0
