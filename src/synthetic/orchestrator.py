@@ -64,6 +64,37 @@ GENERATION_ORDER: list[tuple[EntityType, str]] = [
     (EntityType.INITIATIVE, "initiative_count_range"),
 ]
 
+# Entity types that can be overridden via CLI flags.
+# Maps user-friendly CLI name → EntityType enum value.
+# Excludes derived types (department, role, network, vulnerability, person).
+OVERRIDABLE_ENTITIES: dict[str, EntityType] = {
+    "systems": EntityType.SYSTEM,
+    "data_assets": EntityType.DATA_ASSET,
+    "policies": EntityType.POLICY,
+    "vendors": EntityType.VENDOR,
+    "locations": EntityType.LOCATION,
+    "threat_actors": EntityType.THREAT_ACTOR,
+    "incidents": EntityType.INCIDENT,
+    "regulations": EntityType.REGULATION,
+    "controls": EntityType.CONTROL,
+    "risks": EntityType.RISK,
+    "threats": EntityType.THREAT,
+    "integrations": EntityType.INTEGRATION,
+    "data_domains": EntityType.DATA_DOMAIN,
+    "data_flows": EntityType.DATA_FLOW,
+    "org_units": EntityType.ORGANIZATIONAL_UNIT,
+    "capabilities": EntityType.BUSINESS_CAPABILITY,
+    "sites": EntityType.SITE,
+    "geographies": EntityType.GEOGRAPHY,
+    "jurisdictions": EntityType.JURISDICTION,
+    "product_portfolios": EntityType.PRODUCT_PORTFOLIO,
+    "products": EntityType.PRODUCT,
+    "market_segments": EntityType.MARKET_SEGMENT,
+    "customers": EntityType.CUSTOMER,
+    "contracts": EntityType.CONTRACT,
+    "initiatives": EntityType.INITIATIVE,
+}
+
 
 class SyntheticOrchestrator:
     """Coordinates full synthetic KG generation from an OrgProfile.
@@ -73,6 +104,12 @@ class SyntheticOrchestrator:
         kg = KnowledgeGraph()
         orchestrator = SyntheticOrchestrator(kg, profile, seed=42)
         orchestrator.generate()
+
+    Override specific entity counts:
+        orchestrator = SyntheticOrchestrator(
+            kg, profile, seed=42,
+            count_overrides={"system": 500, "vendor": 100},
+        )
     """
 
     def __init__(
@@ -80,10 +117,12 @@ class SyntheticOrchestrator:
         knowledge_graph: KnowledgeGraph,
         profile: OrgProfile,
         seed: int | None = None,
+        count_overrides: dict[str, int] | None = None,
     ) -> None:
         self._kg = knowledge_graph
         self._profile = profile
         self._context = GenerationContext(profile=profile, seed=seed)
+        self._count_overrides: dict[str, int] = count_overrides or {}
 
     def generate(self) -> dict[str, int]:
         """Run the full generation pipeline. Returns counts by entity type."""
@@ -128,7 +167,14 @@ class SyntheticOrchestrator:
         return getattr(self, "_quality_report", QualityReport())
 
     def _resolve_count(self, entity_type: EntityType, count_key: str) -> int:
-        """Resolve the count for an entity type from the profile."""
+        """Resolve the count for an entity type from the profile.
+
+        Checks count_overrides first, then falls back to profile field.
+        """
+        # Check explicit overrides first
+        if entity_type.value in self._count_overrides:
+            return self._count_overrides[entity_type.value]
+
         profile = self._profile
 
         if count_key.startswith("_"):
