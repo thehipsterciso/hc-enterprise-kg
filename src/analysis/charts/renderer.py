@@ -48,6 +48,10 @@ class ChartRenderer:
             paths.append(self.render_relationship_distribution())
         if self._config.render_profile_comparison and len(self._data.profiles) > 1:
             paths.append(self.render_profile_comparison())
+        if self._config.render_performance:
+            paths.append(self.render_performance_scaling())
+        if self._config.render_density:
+            paths.append(self.render_density_vs_scale())
         return paths
 
     def _save_figure(self, fig: Any, name: str) -> str:
@@ -330,3 +334,104 @@ class ChartRenderer:
 
         fig.tight_layout()
         return self._save_figure(fig, "profile_comparison")
+
+    # ------------------------------------------------------------------
+    # Chart 5: Performance Scaling
+    # ------------------------------------------------------------------
+
+    def render_performance_scaling(self) -> str:
+        """Dual Y-axis: generation time + peak memory vs employee count."""
+        plt = _get_plt()
+
+        fig, ax_time = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+        ax_mem = ax_time.twinx()
+
+        for profile_name in self._data.profiles:
+            snapshots = self._data.by_profile(profile_name)
+            if not snapshots:
+                continue
+
+            scales = [s.scale for s in snapshots]
+            times = [s.generation_time_sec for s in snapshots]
+            memory = [s.peak_memory_mb for s in snapshots]
+
+            color = PROFILE_COLORS.get(profile_name, "#333333")
+            suffix = f" ({profile_name})" if len(self._data.profiles) > 1 else ""
+
+            ax_time.plot(
+                scales,
+                times,
+                marker="o",
+                markersize=5,
+                linewidth=2,
+                label=f"Time{suffix}",
+                color=color,
+            )
+            ax_mem.plot(
+                scales,
+                memory,
+                marker="^",
+                markersize=5,
+                linewidth=2,
+                linestyle="--",
+                label=f"Memory{suffix}",
+                color=color,
+                alpha=0.7,
+            )
+
+        ax_time.set_xlabel("Employee Count", fontsize=FONT_LABEL)
+        ax_time.set_ylabel("Generation Time (seconds)", fontsize=FONT_LABEL, color="#333333")
+        ax_mem.set_ylabel("Peak Memory (MB)", fontsize=FONT_LABEL, color="#666666")
+        ax_time.set_title("Performance Scaling", fontsize=FONT_TITLE)
+        ax_time.grid(True, alpha=0.3)
+        ax_time.tick_params(labelsize=FONT_TICK)
+        ax_mem.tick_params(labelsize=FONT_TICK)
+
+        # Combine legends from both axes
+        lines1, labels1 = ax_time.get_legend_handles_labels()
+        lines2, labels2 = ax_mem.get_legend_handles_labels()
+        ax_time.legend(lines1 + lines2, labels1 + labels2, fontsize=FONT_TICK, loc="upper left")
+
+        fig.tight_layout()
+        return self._save_figure(fig, "performance_scaling")
+
+    # ------------------------------------------------------------------
+    # Chart 6: Density vs Scale
+    # ------------------------------------------------------------------
+
+    def render_density_vs_scale(self) -> str:
+        """Line chart showing graph density trend as org grows."""
+        plt = _get_plt()
+
+        fig, ax = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+
+        for profile_name in self._data.profiles:
+            snapshots = self._data.by_profile(profile_name)
+            if not snapshots:
+                continue
+
+            scales = [s.scale for s in snapshots]
+            densities = [s.density for s in snapshots]
+
+            color = PROFILE_COLORS.get(profile_name, "#333333")
+            label = profile_name.title() if len(self._data.profiles) > 1 else "Density"
+
+            ax.plot(
+                scales,
+                densities,
+                marker="o",
+                markersize=6,
+                linewidth=2,
+                label=label,
+                color=color,
+            )
+
+        ax.set_xlabel("Employee Count", fontsize=FONT_LABEL)
+        ax.set_ylabel("Graph Density", fontsize=FONT_LABEL)
+        ax.set_title("Graph Density vs Organization Scale", fontsize=FONT_TITLE)
+        ax.legend(fontsize=FONT_TICK)
+        ax.grid(True, alpha=0.3)
+        ax.tick_params(labelsize=FONT_TICK)
+
+        fig.tight_layout()
+        return self._save_figure(fig, "density_vs_scale")
