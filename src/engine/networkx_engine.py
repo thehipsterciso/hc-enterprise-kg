@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 import networkx as nx
@@ -49,11 +49,23 @@ class NetworkXGraphEngine(AbstractGraphEngine):
     def update_entity(self, entity_id: str, updates: dict[str, Any]) -> BaseEntity:
         if entity_id not in self._graph:
             raise KeyError(f"Entity not found: {entity_id}")
+        # Copy-validate-write: apply updates to a copy, validate, then commit
+        candidate = dict(self._graph.nodes[entity_id])
+        candidate.update(updates)
+        candidate["updated_at"] = datetime.now(UTC)
+        candidate["version"] = candidate.get("version", 1) + 1
+
+        entity = self._deserialize_entity(dict(candidate))
+        if entity is None:
+            raise ValueError(
+                f"Update produces invalid entity for {entity_id}: {updates}"
+            )
+
+        # Validation passed — commit to graph
         node_data = self._graph.nodes[entity_id]
-        node_data.update(updates)
-        node_data["updated_at"] = datetime.utcnow()
-        node_data["version"] = node_data.get("version", 1) + 1
-        return self._deserialize_entity(dict(node_data))
+        node_data.clear()
+        node_data.update(candidate)
+        return entity
 
     def remove_entity(self, entity_id: str) -> bool:
         if entity_id not in self._graph:
