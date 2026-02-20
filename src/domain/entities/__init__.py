@@ -20,6 +20,7 @@ from domain.entities.policy import Policy
 from domain.entities.regulation import Regulation
 from domain.entities.risk import Risk
 from domain.entities.role import Role
+from domain.entities.organizational_unit import OrganizationalUnit
 from domain.entities.stubs import (
     BusinessCapability,
     Contract,
@@ -28,7 +29,6 @@ from domain.entities.stubs import (
     Initiative,
     Jurisdiction,
     MarketSegment,
-    OrganizationalUnit,
     Product,
     ProductPortfolio,
     Site,
@@ -63,6 +63,7 @@ AnyEntity = Annotated[
     # L03: Data Assets (full implementations)
     | DataDomain
     | DataFlow
+    # L04: Organization (full implementations)
     | OrganizationalUnit
     | BusinessCapability
     | Site

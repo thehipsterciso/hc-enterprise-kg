@@ -29,14 +29,8 @@ from domain.base import BaseEntity, EntityType
 # See: data_domain.py, data_flow.py (DataAsset extended in data_asset.py)
 
 # --- L04: Organization ---
-
-
-class OrganizationalUnit(BaseEntity):
-    """Stub: organizational unit. Full implementation in L04."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.ORGANIZATIONAL_UNIT
-    entity_type: Literal[EntityType.ORGANIZATIONAL_UNIT] = EntityType.ORGANIZATIONAL_UNIT
-
+# OrganizationalUnit — replaced by full implementation in L04.
+# See: organizational_unit.py
 
 # --- L06: Business Capabilities ---
 
