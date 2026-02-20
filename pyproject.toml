@@ -1,6 +1,6 @@
 [project]
 name = "hc-enterprise-kg"
-version = "0.20.6"
+version = "0.20.7"
 description = "Enterprise knowledge graph platform for rapid organizational modelling, scenario analysis, and data & AI leadership"
 readme = "README.md"
 license = {text = "MIT"}
