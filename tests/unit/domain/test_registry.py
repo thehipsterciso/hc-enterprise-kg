@@ -10,7 +10,7 @@ class TestEntityRegistry:
         EntityRegistry.auto_discover()
         assert EntityRegistry.is_registered(EntityType.PERSON)
         assert EntityRegistry.is_registered(EntityType.SYSTEM)
-        assert len(EntityRegistry.all_types()) == 12
+        assert len(EntityRegistry.all_types()) == 30  # 12 original + 18 stubs
 
     def test_get_registered_type(self):
         EntityRegistry.auto_discover()

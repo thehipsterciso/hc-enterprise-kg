@@ -9,6 +9,7 @@ import click
 
 # Color palette for entity types — visually distinct, accessible
 ENTITY_COLORS: dict[str, str] = {
+    # v0.1 original types
     "person": "#4E79A7",
     "department": "#F28E2B",
     "role": "#E15759",
@@ -21,10 +22,30 @@ ENTITY_COLORS: dict[str, str] = {
     "vulnerability": "#BAB0AC",
     "threat_actor": "#D37295",
     "incident": "#FABFD2",
+    # Enterprise ontology types
+    "regulation": "#A0CBE8",
+    "control": "#FFBE7D",
+    "risk": "#8CD17D",
+    "threat": "#B6992D",
+    "integration": "#499894",
+    "data_domain": "#86BCB6",
+    "data_flow": "#F1CE63",
+    "organizational_unit": "#E6A0C4",
+    "business_capability": "#D4A6C8",
+    "site": "#C49C94",
+    "geography": "#DBDB8D",
+    "jurisdiction": "#9EDAE5",
+    "product_portfolio": "#AEC7E8",
+    "product": "#98DF8A",
+    "market_segment": "#C5B0D5",
+    "customer": "#C7C7C7",
+    "contract": "#FFBB78",
+    "initiative": "#FF9896",
 }
 
 # Node sizes by entity type — structurally important types are larger
 ENTITY_SIZES: dict[str, int] = {
+    # v0.1 original types
     "person": 15,
     "department": 30,
     "role": 12,
@@ -37,6 +58,25 @@ ENTITY_SIZES: dict[str, int] = {
     "vulnerability": 14,
     "threat_actor": 16,
     "incident": 18,
+    # Enterprise ontology types
+    "regulation": 20,
+    "control": 14,
+    "risk": 18,
+    "threat": 16,
+    "integration": 16,
+    "data_domain": 24,
+    "data_flow": 14,
+    "organizational_unit": 28,
+    "business_capability": 26,
+    "site": 22,
+    "geography": 20,
+    "jurisdiction": 18,
+    "product_portfolio": 24,
+    "product": 20,
+    "market_segment": 22,
+    "customer": 18,
+    "contract": 16,
+    "initiative": 22,
 }
 
 

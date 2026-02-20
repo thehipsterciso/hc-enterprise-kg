@@ -41,7 +41,13 @@ class EntityRegistry:
 
     @classmethod
     def auto_discover(cls) -> None:
-        """Auto-register all built-in entity classes."""
+        """Auto-register all built-in entity classes.
+
+        Registers v0.1 original types first, then enterprise ontology
+        stubs for types not yet fully implemented. As each layer branch
+        replaces a stub with a full implementation, the import moves
+        from stubs.py to the dedicated module.
+        """
         from domain.entities import (
             DataAsset,
             Department,
@@ -56,8 +62,29 @@ class EntityRegistry:
             Vendor,
             Vulnerability,
         )
+        from domain.entities.stubs import (
+            BusinessCapability,
+            Contract,
+            Control,
+            Customer,
+            DataDomain,
+            DataFlow,
+            Geography,
+            Initiative,
+            Integration,
+            Jurisdiction,
+            MarketSegment,
+            OrganizationalUnit,
+            Product,
+            ProductPortfolio,
+            Regulation,
+            Risk,
+            Site,
+            Threat,
+        )
 
         for entity_class in [
+            # v0.1 original types
             Person,
             Department,
             Role,
@@ -70,5 +97,24 @@ class EntityRegistry:
             Vulnerability,
             ThreatActor,
             Incident,
+            # Enterprise ontology stubs (replaced layer by layer)
+            Regulation,
+            Control,
+            Risk,
+            Threat,
+            Integration,
+            DataDomain,
+            DataFlow,
+            OrganizationalUnit,
+            BusinessCapability,
+            Site,
+            Geography,
+            Jurisdiction,
+            ProductPortfolio,
+            Product,
+            MarketSegment,
+            Customer,
+            Contract,
+            Initiative,
         ]:
             cls.register(entity_class.ENTITY_TYPE, entity_class)
