@@ -13,7 +13,7 @@ poetry install --extras dev
 ## Running Tests
 
 ```bash
-make test          # Run all 124 tests
+make test          # Run all tests (~488)
 make test-cov      # Run with coverage report
 make lint          # Lint with ruff
 make typecheck     # Type check with mypy
@@ -34,7 +34,10 @@ All tests must pass before submitting a PR.
 
 - `feature/description` for new features
 - `fix/description` for bug fixes
+- `refactor/description` for refactoring
 - `docs/description` for documentation changes
+- `test/description` for test additions
+- `chore/description` for maintenance
 
 ## Code Style
 
@@ -54,12 +57,34 @@ Run `make format` to auto-format your code before committing.
 5. Add relationship rules in `src/synthetic/relationships.py`
 6. Add tests
 
+### Pitfalls to watch for
+
+- **`extra="allow"` on BaseEntity** — Wrong field names silently go to `__pydantic_extra__` instead of raising validation errors. Always double-check field names against the entity class.
+- **Sub-model fields** — Many enterprise entity fields that look like scalars are actually Pydantic sub-models (e.g., `Site.address` is `SiteAddress`, not `str`). Always verify against the entity class before writing generators.
+- **Temporal/provenance naming** — Most entities use `temporal`/`provenance` fields. But Initiative, Vendor, Contract, Customer, MarketSegment, ProductPortfolio, and Product use `temporal_and_versioning`/`provenance_and_confidence`. Geography and Jurisdiction use inline scalars instead.
+
 ## Adding a New Organization Profile
 
 1. Create a profile function in `src/synthetic/profiles/`
 2. Return an `OrgProfile` with department specs, network specs, and count ranges
 3. Wire it into the CLI in `src/cli/generate.py` and `src/cli/demo_cmd.py`
 4. Add tests
+
+## MCP Server Development
+
+The MCP server lives in `src/mcp_server/` with four modules:
+- `state.py` — Graph state management with mtime-based auto-reload
+- `helpers.py` — Entity/relationship serialization helpers
+- `tools.py` — All 10 `@mcp.tool()` definitions via `register_tools()`
+- `server.py` — Slim entry point
+
+To test MCP tools directly:
+```python
+from mcp_server.server import mcp
+for tool in mcp._tool_manager._tools.values():
+    if tool.name == "list_entities":
+        result = tool.fn(entity_type="person")
+```
 
 ## Reporting Bugs
 
