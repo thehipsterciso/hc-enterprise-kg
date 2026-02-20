@@ -63,9 +63,9 @@ class EntityRegistry:
             Vulnerability,
         )
         from domain.entities.control import Control
+        from domain.entities.integration import Integration
         from domain.entities.regulation import Regulation
         from domain.entities.risk import Risk
-        from domain.entities.integration import Integration
         from domain.entities.stubs import (
             BusinessCapability,
             Contract,

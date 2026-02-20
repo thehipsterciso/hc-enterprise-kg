@@ -10,6 +10,7 @@ from domain.entities.control import Control
 from domain.entities.data_asset import DataAsset
 from domain.entities.department import Department
 from domain.entities.incident import Incident
+from domain.entities.integration import Integration
 from domain.entities.location import Location
 from domain.entities.network import Network
 from domain.entities.person import Person
@@ -17,7 +18,6 @@ from domain.entities.policy import Policy
 from domain.entities.regulation import Regulation
 from domain.entities.risk import Risk
 from domain.entities.role import Role
-from domain.entities.integration import Integration
 from domain.entities.stubs import (
     BusinessCapability,
     Contract,

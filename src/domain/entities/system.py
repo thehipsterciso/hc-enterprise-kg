@@ -25,7 +25,6 @@ from domain.shared import (
     TemporalAndVersioning,
 )
 
-
 # ---------------------------------------------------------------------------
 # Group 1: Identity & Classification sub-models
 # ---------------------------------------------------------------------------
