@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.18.5] - 2026-02-20
+
+### Fixed
+- **Fix CI** — Run `ruff format` on 15 unformatted files, resolve mypy duplicate module error with `mypy_path`/`explicit_package_bases`, disable 7 pre-existing mypy error codes that were never enforced (#107)
+
 ## [0.18.4] - 2026-02-20
 
 ### Changed
