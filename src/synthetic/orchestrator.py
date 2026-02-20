@@ -120,7 +120,9 @@ class SyntheticOrchestrator:
             elif entity_type == EntityType.NETWORK:
                 return len(profile.network_specs) if profile.network_specs else 0
             elif entity_type == EntityType.ROLE:
-                return 0  # RoleGenerator derives count from departments
+                # RoleGenerator derives roles from departments, not from count.
+                # Return department count so the orchestrator doesn't skip it.
+                return len(profile.department_specs)
             elif entity_type == EntityType.VULNERABILITY:
                 system_count = len(self._context.get_entities(EntityType.SYSTEM))
                 return max(1, int(system_count * profile.vulnerability_probability))
