@@ -46,7 +46,8 @@ def serve_cmd(
 def _run_stdio(source: str) -> None:
     """Start the MCP server over stdio transport."""
     try:
-        from mcp_server.server import load_graph, mcp
+        from mcp_server.server import mcp
+        from mcp_server.state import load_graph
     except ImportError:
         click.echo(
             "Error: MCP server requires the mcp package. Install with:\n"
