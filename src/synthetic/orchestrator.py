@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import logging
 import random
 from typing import TYPE_CHECKING
 
-# Import generators to trigger registration
 import synthetic.generators  # noqa: F401
 from domain.base import EntityType
 from synthetic.base import GenerationContext, GeneratorRegistry
+from synthetic.quality import QualityReport, assess_quality
 from synthetic.relationships import RelationshipWeaver
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from graph.knowledge_graph import KnowledgeGraph
@@ -108,7 +111,22 @@ class SyntheticOrchestrator:
         self._kg.add_relationships_bulk(relationships)
         counts["_relationships"] = len(relationships)
 
+        # Phase 3: Quality assessment
+        self._quality_report = assess_quality(self._context)
+        if self._quality_report.overall_score < 0.7:
+            logger.warning(
+                "Synthetic data quality score %.2f is below 0.7 threshold. "
+                "Warnings: %d",
+                self._quality_report.overall_score,
+                len(self._quality_report.warnings),
+            )
+
         return counts
+
+    @property
+    def quality_report(self) -> QualityReport:
+        """Quality report from the last generation run."""
+        return getattr(self, "_quality_report", QualityReport())
 
     def _resolve_count(self, entity_type: EntityType, count_key: str) -> int:
         """Resolve the count for an entity type from the profile."""
