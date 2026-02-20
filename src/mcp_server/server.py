@@ -6,7 +6,10 @@ query, search, and analyse an enterprise KG interactively.
 
 from __future__ import annotations
 
+import logging
+import os
 from collections import deque
+from pathlib import Path
 from typing import Any
 
 import networkx as nx
@@ -17,10 +20,14 @@ from domain.base import BaseEntity, EntityType, RelationshipType
 from graph.knowledge_graph import KnowledgeGraph
 from ingest.json_ingestor import JSONIngestor
 
+logger = logging.getLogger(__name__)
+
 mcp = FastMCP("hc-enterprise-kg")
 
 # Module-level KG instance shared across all tool invocations.
 _kg: KnowledgeGraph | None = None
+_loaded_path: str | None = None
+_loaded_mtime: float = 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -28,8 +35,23 @@ _kg: KnowledgeGraph | None = None
 # ---------------------------------------------------------------------------
 
 
+def _maybe_reload() -> None:
+    """Re-load the graph file if its mtime has changed since last load."""
+    global _loaded_mtime
+    if _loaded_path is None:
+        return
+    try:
+        current_mtime = os.path.getmtime(_loaded_path)
+    except OSError:
+        return
+    if current_mtime != _loaded_mtime:
+        logger.info("Graph file changed on disk — reloading %s", _loaded_path)
+        load_graph(_loaded_path)
+
+
 def _require_graph() -> KnowledgeGraph:
     """Return the loaded KG or raise a helpful message."""
+    _maybe_reload()
     if _kg is None:
         raise _NoGraphError
     return _kg
@@ -75,7 +97,7 @@ def load_graph(path: str) -> dict:
         Statistics about the loaded graph (entity count, relationship count,
         entity types, etc.) or an error message.
     """
-    global _kg  # noqa: PLW0603
+    global _kg, _loaded_path, _loaded_mtime  # noqa: PLW0603
 
     ingestor = JSONIngestor()
     result = ingestor.ingest(path)
@@ -90,6 +112,12 @@ def load_graph(path: str) -> dict:
         kg.add_relationships_bulk(result.relationships)
 
     _kg = kg
+    resolved = str(Path(path).resolve())
+    _loaded_path = resolved
+    try:
+        _loaded_mtime = os.path.getmtime(resolved)
+    except OSError:
+        _loaded_mtime = 0.0
     stats = kg.statistics
     return {
         "status": "ok",
@@ -454,10 +482,8 @@ def search_entities(
 
 def _auto_load_default_graph() -> None:
     """Load the graph from HCKG_DEFAULT_GRAPH env var if set."""
-    import os
-
     path = os.environ.get("HCKG_DEFAULT_GRAPH")
-    if path and __import__("pathlib").Path(path).exists():
+    if path and Path(path).exists():
         load_graph(path)
 
 
