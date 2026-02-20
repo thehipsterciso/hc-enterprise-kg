@@ -99,15 +99,23 @@ class RelationshipWeaver:
     def _assign_people_to_departments(self) -> list[BaseRelationship]:
         people = self._ctx.get_entities(EntityType.PERSON)
         departments = self._ctx.get_entities(EntityType.DEPARTMENT)
-        profile = self._ctx.profile
         rels: list[BaseRelationship] = []
 
         if not departments or not people:
             return rels
 
+        # Identify leaf departments (those that are NOT parents of sub-departments)
+        parent_ids = {d.parent_department_id for d in departments if d.parent_department_id}
+        leaf_depts = [d for d in departments if d.id not in parent_ids]
+        if not leaf_depts:
+            leaf_depts = list(departments)
+
+        # Distribute people proportionally based on department headcount
+        total_headcount = sum(d.headcount for d in leaf_depts) or 1
         idx = 0
-        for spec, dept in zip(profile.department_specs, departments, strict=False):
-            count = max(1, int(len(people) * spec.headcount_fraction))
+        for dept in leaf_depts:
+            fraction = dept.headcount / total_headcount
+            count = max(1, int(len(people) * fraction))
             for person in people[idx : idx + count]:
                 rels.append(
                     self._make_rel(
@@ -122,9 +130,9 @@ class RelationshipWeaver:
                 person.department_id = dept.id
             idx += count
 
-        # Assign any remaining people to random departments
+        # Assign any remaining people to random leaf departments
         for person in people[idx:]:
-            dept = random.choice(departments)
+            dept = random.choice(leaf_depts)
             rels.append(
                 self._make_rel(
                     RelationshipType.WORKS_IN,
