@@ -1,4 +1,4 @@
-"""Generator for Role entities."""
+"""Generator for Role entities with seniority-level scaling."""
 
 from __future__ import annotations
 
@@ -103,10 +103,76 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
 
 DEFAULT_PERMISSIONS = ["read:internal", "access:vpn"]
 
+# Keywords indicating a role should NOT get seniority-level expansion
+_SENIORITY_EXEMPT_KEYWORDS = frozenset(
+    [
+        "manager",
+        "director",
+        "vp",
+        "chief",
+        "ceo",
+        "cto",
+        "cfo",
+        "coo",
+        "cio",
+        "ciso",
+        "lead",
+        "head",
+        "principal",
+        "senior",
+        "junior",
+        "staff",
+        "recruiter",
+        "paralegal",
+        "officer",
+    ]
+)
+
+
+def _should_expand_seniority(role_name: str) -> bool:
+    """Check if a role name is eligible for seniority-level expansion."""
+    return not any(kw in role_name.lower() for kw in _SENIORITY_EXEMPT_KEYWORDS)
+
+
+def _seniority_variants(role_name: str, headcount: int) -> list[tuple[str, str | None]]:
+    """Generate (variant_name, base_name) tuples for seniority expansion.
+
+    Returns the base role plus seniority variants based on department headcount.
+    base_name is None for the original role, or the original name for variants
+    (used for permission lookup).
+    """
+    if not _should_expand_seniority(role_name):
+        return [(role_name, None)]
+
+    variants: list[tuple[str, str | None]] = [(role_name, None)]
+    if headcount >= 100:
+        variants.append((f"Senior {role_name}", role_name))
+    if headcount >= 300:
+        variants.insert(0, (f"Junior {role_name}", role_name))
+    if headcount >= 500:
+        variants.append((f"Staff {role_name}", role_name))
+    return variants
+
+
+def _get_parent_department_name(dept_name: str) -> str:
+    """Extract parent department name for sub-departments.
+
+    'Engineering - Platform Engineering' → 'Engineering'
+    'Engineering' → 'Engineering'
+    """
+    if " - " in dept_name:
+        return dept_name.split(" - ", 1)[0]
+    return dept_name
+
 
 @GeneratorRegistry.register
 class RoleGenerator(AbstractGenerator):
-    """Generates Role entities with name-correlated permissions."""
+    """Generates Role entities with name-correlated permissions.
+
+    For sub-departments (name contains ' - '), looks up role templates
+    by the parent department name. Expands roles with seniority variants
+    when department headcount is large enough.
+    """
 
     GENERATES = EntityType.ROLE
 
@@ -115,38 +181,55 @@ class RoleGenerator(AbstractGenerator):
         roles: list[Role] = []
 
         for dept in departments:
-            dept_roles = ROLE_TEMPLATES.get(dept.name, ["Analyst", "Manager", "Director"])
+            # Skip parent departments that have sub-departments
+            has_children = any(
+                getattr(d, "parent_department_id", None) == dept.id for d in departments
+            )
+            if has_children:
+                continue
+
+            parent_name = _get_parent_department_name(dept.name)
+            dept_roles = ROLE_TEMPLATES.get(parent_name, ["Analyst", "Manager", "Director"])
+            dept_headcount = getattr(dept, "headcount", 0)
+
             for role_name in dept_roles:
-                is_privileged = any(
-                    kw in role_name.lower()
-                    for kw in [
-                        "admin",
-                        "lead",
-                        "manager",
-                        "director",
-                        "ciso",
-                        "cto",
-                        "ceo",
-                        "cfo",
-                        "coo",
-                        "cio",
-                    ]
-                )
-                access = "privileged" if is_privileged else random.choice(ACCESS_LEVELS[:2])
+                for variant_name, base_name in _seniority_variants(role_name, dept_headcount):
+                    is_privileged = any(
+                        kw in variant_name.lower()
+                        for kw in [
+                            "admin",
+                            "lead",
+                            "manager",
+                            "director",
+                            "ciso",
+                            "cto",
+                            "ceo",
+                            "cfo",
+                            "coo",
+                            "cio",
+                            "staff",
+                            "senior",
+                        ]
+                    )
+                    access = "privileged" if is_privileged else random.choice(ACCESS_LEVELS[:2])
 
-                # Use role-specific permissions when available
-                permissions = ROLE_PERMISSIONS.get(role_name, DEFAULT_PERMISSIONS)
+                    # Look up permissions by exact name, then base name, then default
+                    permissions = ROLE_PERMISSIONS.get(variant_name)
+                    if not permissions and base_name:
+                        permissions = ROLE_PERMISSIONS.get(base_name)
+                    if not permissions:
+                        permissions = DEFAULT_PERMISSIONS
 
-                role = Role(
-                    name=role_name,
-                    description=f"{role_name} role in {dept.name}",
-                    department_id=dept.id,
-                    access_level=access,
-                    is_privileged=is_privileged,
-                    permissions=list(permissions),
-                    tags=[dept.name.lower().replace(" ", "_")],
-                )
-                roles.append(role)
+                    role = Role(
+                        name=variant_name,
+                        description=f"{variant_name} role in {dept.name}",
+                        department_id=dept.id,
+                        access_level=access,
+                        is_privileged=is_privileged,
+                        permissions=list(permissions),
+                        tags=[dept.name.lower().replace(" ", "_")],
+                    )
+                    roles.append(role)
 
         context.store(EntityType.ROLE, roles)
         return roles
