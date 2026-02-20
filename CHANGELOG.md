@@ -4,6 +4,41 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.17.8] - 2026-02-20
+
+### Changed
+- **Update CONTRIBUTING.md** — Fix stale test count (488 → 679), add documentation table linking to new docs/ (#95)
+
+## [0.17.7] - 2026-02-20
+
+### Changed
+- **Complete README rewrite** — Slimmed from 549 to ~200 lines with brand voice (Executive Brief mode), links to new docs/ reference materials (#93)
+
+## [0.17.6] - 2026-02-20
+
+### Added
+- **Troubleshooting guide** (`docs/troubleshooting.md`) — Common setup issues, Poetry configuration, runnable examples (#91)
+
+## [0.17.5] - 2026-02-20
+
+### Added
+- **Profiles & scaling guide** (`docs/profiles.md`) — Industry profile comparison, scaling coefficients, quality scoring, custom profiles (#89)
+
+## [0.17.4] - 2026-02-20
+
+### Added
+- **Python API guide** (`docs/python-api.md`) — Generation, querying, analysis, auto-construction, exporting with working examples (#87)
+
+## [0.17.3] - 2026-02-20
+
+### Added
+- **CLI reference** (`docs/cli.md`) — All commands with options, defaults, examples, REST endpoints, MCP tools (#85)
+
+## [0.17.2] - 2026-02-20
+
+### Added
+- **Entity model reference** (`docs/entity-model.md`) — All 30 entity types, 52 relationship types, generation layers, base model fields (#83)
+
 ## [0.17.1] - 2026-02-20
 
 ### Changed
