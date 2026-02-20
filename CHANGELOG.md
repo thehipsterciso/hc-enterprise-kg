@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.18.3] - 2026-02-20
+
+### Added
+- **Performance documentation** (`docs/performance.md`) — Benchmark results, scaling characteristics, memory profile, recommended system requirements, architecture guidance (#103)
+
+### Changed
+- Update README and CONTRIBUTING with performance docs link, benchmark CLI entry, test count (679 → 689)
+
+## [0.18.2] - 2026-02-20
+
+### Added
+- **Performance regression test suite** (`tests/performance/`) — 10 tests with explicit thresholds per scale tier, `@pytest.mark.performance` marker, `make benchmark` target (#101)
+
+## [0.18.1] - 2026-02-20
+
+### Added
+- **`hckg benchmark` CLI command** — Wraps BenchmarkSuite with `--profiles`, `--scales`, `--full`, `--output`, `--format`, `--seed` options (#99)
+
+## [0.18.0] - 2026-02-20
+
+### Added
+- **Performance benchmarking module** (`src/analysis/benchmark.py`) — `BenchmarkSuite` class measuring 9 performance dimensions: generation, loading, reads, traversal, analysis, export, search, and memory across profiles and scales (#97)
+- `BenchmarkResult` and `BenchmarkReport` dataclasses with markdown and JSON output
+
 ## [0.17.8] - 2026-02-20
 
 ### Changed

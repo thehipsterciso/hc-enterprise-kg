@@ -7,7 +7,8 @@
 ## Quick Commands
 
 ```bash
-poetry run pytest tests/ -v          # Run all tests (~679)
+poetry run pytest tests/ -v          # Run all tests (~689)
+poetry run pytest tests/performance/ -v  # Performance regression tests
 poetry run ruff check src/ tests/    # Lint
 poetry run hckg demo --clean         # Generate fresh graph.json
 poetry run hckg demo --employees 200 # Larger org
@@ -24,9 +25,9 @@ src/
   auto/         # Auto KG from CSV/text (rule-based + optional LLM)
   ingest/       # CSVIngestor, JSONIngestor with schema mappings
   export/       # JSONExporter, GraphMLExporter
-  analysis/     # Centrality, risk scoring, attack paths, blast radius
+  analysis/     # Centrality, risk scoring, attack paths, blast radius, benchmarking
   rag/          # GraphRAG retrieval pipeline
-  cli/          # Click CLI (demo, generate, inspect, auto, serve, install, visualize, export)
+  cli/          # Click CLI (demo, generate, inspect, auto, serve, install, visualize, export, benchmark)
   mcp_server/   # MCP server for Claude Desktop (state.py, helpers.py, tools.py, server.py)
   serve/        # REST API server (Flask)
 ```
@@ -96,4 +97,5 @@ The MCP server (`src/mcp_server/`) provides 10 tools for Claude Desktop:
 - Stress tests (100-20k employees) in `tests/integration/test_stress.py`
 - Quality scoring tests in `tests/unit/synthetic/test_quality.py`
 - Relationship enrichment tests in `tests/unit/synthetic/test_relationship_enrichment.py`
+- Performance regression tests in `tests/performance/` (run with `make benchmark`)
 - Ingestor tests in `tests/unit/ingest/`
