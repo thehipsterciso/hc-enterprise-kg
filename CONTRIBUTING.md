@@ -13,7 +13,7 @@ poetry install --extras dev
 ## Running Tests
 
 ```bash
-make test          # Run all tests (~488)
+make test          # Run all tests (~679)
 make test-cov      # Run with coverage report
 make lint          # Lint with ruff
 make typecheck     # Type check with mypy
@@ -89,6 +89,18 @@ for tool in mcp._tool_manager._tools.values():
 ## Reporting Bugs
 
 Use the [bug report template](https://github.com/thehipsterciso/hc-enterprise-kg/issues/new?template=bug_report.yml) on GitHub Issues.
+
+## Documentation
+
+Detailed reference documentation lives in `docs/`:
+
+| Document | Description |
+|---|---|
+| [Entity Model Reference](docs/entity-model.md) | All 30 entity types, 52 relationship types, generation layers |
+| [CLI Reference](docs/cli.md) | All commands with options, defaults, examples |
+| [Python API Guide](docs/python-api.md) | Generation, querying, analysis, exporting |
+| [Organization Profiles](docs/profiles.md) | Industry profiles, scaling model, quality scoring |
+| [Troubleshooting](docs/troubleshooting.md) | Common issues, setup, examples |
 
 ## Questions
 
