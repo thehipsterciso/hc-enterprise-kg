@@ -191,6 +191,21 @@ class GraphEngineContractTests:
         engine.clear()
         assert engine.entity_count() == 0
 
+    def test_update_entity_rollback_on_invalid(self, engine):
+        """Invalid updates should raise ValueError and leave original data intact."""
+        person = Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
+        engine.add_entity(person)
+
+        # Setting entity_type to an invalid value should fail validation
+        with pytest.raises(ValueError, match="invalid entity"):
+            engine.update_entity("p1", {"entity_type": "not_a_real_type"})
+
+        # Original entity should be unchanged
+        retrieved = engine.get_entity("p1")
+        assert retrieved is not None
+        assert retrieved.name == "A B"
+        assert retrieved.entity_type == EntityType.PERSON
+
     def test_remove_entity_removes_relationships(self, engine):
         engine.add_entity(
             Person(id="p1", first_name="A", last_name="B", name="A B", email="a@b.com")
