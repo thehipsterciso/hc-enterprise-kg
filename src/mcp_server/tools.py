@@ -6,7 +6,6 @@ imported from :mod:`mcp_server.server`.
 
 from __future__ import annotations
 
-from collections import deque
 from typing import Any
 
 import networkx as nx
@@ -214,32 +213,18 @@ def register_tools(mcp):  # noqa: ANN001
         if kg.get_entity(entity_id) is None:
             return {"error": f"Entity '{entity_id}' not found."}
 
-        visited: set[str] = set()
-        queue: deque[tuple[str, int]] = deque([(entity_id, 0)])
-        by_depth: dict[int, list[dict]] = {}
+        by_depth = kg.blast_radius(entity_id, max_depth)
+        serialised: dict[str, list[dict]] = {}
+        total = 0
+        for depth in sorted(by_depth):
+            serialised[str(depth)] = [compact_entity(e) for e in by_depth[depth]]
+            total += len(by_depth[depth])
 
-        while queue:
-            current_id, depth = queue.popleft()
-            if current_id in visited or depth > max_depth:
-                continue
-            visited.add(current_id)
-
-            if current_id != entity_id:
-                entity = kg.get_entity(current_id)
-                if entity:
-                    by_depth.setdefault(depth, []).append(compact_entity(entity))
-
-            if depth < max_depth:
-                for neighbor in kg.neighbors(current_id):
-                    if neighbor.id not in visited:
-                        queue.append((neighbor.id, depth + 1))
-
-        total = sum(len(v) for v in by_depth.values())
         return {
             "entity_id": entity_id,
             "max_depth": max_depth,
             "total_affected": total,
-            "by_depth": {str(k): v for k, v in sorted(by_depth.items())},
+            "by_depth": serialised,
         }
 
     @mcp.tool()
