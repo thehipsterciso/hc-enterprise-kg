@@ -7,7 +7,7 @@
 ## Quick Commands
 
 ```bash
-poetry run pytest tests/ -v          # Run all tests (~488)
+poetry run pytest tests/ -v          # Run all tests (~679)
 poetry run ruff check src/ tests/    # Lint
 poetry run hckg demo --clean         # Generate fresh graph.json
 poetry run hckg demo --employees 200 # Larger org
@@ -20,7 +20,7 @@ src/
   domain/       # Pydantic v2 entity models (30 types), BaseEntity, EntityType/RelationshipType enums
   engine/       # AbstractGraphEngine → NetworkXGraphEngine (pluggable backend)
   graph/        # KnowledgeGraph facade, event bus, QueryBuilder
-  synthetic/    # Profile-driven generators + relationship weaving (SyntheticOrchestrator)
+  synthetic/    # Profile-driven generators + relationship weaving + quality scoring (SyntheticOrchestrator)
   auto/         # Auto KG from CSV/text (rule-based + optional LLM)
   ingest/       # CSVIngestor, JSONIngestor with schema mappings
   export/       # JSONExporter, GraphMLExporter
@@ -40,6 +40,16 @@ L00 Foundation → L01 Compliance → L02 Technology → L03 Data → L04 Organi
 **v0.1 (12):** Person, Department, Role, System, Network, DataAsset, Policy, Vendor, Location, Vulnerability, ThreatActor, Incident
 
 **Enterprise (18):** Regulation, Control, Risk, Threat, Integration, DataDomain, DataFlow, OrganizationalUnit, BusinessCapability, Site, Geography, Jurisdiction, ProductPortfolio, Product, MarketSegment, Customer, Contract, Initiative
+
+## Synthetic Data Pipeline
+
+**Scaling**: Entity counts use `scaled_range(employee_count, coefficient, floor, ceiling)` with industry-specific `ScalingCoefficients` and size-tier multipliers (0.7x startup, 1.0x mid, 1.2x enterprise, 1.4x large). Three profiles: tech, financial, healthcare.
+
+**Generators**: All 30 generators use coordinated template dicts (not independent random). No faker.sentence()/faker.bs() — all descriptions are domain-specific. Risk levels derived from RISK_MATRIX[likelihood][impact].
+
+**Relationships**: 33 weaver methods produce 30+ relationship types with contextual weight/confidence/properties via `_make_rel()`. Mirror fields populated post-weave.
+
+**Quality**: `assess_quality(context) → QualityReport` checks risk math, descriptions, tech coherence, field correlations, encryption↔classification. Orchestrator warns if < 0.7.
 
 ## Key Pitfalls
 
@@ -63,13 +73,19 @@ The MCP server (`src/mcp_server/`) provides 10 tools for Claude Desktop:
 
 ## Git Workflow
 
+- Create GitHub issue(s) before any work
 - Branch from `main`, push immediately
 - Push commits as they're made
-- PR → merge → (at phase boundary) bump version → tag → `gh release create`
+- PR → merge → bump version → tag → `gh release create`
+- Close issues referencing the PR
+- Update CHANGELOG, README, ARCHITECTURE with each release
 
 ## Testing Patterns
 
 - Engine contract tests in `tests/unit/engine/test_contract.py`
 - MCP tool tests call tools via `mcp._tool_manager._tools` registry
 - Synthetic pipeline integration tests in `tests/integration/test_synthetic_pipeline.py`
+- Stress tests (100-20k employees) in `tests/integration/test_stress.py`
+- Quality scoring tests in `tests/unit/synthetic/test_quality.py`
+- Relationship enrichment tests in `tests/unit/synthetic/test_relationship_enrichment.py`
 - Ingestor tests in `tests/unit/ingest/`
