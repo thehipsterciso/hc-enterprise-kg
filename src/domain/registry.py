@@ -62,6 +62,7 @@ class EntityRegistry:
             Vendor,
             Vulnerability,
         )
+        from domain.entities.business_capability import BusinessCapability
         from domain.entities.control import Control
         from domain.entities.data_domain import DataDomain
         from domain.entities.data_flow import DataFlow
@@ -70,7 +71,6 @@ class EntityRegistry:
         from domain.entities.regulation import Regulation
         from domain.entities.risk import Risk
         from domain.entities.stubs import (
-            BusinessCapability,
             Contract,
             Customer,
             Geography,
@@ -109,6 +109,7 @@ class EntityRegistry:
             DataFlow,
             # L04: Organization (full implementations)
             OrganizationalUnit,
+            # L06: Business Capabilities (full implementations)
             BusinessCapability,
             Site,
             Geography,
