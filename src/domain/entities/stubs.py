@@ -37,28 +37,8 @@ from domain.base import BaseEntity, EntityType
 # See: business_capability.py
 
 # --- L07: Locations & Facilities ---
-
-
-class Site(BaseEntity):
-    """Stub: physical site. Full implementation in L07."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.SITE
-    entity_type: Literal[EntityType.SITE] = EntityType.SITE
-
-
-class Geography(BaseEntity):
-    """Stub: geographic region. Full implementation in L07."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.GEOGRAPHY
-    entity_type: Literal[EntityType.GEOGRAPHY] = EntityType.GEOGRAPHY
-
-
-class Jurisdiction(BaseEntity):
-    """Stub: legal/regulatory jurisdiction. Full implementation in L07."""
-
-    ENTITY_TYPE: ClassVar[EntityType] = EntityType.JURISDICTION
-    entity_type: Literal[EntityType.JURISDICTION] = EntityType.JURISDICTION
-
+# Site, Geography, Jurisdiction — replaced by full implementations in L07.
+# See: site.py, geography.py, jurisdiction.py
 
 # --- L08: Products & Services ---
 

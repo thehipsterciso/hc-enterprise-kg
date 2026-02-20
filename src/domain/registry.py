@@ -66,20 +66,20 @@ class EntityRegistry:
         from domain.entities.control import Control
         from domain.entities.data_domain import DataDomain
         from domain.entities.data_flow import DataFlow
+        from domain.entities.geography import Geography
         from domain.entities.integration import Integration
+        from domain.entities.jurisdiction import Jurisdiction
         from domain.entities.organizational_unit import OrganizationalUnit
         from domain.entities.regulation import Regulation
         from domain.entities.risk import Risk
+        from domain.entities.site import Site
         from domain.entities.stubs import (
             Contract,
             Customer,
-            Geography,
             Initiative,
-            Jurisdiction,
             MarketSegment,
             Product,
             ProductPortfolio,
-            Site,
         )
         from domain.entities.threat import Threat
 
@@ -111,6 +111,7 @@ class EntityRegistry:
             OrganizationalUnit,
             # L06: Business Capabilities (full implementations)
             BusinessCapability,
+            # L07: Locations & Facilities (full implementations)
             Site,
             Geography,
             Jurisdiction,

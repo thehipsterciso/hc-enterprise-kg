@@ -12,8 +12,10 @@ from domain.entities.data_asset import DataAsset
 from domain.entities.data_domain import DataDomain
 from domain.entities.data_flow import DataFlow
 from domain.entities.department import Department
+from domain.entities.geography import Geography
 from domain.entities.incident import Incident
 from domain.entities.integration import Integration
+from domain.entities.jurisdiction import Jurisdiction
 from domain.entities.location import Location
 from domain.entities.network import Network
 from domain.entities.organizational_unit import OrganizationalUnit
@@ -22,16 +24,14 @@ from domain.entities.policy import Policy
 from domain.entities.regulation import Regulation
 from domain.entities.risk import Risk
 from domain.entities.role import Role
+from domain.entities.site import Site
 from domain.entities.stubs import (
     Contract,
     Customer,
-    Geography,
     Initiative,
-    Jurisdiction,
     MarketSegment,
     Product,
     ProductPortfolio,
-    Site,
 )
 from domain.entities.system import System
 from domain.entities.threat import Threat
@@ -67,6 +67,7 @@ AnyEntity = Annotated[
     | OrganizationalUnit
     # L06: Business Capabilities (full implementations)
     | BusinessCapability
+    # L07: Locations & Facilities (full implementations)
     | Site
     | Geography
     | Jurisdiction
