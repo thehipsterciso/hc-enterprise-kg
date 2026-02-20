@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.19.7] - 2026-02-20
+
+### Security
+- **Fix stack trace exposure in REST API** — Replace exception details with generic error messages in `/openai/call` endpoint (CWE-209, CWE-497) (#123)
+
+## [0.19.6] - 2026-02-20
+
+### Security
+- **Fix reflected XSS in REST API** — Validate entity ID path parameters against safe character pattern; replace user-echoed error messages with generic text in 4 routes (CWE-79, CWE-116) (#121)
+
+## [0.19.5] - 2026-02-20
+
+### Security
+- **Add explicit permissions to CI workflow** — Lock down `GITHUB_TOKEN` to `contents: read` (least privilege) (CWE-275) (#119)
+
 ## [0.19.4] - 2026-02-20
 
 ### Changed
