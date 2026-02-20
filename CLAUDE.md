@@ -7,7 +7,7 @@
 ## Quick Commands
 
 ```bash
-poetry run pytest tests/ -v          # Run all tests (~689)
+poetry run pytest tests/ -v          # Run all tests (~692)
 poetry run pytest tests/performance/ -v  # Performance regression tests
 poetry run ruff check src/ tests/    # Lint
 poetry run hckg demo --clean         # Generate fresh graph.json
@@ -44,7 +44,9 @@ L00 Foundation → L01 Compliance → L02 Technology → L03 Data → L04 Organi
 
 ## Synthetic Data Pipeline
 
-**Scaling**: Entity counts use `scaled_range(employee_count, coefficient, floor, ceiling)` with industry-specific `ScalingCoefficients` and size-tier multipliers (0.7x startup, 1.0x mid, 1.2x enterprise, 1.4x large). Three profiles: tech, financial, healthcare. Departments exceeding 500 headcount are subdivided into sub-departments via `SUB_DEPARTMENT_TEMPLATES`. Roles expand with seniority variants (Junior/Senior/Staff) based on sub-department headcount.
+**Scaling**: Entity counts use `scaled_range(employee_count, coefficient, floor, ceiling)` with industry-specific `ScalingCoefficients` and size-tier multipliers (0.7x startup, 1.0x mid, 1.2x enterprise, 1.4x large). Three profiles: tech, financial, healthcare. Departments exceeding 500 headcount are subdivided into sub-departments via `SUB_DEPARTMENT_TEMPLATES` (30+ sets). Roles expand with seniority variants (Junior/Senior/Staff) based on sub-department headcount. At 14k emp (tech): 42 depts, 301 roles.
+
+**Count Overrides**: `SyntheticOrchestrator(kg, profile, count_overrides={"system": 500})` pins exact counts. CLI: `--systems 500 --vendors 100` (25 flags via `entity_overrides.py` decorator). `OVERRIDABLE_ENTITIES` dict in `orchestrator.py` maps CLI names → EntityType.
 
 **Generators**: All 30 generators use coordinated template dicts (not independent random). No faker.sentence()/faker.bs() — all descriptions are domain-specific. Risk levels derived from RISK_MATRIX[likelihood][impact].
 

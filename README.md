@@ -42,6 +42,9 @@ poetry run hckg demo --profile healthcare --employees 500 --output hospital.json
 
 # Financial services, exported as GraphML for Gephi
 poetry run hckg demo --profile financial --employees 200 --format graphml
+
+# Override specific entity counts
+poetry run hckg demo --employees 5000 --systems 500 --vendors 100 --controls 200
 ```
 
 ---
@@ -50,7 +53,9 @@ poetry run hckg demo --profile financial --employees 200 --format graphml
 
 Each graph contains **30 interconnected entity types** modelling a complete organization across 12 generation layers: compliance and governance (regulations, controls, risks, threats), technology infrastructure (systems, integrations, networks), data landscape (assets, domains, flows), organizational structure (departments, business units, capabilities), people and roles, physical locations and jurisdictions, products and portfolios, customers and market segments, vendor contracts, and strategic initiatives.
 
-These entities are connected by **52 relationship types**, each carrying contextual weight, confidence scores, and typed properties. A `depends_on` relationship between two systems includes a dependency type and strength. A `mitigates` relationship between a control and a risk carries effectiveness metadata. Three industry profiles (technology, financial services, healthcare) produce structurally different graphs that reflect real-world sector patterns, and entity counts scale proportionally from 100-employee startups to 20,000-employee enterprises.
+These entities are connected by **52 relationship types**, each carrying contextual weight, confidence scores, and typed properties. A `depends_on` relationship between two systems includes a dependency type and strength. A `mitigates` relationship between a control and a risk carries effectiveness metadata. Three industry profiles (technology, financial services, healthcare) produce structurally different graphs that reflect real-world sector patterns, with entity counts scaled to research-backed benchmarks (Gartner, MuleSoft, NIST, Hackett Group, McKinsey) from 100-employee startups to 20,000-employee enterprises.
+
+Departments exceeding 500 headcount are automatically subdivided into sub-departments (30+ industry-specific templates), and roles expand with seniority variants (Junior/Senior/Staff) based on headcount. At 14,512 employees, a tech org generates 42 departments and 301 roles instead of the fixed 10/35. Individual entity counts can be pinned via CLI flags (`--systems 500 --vendors 100`) to bypass scaling.
 
 Generated data is validated by an automated quality scoring module that checks risk math consistency, description quality, tech stack coherence, field correlations, and encryption-classification alignment.
 
@@ -74,7 +79,7 @@ Generated data is validated by an automated quality scoring module that checks r
 
 ```
 src/
-  cli/          Click-based CLI (demo, generate, inspect, auto, serve, install, visualize, export)
+  cli/          Click-based CLI (demo, generate, inspect, auto, serve, install, visualize, export, benchmark)
   domain/       Pydantic v2 entity models (30 types), enums, entity registry
   engine/       Graph backend abstraction (NetworkX; swappable to Neo4j)
   graph/        KnowledgeGraph facade, event bus, query builder
@@ -82,11 +87,11 @@ src/
   auto/         Auto KG construction from CSV/text (rule-based + optional LLM)
   ingest/       Data ingestion (JSON, CSV with schema mappings and transforms)
   export/       Export (JSON, GraphML)
-  analysis/     Graph metrics (centrality, PageRank), risk scoring, security queries
+  analysis/     Graph metrics (centrality, PageRank), risk scoring, benchmarking
   rag/          GraphRAG retrieval pipeline
   serve/        REST API server (Flask, OpenAI-compatible endpoints)
   mcp_server/   MCP server for Claude Desktop (10 tools, auto-reload)
-tests/          679+ tests (unit, integration, stress)
+tests/          692+ tests (unit, integration, stress, performance)
 ```
 
 > See [Architecture](ARCHITECTURE.md) for the full system design.
@@ -159,7 +164,7 @@ poetry install --extras dev         # Development tools (pytest, mypy, ruff)
 
 ```bash
 make install    # Install with dev dependencies
-make test       # Run all tests (~689)
+make test       # Run all tests (~692)
 make test-cov   # Tests with coverage report
 make lint       # Lint with ruff
 make format     # Auto-format with ruff
