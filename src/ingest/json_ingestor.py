@@ -36,14 +36,29 @@ class JSONIngestor(AbstractIngestor):
             result.errors.append(f"File not found: {path}")
             return result
 
-        EntityRegistry.auto_discover()
-
         try:
             with open(path) as f:
                 data = json.load(f)
         except json.JSONDecodeError as e:
             result.errors.append(f"Invalid JSON: {e}")
             return result
+
+        return self._ingest_data(data)
+
+    def ingest_string(self, json_str: str) -> IngestResult:
+        """Ingest entities and relationships from a JSON string."""
+        result = IngestResult()
+        try:
+            data = json.loads(json_str)
+        except json.JSONDecodeError as e:
+            result.errors.append(f"Invalid JSON: {e}")
+            return result
+        return self._ingest_data(data)
+
+    def _ingest_data(self, data: dict[str, Any]) -> IngestResult:
+        """Core ingestion logic shared by ingest() and ingest_string()."""
+        result = IngestResult()
+        EntityRegistry.auto_discover()
 
         # Parse entities
         for i, raw in enumerate(data.get("entities", [])):

@@ -6,20 +6,40 @@ import csv
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from domain.base import BaseRelationship
 from domain.registry import EntityRegistry
 from ingest.base import AbstractIngestor, IngestResult
 
 if TYPE_CHECKING:
     from domain.base import EntityType
-    from ingest.mapping import SchemaMapping
+    from ingest.mapping import RelationshipMapping, SchemaMapping
 
 
 class CSVIngestor(AbstractIngestor):
     """Ingests entities from CSV files using schema mappings."""
 
+    _TRANSFORMS: dict[str, Any] = {
+        "lowercase": lambda v: str(v).lower(),
+        "uppercase": lambda v: str(v).upper(),
+        "strip": lambda v: str(v).strip(),
+        "int": lambda v: int(v),
+        "float": lambda v: float(v),
+        "bool": lambda v: str(v).lower() in ("true", "1", "yes"),
+    }
+
     def can_handle(self, source: Path | str) -> bool:
         path = Path(source) if isinstance(source, str) else source
         return path.suffix.lower() == ".csv"
+
+    @staticmethod
+    def _apply_transform(value: str, transform: str | None) -> Any:
+        """Apply a named transform to a field value."""
+        if transform is None:
+            return value
+        fn = CSVIngestor._TRANSFORMS.get(transform)
+        if fn is None:
+            return value
+        return fn(value)
 
     def ingest(
         self,
@@ -56,11 +76,19 @@ class CSVIngestor(AbstractIngestor):
                         }
                         for fm in em.field_mappings:
                             if fm.source_field in row:
-                                attrs[fm.target_attribute] = row[fm.source_field]
+                                attrs[fm.target_attribute] = self._apply_transform(
+                                    row[fm.source_field], fm.transform
+                                )
                         entity = entity_class.model_validate(attrs)
                         result.entities.append(entity)
                     except Exception as e:
                         result.errors.append(f"Row {i}: {e}")
+
+            # Process relationship mappings after entities are ingested
+            if mapping.relationship_mappings:
+                self._process_relationship_mappings(
+                    mapping.relationship_mappings, result
+                )
         elif entity_type:
             entity_class = EntityRegistry.get(entity_type)
             columns = list(rows[0].keys())
@@ -82,3 +110,40 @@ class CSVIngestor(AbstractIngestor):
             result.errors.append("No mapping or entity_type provided")
 
         return result
+
+    @staticmethod
+    def _process_relationship_mappings(
+        rel_mappings: list[RelationshipMapping],
+        result: IngestResult,
+    ) -> None:
+        """Create relationships from relationship mappings using ingested entities.
+
+        For each relationship mapping, looks up entity IDs by name from the
+        ingested entities and creates relationships between matched pairs.
+        """
+        # Build name → entity_id lookup from ingested entities
+        name_to_id: dict[str, str] = {}
+        for entity in result.entities:
+            name_to_id[entity.name] = entity.id
+
+        for rm in rel_mappings:
+            for entity in result.entities:
+                raw = entity.model_dump(mode="python")
+                # source_field/target_field refer to attribute names that hold
+                # the name (or id) of the related entity
+                target_ref = raw.get(rm.target_field)
+                if not target_ref:
+                    continue
+                target_id = name_to_id.get(str(target_ref))
+                if target_id and target_id != entity.id:
+                    try:
+                        rel = BaseRelationship(
+                            relationship_type=rm.relationship_type,
+                            source_id=entity.id,
+                            target_id=target_id,
+                        )
+                        result.relationships.append(rel)
+                    except Exception as e:
+                        result.errors.append(
+                            f"Relationship {rm.relationship_type}: {e}"
+                        )

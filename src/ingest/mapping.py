@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from pydantic import BaseModel, Field
 
-if TYPE_CHECKING:
-    from domain.base import EntityType, RelationshipType
+from domain.base import EntityType, RelationshipType  # noqa: TC001  # Pydantic needs at runtime
 
 
 class FieldMapping(BaseModel):
