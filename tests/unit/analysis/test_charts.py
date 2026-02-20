@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from analysis.charts.models import ChartConfig, ChartDataSet, ScaleSnapshot
 from analysis.charts.theme import (
     ENTITY_COLORS,
@@ -318,3 +320,151 @@ class TestScaleDataCollector:
         assert dataset.profiles == ["tech", "financial"]
         assert dataset.scales == [100]
         assert len(dataset.snapshots) == 2
+
+
+# ---------------------------------------------------------------------------
+# ChartRenderer
+# ---------------------------------------------------------------------------
+
+
+def _make_renderer_dataset() -> ChartDataSet:
+    """Create a small dataset suitable for renderer tests."""
+    snapshots = []
+    for scale in [100, 500]:
+        snapshots.append(
+            ScaleSnapshot(
+                profile="tech",
+                scale=scale,
+                entity_count=scale * 4,
+                relationship_count=scale * 7,
+                entity_types={
+                    "person": scale,
+                    "department": max(3, scale // 30),
+                    "role": max(5, scale // 10),
+                    "system": max(10, scale // 5),
+                    "network": 3,
+                    "data_asset": max(5, scale // 8),
+                    "policy": 5,
+                    "vendor": max(3, scale // 20),
+                    "location": 3,
+                    "vulnerability": max(5, scale // 10),
+                    "threat_actor": 3,
+                    "incident": 2,
+                    "regulation": 5,
+                    "control": 8,
+                    "risk": 6,
+                    "threat": 4,
+                    "integration": max(3, scale // 15),
+                    "data_domain": 4,
+                    "data_flow": max(3, scale // 20),
+                    "organizational_unit": 3,
+                    "business_capability": 5,
+                    "site": 3,
+                    "geography": 3,
+                    "jurisdiction": 3,
+                    "product_portfolio": 2,
+                    "product": 5,
+                    "market_segment": 3,
+                    "customer": max(3, scale // 15),
+                    "contract": max(3, scale // 20),
+                    "initiative": 3,
+                },
+                relationship_types={"works_in": scale, "manages": scale // 10},
+                density=0.005 - (scale * 0.000001),
+                generation_time_sec=scale * 0.01,
+                peak_memory_mb=scale * 0.1,
+                quality_scores={
+                    "overall_score": 0.85,
+                    "risk_math_consistency": 1.0,
+                    "description_quality": 0.9,
+                    "tech_stack_coherence": 0.8,
+                    "field_correlation_score": 0.75,
+                    "encryption_classification_consistency": 0.7,
+                },
+                centrality_top_n=[("id1", "CEO", 0.45), ("id2", "CTO", 0.38)],
+                most_connected=[("id3", "ERP", 42), ("id4", "AD", 35)],
+            )
+        )
+    return ChartDataSet(snapshots=snapshots, profiles=["tech"], scales=[100, 500])
+
+
+class TestChartRenderer:
+    def test_render_scaling_curves_creates_file(self, tmp_path):
+        """render_scaling_curves() should produce a PNG file."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        path = renderer.render_scaling_curves()
+
+        assert Path(path).exists()
+        assert path.endswith(".png")
+        assert Path(path).stat().st_size > 0
+
+    def test_render_entity_distribution_creates_file(self, tmp_path):
+        """render_entity_distribution() should produce a PNG file."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        path = renderer.render_entity_distribution()
+
+        assert Path(path).exists()
+        assert path.endswith(".png")
+
+    def test_render_with_svg_format(self, tmp_path):
+        """SVG format should produce .svg files."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(tmp_path), format="svg")
+        renderer = ChartRenderer(dataset, cfg)
+        path = renderer.render_scaling_curves()
+
+        assert path.endswith(".svg")
+        assert Path(path).exists()
+
+    def test_render_all_returns_file_list(self, tmp_path):
+        """render_all() should return list of created file paths."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        paths = renderer.render_all()
+
+        assert len(paths) == 2  # scaling_curves + entity_distribution
+        for p in paths:
+            assert Path(p).exists()
+
+    def test_render_creates_output_directory(self, tmp_path):
+        """render_all() should create the output directory if needed."""
+        from analysis.charts.renderer import ChartRenderer
+
+        out_dir = tmp_path / "nested" / "output"
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(out_dir), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        paths = renderer.render_all()
+
+        assert out_dir.exists()
+        assert len(paths) > 0
+
+    def test_render_respects_chart_toggles(self, tmp_path):
+        """Disabled charts should not be rendered."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(
+            output_dir=str(tmp_path),
+            format="png",
+            render_scaling=False,
+            render_entities=True,
+        )
+        renderer = ChartRenderer(dataset, cfg)
+        paths = renderer.render_all()
+
+        assert len(paths) == 1  # only entity_distribution
+        assert "entity_distribution" in paths[0]
