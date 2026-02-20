@@ -65,6 +65,7 @@ class EntityRegistry:
         from domain.entities.control import Control
         from domain.entities.regulation import Regulation
         from domain.entities.risk import Risk
+        from domain.entities.integration import Integration
         from domain.entities.stubs import (
             BusinessCapability,
             Contract,
@@ -73,7 +74,6 @@ class EntityRegistry:
             DataFlow,
             Geography,
             Initiative,
-            Integration,
             Jurisdiction,
             MarketSegment,
             OrganizationalUnit,
@@ -102,7 +102,7 @@ class EntityRegistry:
             Control,
             Risk,
             Threat,
-            # Enterprise ontology stubs (replaced layer by layer)
+            # L02: Technology & Systems (full implementations)
             Integration,
             DataDomain,
             DataFlow,

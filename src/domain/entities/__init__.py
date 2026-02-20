@@ -17,6 +17,7 @@ from domain.entities.policy import Policy
 from domain.entities.regulation import Regulation
 from domain.entities.risk import Risk
 from domain.entities.role import Role
+from domain.entities.integration import Integration
 from domain.entities.stubs import (
     BusinessCapability,
     Contract,
@@ -25,7 +26,6 @@ from domain.entities.stubs import (
     DataFlow,
     Geography,
     Initiative,
-    Integration,
     Jurisdiction,
     MarketSegment,
     OrganizationalUnit,
@@ -58,7 +58,7 @@ AnyEntity = Annotated[
     | Control
     | Risk
     | Threat
-    # Enterprise ontology stubs (replaced layer by layer)
+    # L02: Technology & Systems (full implementations)
     | Integration
     | DataDomain
     | DataFlow
