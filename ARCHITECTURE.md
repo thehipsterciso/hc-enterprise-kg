@@ -8,6 +8,7 @@ This document describes the high-level architecture of hc-enterprise-kg.
 ┌─────────────────────────────────────────────────────────────┐
 │                        CLI (Click)                          │
 │  demo | generate | inspect | auto | serve | install | viz   │
+│  export | benchmark                                         │
 └─────────────┬───────────────┬───────────────┬───────────────┘
               │               │               │
     ┌─────────▼──────┐  ┌────▼────┐  ┌───────▼───────┐
@@ -100,15 +101,17 @@ OrgProfile → SyntheticOrchestrator → [Generator per type] → KnowledgeGraph
 ```
 
 1. `OrgProfile` defines department specs and industry-specific `ScalingCoefficients`
-2. `SyntheticOrchestrator` resolves counts via `scaled_range()` (industry coefficient × size-tier multiplier) and runs generators in layer order
+2. `SyntheticOrchestrator` resolves counts via `scaled_range()` (industry coefficient × size-tier multiplier) and runs generators in layer order. Optional `count_overrides` dict pins exact counts, bypassing scaling.
 3. Each generator uses **coordinated template dicts** — related fields are pre-mapped (e.g., system name ↔ OS ↔ tech stack ↔ ports), not independently random
-4. `RelationshipWeaver` creates 30+ relationship types with contextual weight, confidence, and properties via `_make_rel()` helper
-5. `_populate_mirror_fields()` denormalizes relationship edges into entity fields (Person.holds_roles, Role.filled_by_persons, etc.)
-6. `assess_quality()` runs 5 automated checks (risk math, description quality, tech coherence, field correlation, encryption↔classification) and produces a `QualityReport`
+4. `DepartmentGenerator` subdivides departments exceeding 500 headcount into sub-departments using `SUB_DEPARTMENT_TEMPLATES` (30+ industry-specific template sets). Sub-departments linked via `parent_department_id`.
+5. `RoleGenerator` looks up templates by parent department name for sub-departments and expands roles with seniority variants (Junior/Senior/Staff) based on headcount thresholds.
+6. `RelationshipWeaver` creates 30+ relationship types with contextual weight, confidence, and properties via `_make_rel()`. People distributed to leaf departments using headcount-proportional assignment.
+7. `_populate_mirror_fields()` denormalizes relationship edges into entity fields (Person.holds_roles, Role.filled_by_persons, etc.)
+8. `assess_quality()` runs 5 automated checks (risk math, description quality, tech coherence, field correlation, encryption↔classification) and produces a `QualityReport`
 
 ### Industry-Aware Scaling
 
-Entity counts scale with employee count using `ScalingCoefficients` per industry:
+Entity counts scale with employee count using `ScalingCoefficients` per industry (calibrated against Gartner, MuleSoft, NIST, Hackett Group, and McKinsey research):
 
 | Industry | Systems (coeff) | Controls (coeff) | Data Assets (coeff) |
 |---|---|---|---|
@@ -117,6 +120,10 @@ Entity counts scale with employee count using `ScalingCoefficients` per industry
 | Healthcare | 1:15 | 1:25 | 1:5 (3x tech) |
 
 Size-tier multipliers: startup 0.7x (<250), mid-market 1.0x, enterprise 1.2x (2k-10k), large 1.4x (>10k).
+
+### Entity Count Overrides
+
+The orchestrator accepts a `count_overrides` dict to pin exact entity counts, bypassing `scaled_range()`. Exposed via 25 CLI flags (`--systems`, `--vendors`, `--controls`, etc.) on both `hckg demo` and `hckg generate org`. Derived types (departments, roles, networks, vulnerabilities) are not overridable.
 
 ### Quality Scoring
 
