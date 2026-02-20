@@ -150,9 +150,7 @@ class TestSite:
     def test_financial_profile(self):
         site = Site(
             name="Chicago Office",
-            annual_operating_cost=AnnualCost(
-                amount=8500000, currency="USD", fiscal_year="2024"
-            ),
+            annual_operating_cost=AnnualCost(amount=8500000, currency="USD", fiscal_year="2024"),
             lease_details=LeaseDetails(
                 landlord="Boston Properties",
                 lease_type="Full Service / Gross",
@@ -178,9 +176,7 @@ class TestSite:
             name="Austin Campus",
             current_occupancy=CurrentOccupancy(headcount=1200, as_of_date="2024-11-01"),
             occupancy_by_unit=[
-                OccupancyByUnit(
-                    unit_id="OU-ENG", unit_name="Engineering", headcount=600
-                )
+                OccupancyByUnit(unit_id="OU-ENG", unit_name="Engineering", headcount=600)
             ],
             utilization_rate=UtilizationRate(
                 current_pct=72, peak_pct=90, measurement_methodology="Badge Swipe Data"
@@ -255,15 +251,9 @@ class TestSite:
                 )
             ],
             backup_site="ST-AMS",
-            hosts_systems=[
-                SystemHosting(
-                    system_id="SYS-SAP", hosting_type="Primary Production"
-                )
-            ],
+            hosts_systems=[SystemHosting(system_id="SYS-SAP", hosting_type="Primary Production")],
             managed_by_vendors=[
-                VendorService(
-                    vendor_id="VENDOR-JLL", service_type="Facility Management"
-                )
+                VendorService(vendor_id="VENDOR-JLL", service_type="Facility Management")
             ],
         )
         assert len(site.located_in_geography) == 1
@@ -414,9 +404,7 @@ class TestJurisdiction:
             tax_regime=TaxRegime(
                 corporate_tax_rate=21.0,
                 vat_gst_rate=20.0,
-                withholding_tax_rates=WithholdingTaxRates(
-                    dividends=15, interest=15, royalties=15
-                ),
+                withholding_tax_rates=WithholdingTaxRates(dividends=15, interest=15, royalties=15),
                 transfer_pricing_rules=TransferPricingRules(
                     documentation_required=True,
                     country_by_country_reporting=True,
@@ -438,9 +426,7 @@ class TestJurisdiction:
                 data_transfer_restricted=True,
                 export_controls=["EU Dual-Use Regulation"],
             ),
-            sanctions_status=SanctionsStatus(
-                sanctioned=False, sanction_type="None"
-            ),
+            sanctions_status=SanctionsStatus(sanctioned=False, sanction_type="None"),
             sites_in_jurisdiction=["ST-FRA", "ST-AMS", "ST-PAR"],
             confidence_level="Verified",
         )

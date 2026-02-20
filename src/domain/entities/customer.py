@@ -421,9 +421,7 @@ class Customer(BaseEntity):
     kyc_status: KycStatus | None = None
     export_control_status: ExportControlStatus | None = None
     data_privacy_obligations: DataPrivacyObligations | None = None
-    regulatory_applicability: list[RegulatoryApplicability] = Field(
-        default_factory=list
-    )
+    regulatory_applicability: list[RegulatoryApplicability] = Field(default_factory=list)
     customer_compliance_certifications: list[CustomerComplianceCertification] = Field(
         default_factory=list
     )
@@ -448,9 +446,7 @@ class Customer(BaseEntity):
     managed_through_vendors: list[str] = Field(default_factory=list)
 
     # --- Group 7: Temporal & Provenance ---
-    temporal_and_versioning: TemporalAndVersioning = Field(
-        default_factory=TemporalAndVersioning
-    )
+    temporal_and_versioning: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
     provenance_and_confidence: ProvenanceAndConfidence = Field(
         default_factory=ProvenanceAndConfidence
     )

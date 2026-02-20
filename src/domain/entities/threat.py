@@ -110,19 +110,13 @@ class Threat(BaseEntity):
     # --- Relevance & applicability ---
     relevance_to_enterprise: str = ""  # Critical, High, Medium, Low, Not Applicable
     relevance_rationale: str = ""
-    geographic_applicability: list[GeographicApplicability] = Field(
-        default_factory=list
-    )
+    geographic_applicability: list[GeographicApplicability] = Field(default_factory=list)
     industry_applicability: list[IndustryApplicability] = Field(default_factory=list)
     seasonal_pattern: SeasonalPattern = Field(default_factory=SeasonalPattern)
-    historical_frequency: HistoricalFrequency = Field(
-        default_factory=HistoricalFrequency
-    )
+    historical_frequency: HistoricalFrequency = Field(default_factory=HistoricalFrequency)
 
     # --- Materiality & impact ---
-    materiality_assessment: MaterialityAssessment = Field(
-        default_factory=MaterialityAssessment
-    )
+    materiality_assessment: MaterialityAssessment = Field(default_factory=MaterialityAssessment)
     potential_impact_description: str = ""
 
     # --- Assessment & monitoring ---
@@ -139,6 +133,4 @@ class Threat(BaseEntity):
 
     # --- Temporal & provenance ---
     temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

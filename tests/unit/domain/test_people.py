@@ -122,9 +122,7 @@ class TestRoleExtended:
             ),
             origin="Organic",
             regulatory_designation="Regulatory Required",
-            role_name_local=[
-                RoleLocalName(language_code="de", name="CISO", locale="DE")
-            ],
+            role_name_local=[RoleLocalName(language_code="de", name="CISO", locale="DE")],
             role_name_former=[
                 RoleFormerName(
                     former_name="VP Security",
@@ -175,16 +173,12 @@ class TestRoleExtended:
                 preferred_fields=["Computer Science", "Data Engineering"],
             ),
             required_clearances=[
-                RequiredClearance(
-                    clearance_type="Secret", jurisdiction="US", mandatory=True
-                )
+                RequiredClearance(clearance_type="Secret", jurisdiction="US", mandatory=True)
             ],
             competency_model_reference=CompetencyModelReference(
                 model_name="Enterprise Tech Competencies",
                 applicable_competencies=[
-                    CompetencyReference(
-                        competency_name="Data Modeling", required_level="Expert"
-                    )
+                    CompetencyReference(competency_name="Data Modeling", required_level="Expert")
                 ],
             ),
             language_requirements=[
@@ -194,18 +188,14 @@ class TestRoleExtended:
                     requirement_level="Mandatory",
                 )
             ],
-            travel_requirement=TravelRequirement(
-                travel_pct=10, travel_scope="National"
-            ),
+            travel_requirement=TravelRequirement(travel_pct=10, travel_scope="National"),
             physical_requirements=PhysicalRequirements(
                 has_physical_requirements=False, work_environment="Office Only"
             ),
             authority_delegated=AuthorityDelegated(
                 financial_approval_limit=FinancialLimit(amount=50000, currency="USD"),
                 hiring_authority="Individual Contributors Only",
-                contract_authority=ContractAuthority(
-                    max_value=25000, max_term_months=12
-                ),
+                contract_authority=ContractAuthority(max_value=25000, max_term_months=12),
                 system_access_level="Power User",
                 data_access_level="Department Scope",
             ),
@@ -304,21 +294,15 @@ class TestRoleExtended:
         role = Role(
             name="Security Architect",
             fills_capability=[
-                CapabilityContribution(
-                    capability_id="CAP-SEC", contribution_type="Accountable"
-                )
+                CapabilityContribution(capability_id="CAP-SEC", contribution_type="Accountable")
             ],
-            belongs_to_unit=[
-                UnitAssignment(unit_id="OU-SEC", assignment_type="Primary")
-            ],
+            belongs_to_unit=[UnitAssignment(unit_id="OU-SEC", assignment_type="Primary")],
             filled_by_persons=["PS-001", "PS-002"],
             requires_systems_access=[
                 SystemAccessRequirement(system_id="SYS-SIEM", access_level="Admin")
             ],
             requires_data_access=[
-                DataAccessRequirement(
-                    data_asset_id="DA-LOGS", access_type="Read"
-                )
+                DataAccessRequirement(data_asset_id="DA-LOGS", access_type="Read")
             ],
             governed_by=["REG-SOX"],
             supports_initiatives=["INIT-ZT"],
@@ -517,12 +501,8 @@ class TestPersonExtended:
                 )
             ],
             languages=[
-                LanguageProficiency(
-                    language="en", proficiency_level="Native / Bilingual"
-                ),
-                LanguageProficiency(
-                    language="es", proficiency_level="Professional Working"
-                ),
+                LanguageProficiency(language="en", proficiency_level="Native / Bilingual"),
+                LanguageProficiency(language="es", proficiency_level="Professional Working"),
             ],
             experience_profile=ExperienceProfile(
                 total_years_professional=12,

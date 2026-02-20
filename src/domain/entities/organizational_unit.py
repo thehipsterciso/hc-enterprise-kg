@@ -517,9 +517,7 @@ class OrganizationalUnit(BaseEntity):
     operational_status_rationale: str = ""
     operational_status_effective_date: str | None = None
     employee_count: EmployeeCount = Field(default_factory=EmployeeCount)
-    employee_count_by_location: list[EmployeeCountByLocation] = Field(
-        default_factory=list
-    )
+    employee_count_by_location: list[EmployeeCountByLocation] = Field(default_factory=list)
     geographic_scope: str = ""  # Global, Multi-Regional, Regional, Country, Local
     geographic_presence: list[GeographicPresence] = Field(default_factory=list)
     operating_hours: OperatingHours = Field(default_factory=OperatingHours)
@@ -537,9 +535,7 @@ class OrganizationalUnit(BaseEntity):
     cost_structure: CostStructure = Field(default_factory=CostStructure)
     cost_breakdown: list[CostBreakdownItemOU] = Field(default_factory=list)
     budget_authority: BudgetAuthority = Field(default_factory=BudgetAuthority)
-    intercompany_relationships: list[IntercompanyRelationship] = Field(
-        default_factory=list
-    )
+    intercompany_relationships: list[IntercompanyRelationship] = Field(default_factory=list)
     cost_center_id: str = ""
     profit_center_id: str = ""
     financial_consolidation_entity: str = ""
@@ -568,9 +564,7 @@ class OrganizationalUnit(BaseEntity):
     parent_reporting_relationship: ParentReportingRelationship = Field(
         default_factory=ParentReportingRelationship
     )
-    delegation_of_authority: DelegationOfAuthority = Field(
-        default_factory=DelegationOfAuthority
-    )
+    delegation_of_authority: DelegationOfAuthority = Field(default_factory=DelegationOfAuthority)
     compliance_officer: str = ""  # Reference to L2 Role
     data_protection_officer: str = ""  # Reference to L2 Role
     charter_document: CharterDocument = Field(default_factory=CharterDocument)
@@ -590,24 +584,16 @@ class OrganizationalUnit(BaseEntity):
     key_person_dependencies: list[KeyPersonDependency] = Field(default_factory=list)
 
     # === Type-specific extensions (optional sub-models) ===
-    legal_entity_details: LegalEntityDetails = Field(
-        default_factory=LegalEntityDetails
-    )
-    shared_service_details: SharedServiceDetails = Field(
-        default_factory=SharedServiceDetails
-    )
+    legal_entity_details: LegalEntityDetails = Field(default_factory=LegalEntityDetails)
+    shared_service_details: SharedServiceDetails = Field(default_factory=SharedServiceDetails)
     center_of_excellence_details: CenterOfExcellenceDetails = Field(
         default_factory=CenterOfExcellenceDetails
     )
-    joint_venture_details: JointVentureDetails = Field(
-        default_factory=JointVentureDetails
-    )
+    joint_venture_details: JointVentureDetails = Field(default_factory=JointVentureDetails)
     integration_management_office_details: IntegrationManagementOfficeDetails = Field(
         default_factory=IntegrationManagementOfficeDetails
     )
 
     # === Temporal & Provenance ===
     temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

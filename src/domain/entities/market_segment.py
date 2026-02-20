@@ -145,9 +145,7 @@ class MarketSegment(BaseEntity):
     managed_by_org_unit: str = ""
 
     # --- Group 5: Temporal & Provenance ---
-    temporal_and_versioning: TemporalAndVersioning = Field(
-        default_factory=TemporalAndVersioning
-    )
+    temporal_and_versioning: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
     provenance_and_confidence: ProvenanceAndConfidence = Field(
         default_factory=ProvenanceAndConfidence
     )

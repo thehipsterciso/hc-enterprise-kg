@@ -138,9 +138,7 @@ class TestSystemExtended:
                 ),
             ],
             programming_languages=[
-                ProgrammingLanguage(
-                    language="TypeScript", version="5.3", usage_type="Primary"
-                ),
+                ProgrammingLanguage(language="TypeScript", version="5.3", usage_type="Primary"),
             ],
             api_surface=ApiSurface(
                 api_count=47,
@@ -228,12 +226,8 @@ class TestSystemExtended:
                 fiscal_year="FY2024",
             ),
             cost_breakdown=[
-                CostBreakdownItem(
-                    category="License", amount=1_800_000, percentage_of_total=75.0
-                ),
-                CostBreakdownItem(
-                    category="Support", amount=360_000, percentage_of_total=15.0
-                ),
+                CostBreakdownItem(category="License", amount=1_800_000, percentage_of_total=75.0),
+                CostBreakdownItem(category="Support", amount=360_000, percentage_of_total=15.0),
             ],
             license_details=LicenseDetails(
                 license_type="Per-User",

@@ -53,9 +53,7 @@ class TestBuildContext:
             relationships.extend(rels)
 
         # Use a very small token budget
-        context = ContextBuilder.build_context(
-            entities, relationships, populated_kg, max_tokens=50
-        )
+        context = ContextBuilder.build_context(entities, relationships, populated_kg, max_tokens=50)
 
         # 50 tokens ~ 200 chars. Context should be within budget.
         assert len(context) <= 200 + 3  # +3 for potential "..."

@@ -180,15 +180,9 @@ class Policy(BaseEntity):
     exceptions: list[PolicyException] = Field(default_factory=list)
 
     # --- Enforcement & measurement ---
-    enforcement_mechanism: EnforcementMechanism = Field(
-        default_factory=EnforcementMechanism
-    )
-    compliance_measurement: ComplianceMeasurement = Field(
-        default_factory=ComplianceMeasurement
-    )
-    training_requirement: TrainingRequirement = Field(
-        default_factory=TrainingRequirement
-    )
+    enforcement_mechanism: EnforcementMechanism = Field(default_factory=EnforcementMechanism)
+    compliance_measurement: ComplianceMeasurement = Field(default_factory=ComplianceMeasurement)
+    training_requirement: TrainingRequirement = Field(default_factory=TrainingRequirement)
     communication_plan: CommunicationPlan = Field(default_factory=CommunicationPlan)
 
     # --- Related policies ---
@@ -196,6 +190,4 @@ class Policy(BaseEntity):
 
     # --- Temporal & provenance ---
     temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

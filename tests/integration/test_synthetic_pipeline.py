@@ -169,11 +169,24 @@ class TestEnterpriseSyntheticPipeline:
         kg, counts = self._generate(mid_size_tech_company)
 
         enterprise_types = [
-            "regulation", "control", "risk", "threat", "integration",
-            "data_domain", "data_flow", "organizational_unit",
-            "business_capability", "site", "geography", "jurisdiction",
-            "product_portfolio", "product", "market_segment", "customer",
-            "contract", "initiative",
+            "regulation",
+            "control",
+            "risk",
+            "threat",
+            "integration",
+            "data_domain",
+            "data_flow",
+            "organizational_unit",
+            "business_capability",
+            "site",
+            "geography",
+            "jurisdiction",
+            "product_portfolio",
+            "product",
+            "market_segment",
+            "customer",
+            "contract",
+            "initiative",
         ]
         for et in enterprise_types:
             assert counts.get(et, 0) > 0, f"No {et} entities generated"
@@ -192,15 +205,11 @@ class TestEnterpriseSyntheticPipeline:
         # Should have at least some enterprise relationship types
         expected_types = {"implements", "mitigates"}
         found = expected_types & rel_types
-        assert len(found) > 0, (
-            f"No enterprise relationship types found. Got: {rel_types}"
-        )
+        assert len(found) > 0, f"No enterprise relationship types found. Got: {rel_types}"
 
     def test_export_ingest_roundtrip_all_types(self, tmp_path):
         """Generate → export JSON → ingest into new KG → verify counts."""
-        kg1, counts1 = self._generate(
-            mid_size_tech_company, employee_count=50, seed=42
-        )
+        kg1, counts1 = self._generate(mid_size_tech_company, employee_count=50, seed=42)
 
         # Export to JSON
         exporter = JSONExporter()
@@ -229,7 +238,11 @@ class TestEnterpriseSyntheticPipeline:
         """Healthcare profile should also generate all 30 types."""
         kg, counts = self._generate(healthcare_org, employee_count=20)
         for et in [
-            "regulation", "control", "risk", "initiative", "site",
+            "regulation",
+            "control",
+            "risk",
+            "initiative",
+            "site",
         ]:
             assert counts.get(et, 0) > 0, f"Healthcare missing {et}"
 
@@ -237,7 +250,11 @@ class TestEnterpriseSyntheticPipeline:
         """Financial profile should also generate all 30 types."""
         kg, counts = self._generate(financial_org, employee_count=20)
         for et in [
-            "regulation", "control", "risk", "contract", "customer",
+            "regulation",
+            "control",
+            "risk",
+            "contract",
+            "customer",
         ]:
             assert counts.get(et, 0) > 0, f"Financial missing {et}"
 

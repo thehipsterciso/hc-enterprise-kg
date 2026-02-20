@@ -116,9 +116,7 @@ class AbstractGraphEngine(ABC):
         """Extract a subgraph containing only the specified entities."""
         ...
 
-    def blast_radius(
-        self, entity_id: str, max_depth: int = 3
-    ) -> dict[int, list[BaseEntity]]:
+    def blast_radius(self, entity_id: str, max_depth: int = 3) -> dict[int, list[BaseEntity]]:
         """Compute entities reachable within N hops via BFS.
 
         Returns a dict mapping hop depth to lists of entities at that depth.

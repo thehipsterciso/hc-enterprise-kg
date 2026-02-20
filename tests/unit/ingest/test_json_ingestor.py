@@ -71,8 +71,14 @@ class TestJSONIngestString:
         data = {
             "entities": [
                 {"entity_type": "department", "id": "d1", "name": "Eng"},
-                {"entity_type": "person", "id": "p1", "name": "Alice",
-                 "first_name": "Alice", "last_name": "Smith", "email": "a@b.com"},
+                {
+                    "entity_type": "person",
+                    "id": "p1",
+                    "name": "Alice",
+                    "first_name": "Alice",
+                    "last_name": "Smith",
+                    "email": "a@b.com",
+                },
             ],
             "relationships": [
                 {

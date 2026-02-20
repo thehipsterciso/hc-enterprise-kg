@@ -191,9 +191,7 @@ class Control(BaseEntity):
         default_factory=ApplicabilityDimensions
     )
     assessment_question: str = ""  # SCF audit-ready question
-    privacy_principle_mappings: list[PrivacyPrincipleMapping] = Field(
-        default_factory=list
-    )
+    privacy_principle_mappings: list[PrivacyPrincipleMapping] = Field(default_factory=list)
 
     # --- Ownership ---
     control_owner: str = ""  # Reference to L2 Role
@@ -207,21 +205,15 @@ class Control(BaseEntity):
     mitigates_risks: list[RiskMitigation] = Field(default_factory=list)
 
     # --- Effectiveness & assessment ---
-    control_effectiveness: ControlEffectiveness = Field(
-        default_factory=ControlEffectiveness
-    )
+    control_effectiveness: ControlEffectiveness = Field(default_factory=ControlEffectiveness)
     assessment_history: list[AssessmentRecord] = Field(default_factory=list)
     assessment_cadence: str = ""  # Annual, Semi-Annual, Quarterly, etc.
     next_assessment_date: str | None = None
     testing_approach: TestingApproach = Field(default_factory=TestingApproach)
-    evidence_requirements: EvidenceRequirements = Field(
-        default_factory=EvidenceRequirements
-    )
+    evidence_requirements: EvidenceRequirements = Field(default_factory=EvidenceRequirements)
 
     # --- Implementation ---
-    automation_details: AutomationDetails = Field(
-        default_factory=AutomationDetails
-    )
+    automation_details: AutomationDetails = Field(default_factory=AutomationDetails)
     kpi: ControlKPI = Field(default_factory=ControlKPI)
 
     # --- Dependencies & coverage ---
@@ -233,6 +225,4 @@ class Control(BaseEntity):
 
     # --- Temporal & provenance ---
     temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

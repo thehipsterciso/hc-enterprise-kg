@@ -9,15 +9,17 @@ if TYPE_CHECKING:
     from graph.knowledge_graph import KnowledgeGraph
 
 # Fields to skip when rendering entity attributes
-_INTERNAL_FIELDS = frozenset({
-    "id",
-    "created_at",
-    "updated_at",
-    "valid_from",
-    "valid_until",
-    "version",
-    "metadata",
-})
+_INTERNAL_FIELDS = frozenset(
+    {
+        "id",
+        "created_at",
+        "updated_at",
+        "valid_from",
+        "valid_until",
+        "version",
+        "metadata",
+    }
+)
 
 
 class ContextBuilder:
@@ -75,9 +77,7 @@ class ContextBuilder:
             # Reserve roughly 1/3 of budget for relationships
             if current_chars > max_chars * 2 // 3:
                 remaining = len(entities) - len(entity_section_parts) + 1
-                entity_section_parts.append(
-                    f"  ... ({remaining} more entities truncated)"
-                )
+                entity_section_parts.append(f"  ... ({remaining} more entities truncated)")
                 break
 
         sections.append("\n".join(entity_section_parts))

@@ -685,9 +685,7 @@ class Site(BaseEntity):
     year_last_renovated: int | None = None
     design_capacity: DesignCapacity | None = None
     facility_condition_index: FacilityConditionIndex | None = None
-    environmental_certifications: list[EnvironmentalCertification] = Field(
-        default_factory=list
-    )
+    environmental_certifications: list[EnvironmentalCertification] = Field(default_factory=list)
     accessibility_compliance: AccessibilityCompliance | None = None
     parking_capacity: ParkingCapacity | None = None
 
@@ -700,9 +698,7 @@ class Site(BaseEntity):
     physical_security_tier: str = ""
     # Enum: Tier 1 — Basic, Tier 2 — Enhanced, Tier 3 — Monitored,
     # Tier 4 — High Security, Tier 5 — Restricted / Classified
-    physical_security_systems: list[PhysicalSecuritySystem] = Field(
-        default_factory=list
-    )
+    physical_security_systems: list[PhysicalSecuritySystem] = Field(default_factory=list)
     fire_suppression: FireSuppression | None = None
     environmental_controls: EnvironmentalControls | None = None
     special_infrastructure: list[SpecialInfrastructure] = Field(default_factory=list)

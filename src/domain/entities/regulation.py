@@ -129,9 +129,7 @@ class Regulation(BaseEntity):
 
     # --- Applicability ---
     jurisdictions: list[JurisdictionRef] = Field(default_factory=list)
-    applicability_criteria: ApplicabilityCriteria = Field(
-        default_factory=ApplicabilityCriteria
-    )
+    applicability_criteria: ApplicabilityCriteria = Field(default_factory=ApplicabilityCriteria)
     applicability_status: str = ""  # Applicable, Partially, Not Applicable, Under Assessment
     effective_date: str | None = None
     last_amended_date: str | None = None
@@ -150,6 +148,4 @@ class Regulation(BaseEntity):
 
     # --- Temporal & provenance ---
     temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

@@ -185,9 +185,7 @@ class Contract(BaseEntity):
     covers_products: list[str] = Field(default_factory=list)
 
     # --- Group 10: Temporal & Provenance ---
-    temporal_and_versioning: TemporalAndVersioning = Field(
-        default_factory=TemporalAndVersioning
-    )
+    temporal_and_versioning: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
     provenance_and_confidence: ProvenanceAndConfidence = Field(
         default_factory=ProvenanceAndConfidence
     )

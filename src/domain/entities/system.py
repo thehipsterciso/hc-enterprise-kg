@@ -519,9 +519,7 @@ class System(BaseEntity):
     architecture_type: str = ""
     system_tier: str = ""
     origin: str = ""
-    acquisition_source: AcquisitionSource = Field(
-        default_factory=AcquisitionSource
-    )
+    acquisition_source: AcquisitionSource = Field(default_factory=AcquisitionSource)
     procurement_type: str = ""
     functional_domain_primary: str = ""
     functional_domain_secondary: list[str] = Field(default_factory=list)
@@ -529,37 +527,21 @@ class System(BaseEntity):
 
     # === Group 2: Technical Profile ===
     technology_stack: list[TechStackEntry] = Field(default_factory=list)
-    programming_languages: list[ProgrammingLanguage] = Field(
-        default_factory=list
-    )
+    programming_languages: list[ProgrammingLanguage] = Field(default_factory=list)
     data_stores: list[DataStore] = Field(default_factory=list)
     api_surface: ApiSurface = Field(default_factory=ApiSurface)
-    authentication_mechanisms: list[AuthenticationMechanism] = Field(
-        default_factory=list
-    )
-    encryption_profile: EncryptionProfile = Field(
-        default_factory=EncryptionProfile
-    )
-    scalability_profile: ScalabilityProfile = Field(
-        default_factory=ScalabilityProfile
-    )
-    availability_design: AvailabilityDesign = Field(
-        default_factory=AvailabilityDesign
-    )
+    authentication_mechanisms: list[AuthenticationMechanism] = Field(default_factory=list)
+    encryption_profile: EncryptionProfile = Field(default_factory=EncryptionProfile)
+    scalability_profile: ScalabilityProfile = Field(default_factory=ScalabilityProfile)
+    availability_design: AvailabilityDesign = Field(default_factory=AvailabilityDesign)
     current_version_info: VersionInfo = Field(default_factory=VersionInfo)
     version_currency: str = ""
-    technical_debt_indicators: list[TechnicalDebtIndicator] = Field(
-        default_factory=list
-    )
-    open_source_components: OpenSourceProfile = Field(
-        default_factory=OpenSourceProfile
-    )
+    technical_debt_indicators: list[TechnicalDebtIndicator] = Field(default_factory=list)
+    open_source_components: OpenSourceProfile = Field(default_factory=OpenSourceProfile)
     cloud_native_score: str = ""
     containerized: ContainerProfile = Field(default_factory=ContainerProfile)
     infrastructure_as_code: IaCProfile = Field(default_factory=IaCProfile)
-    observability_stack: ObservabilityStack = Field(
-        default_factory=ObservabilityStack
-    )
+    observability_stack: ObservabilityStack = Field(default_factory=ObservabilityStack)
 
     # === Group 3: Operational Profile ===
     operational_status: str = ""
@@ -567,43 +549,29 @@ class System(BaseEntity):
     availability_sla: AvailabilitySLA = Field(default_factory=AvailabilitySLA)
     performance_sla: PerformanceSLA = Field(default_factory=PerformanceSLA)
     current_users: CurrentUsers = Field(default_factory=CurrentUsers)
-    user_base_by_geography: list[UsersByGeography] = Field(
-        default_factory=list
-    )
+    user_base_by_geography: list[UsersByGeography] = Field(default_factory=list)
     support_model: SupportModel = Field(default_factory=SupportModel)
     incident_history: IncidentHistory = Field(default_factory=IncidentHistory)
     change_velocity: ChangeVelocity = Field(default_factory=ChangeVelocity)
-    maintenance_windows: MaintenanceWindow = Field(
-        default_factory=MaintenanceWindow
-    )
+    maintenance_windows: MaintenanceWindow = Field(default_factory=MaintenanceWindow)
     capacity_current: CapacityCurrent = Field(default_factory=CapacityCurrent)
-    capacity_headroom: CapacityHeadroom = Field(
-        default_factory=CapacityHeadroom
-    )
+    capacity_headroom: CapacityHeadroom = Field(default_factory=CapacityHeadroom)
     monitoring_coverage: str = ""
 
     # === Group 4: Financial Profile ===
-    total_cost_of_ownership: TotalCostOfOwnership = Field(
-        default_factory=TotalCostOfOwnership
-    )
+    total_cost_of_ownership: TotalCostOfOwnership = Field(default_factory=TotalCostOfOwnership)
     cost_breakdown: list[CostBreakdownItem] = Field(default_factory=list)
     license_details: LicenseDetails = Field(default_factory=LicenseDetails)
     contract_details: ContractDetails = Field(default_factory=ContractDetails)
     cost_per_user: CostPerUnit = Field(default_factory=CostPerUnit)
     cost_per_transaction: CostPerUnit = Field(default_factory=CostPerUnit)
     cost_trend: str = ""
-    cost_optimization_opportunities: list[CostOptimizationOpportunity] = Field(
-        default_factory=list
-    )
+    cost_optimization_opportunities: list[CostOptimizationOpportunity] = Field(default_factory=list)
     capex_remaining: CapexRemaining = Field(default_factory=CapexRemaining)
-    system_cost_benchmark: CostBenchmark = Field(
-        default_factory=CostBenchmark
-    )
+    system_cost_benchmark: CostBenchmark = Field(default_factory=CostBenchmark)
 
     # === Group 5: Strategic Importance ===
-    strategic_alignment: list[StrategicAlignment] = Field(
-        default_factory=list
-    )
+    strategic_alignment: list[StrategicAlignment] = Field(default_factory=list)
     business_criticality: str = ""
     criticality_justification: str = ""
     business_impact_if_unavailable: BusinessImpactIfUnavailable = Field(
@@ -611,9 +579,7 @@ class System(BaseEntity):
     )
     strategic_classification: str = ""
     strategic_classification_rationale: str = ""
-    replacement_candidate: ReplacementCandidate = Field(
-        default_factory=ReplacementCandidate
-    )
+    replacement_candidate: ReplacementCandidate = Field(default_factory=ReplacementCandidate)
     innovation_potential: str = ""
     technical_fitness: FitnessScore = Field(default_factory=FitnessScore)
     business_fitness: FitnessScore = Field(default_factory=FitnessScore)
@@ -622,30 +588,18 @@ class System(BaseEntity):
     risk_exposure_inherent: str = ""
     risk_exposure_residual: str = ""
     data_classification_handled: list[str] = Field(default_factory=list)
-    vulnerability_profile: VulnerabilityProfile = Field(
-        default_factory=VulnerabilityProfile
-    )
-    penetration_test_status: PenetrationTestStatus = Field(
-        default_factory=PenetrationTestStatus
-    )
+    vulnerability_profile: VulnerabilityProfile = Field(default_factory=VulnerabilityProfile)
+    penetration_test_status: PenetrationTestStatus = Field(default_factory=PenetrationTestStatus)
     patch_compliance: PatchCompliance = Field(default_factory=PatchCompliance)
     access_control_model: str = ""
-    access_review_status: AccessReviewStatus = Field(
-        default_factory=AccessReviewStatus
-    )
+    access_review_status: AccessReviewStatus = Field(default_factory=AccessReviewStatus)
     security_architecture_review: SecurityArchitectureReview = Field(
         default_factory=SecurityArchitectureReview
     )
-    compliance_certifications: list[ComplianceCertification] = Field(
-        default_factory=list
-    )
-    regulatory_applicability: list[RegulatoryApplicability] = Field(
-        default_factory=list
-    )
+    compliance_certifications: list[ComplianceCertification] = Field(default_factory=list)
+    regulatory_applicability: list[RegulatoryApplicability] = Field(default_factory=list)
     network_zone: str = ""
-    data_residency_constraints: list[DataResidencyConstraint] = Field(
-        default_factory=list
-    )
+    data_residency_constraints: list[DataResidencyConstraint] = Field(default_factory=list)
     audit_findings: list[AuditFinding] = Field(default_factory=list)
     cyber_exposure: CyberExposure = Field(default_factory=CyberExposure)
 
@@ -663,9 +617,5 @@ class System(BaseEntity):
     backup_status: BackupStatus = Field(default_factory=BackupStatus)
 
     # === Temporal & Provenance ===
-    temporal: TemporalAndVersioning = Field(
-        default_factory=TemporalAndVersioning
-    )
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

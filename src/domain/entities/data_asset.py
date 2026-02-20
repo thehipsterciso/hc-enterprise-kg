@@ -439,9 +439,7 @@ class DataAsset(BaseEntity):
     data_masking: DataMaskingConfig = Field(default_factory=DataMaskingConfig)
 
     # === Group 3: Data Quality ===
-    quality_score_composite: QualityScoreComposite = Field(
-        default_factory=QualityScoreComposite
-    )
+    quality_score_composite: QualityScoreComposite = Field(default_factory=QualityScoreComposite)
     quality_dimensions: list[QualityDimension] = Field(default_factory=list)
     quality_rules: list[QualityRule] = Field(default_factory=list)
     quality_trend: str = ""  # Improving, Stable, Declining, Unknown

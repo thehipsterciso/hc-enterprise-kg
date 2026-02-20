@@ -57,9 +57,7 @@ class NetworkXGraphEngine(AbstractGraphEngine):
 
         entity = self._deserialize_entity(dict(candidate))
         if entity is None:
-            raise ValueError(
-                f"Update produces invalid entity for {entity_id}: {updates}"
-            )
+            raise ValueError(f"Update produces invalid entity for {entity_id}: {updates}")
 
         # Validation passed — commit to graph
         node_data = self._graph.nodes[entity_id]

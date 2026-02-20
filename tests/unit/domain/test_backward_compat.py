@@ -133,19 +133,43 @@ class TestOriginalEnumValuesPreserved:
 
     def test_original_entity_types(self):
         original_values = {
-            "person", "department", "role", "system", "network",
-            "data_asset", "policy", "vendor", "location",
-            "vulnerability", "threat_actor", "incident",
+            "person",
+            "department",
+            "role",
+            "system",
+            "network",
+            "data_asset",
+            "policy",
+            "vendor",
+            "location",
+            "vulnerability",
+            "threat_actor",
+            "incident",
         }
         current_values = {e.value for e in EntityType}
         assert original_values.issubset(current_values)
 
     def test_original_relationship_types(self):
         original_values = {
-            "works_in", "manages", "reports_to", "has_role", "member_of",
-            "hosts", "connects_to", "depends_on", "stores", "runs_on",
-            "governs", "exploits", "targets", "mitigates", "affects",
-            "provides_service", "located_at", "supplied_by", "responsible_for",
+            "works_in",
+            "manages",
+            "reports_to",
+            "has_role",
+            "member_of",
+            "hosts",
+            "connects_to",
+            "depends_on",
+            "stores",
+            "runs_on",
+            "governs",
+            "exploits",
+            "targets",
+            "mitigates",
+            "affects",
+            "provides_service",
+            "located_at",
+            "supplied_by",
+            "responsible_for",
         }
         current_values = {r.value for r in RelationshipType}
         assert original_values.issubset(current_values)

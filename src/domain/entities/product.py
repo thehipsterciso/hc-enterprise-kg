@@ -547,9 +547,7 @@ class Product(BaseEntity):
 
     # --- Group 5: Regulatory & Compliance ---
     regulatory_classification: RegulatoryClassification | None = None
-    regulatory_applicability: list[RegulatoryApplicability] = Field(
-        default_factory=list
-    )
+    regulatory_applicability: list[RegulatoryApplicability] = Field(default_factory=list)
     certifications_required: list[CertificationEntry] = Field(default_factory=list)
     export_control_classification: ExportControlClassification | None = None
     environmental_compliance: EnvironmentalCompliance | None = None
@@ -579,9 +577,7 @@ class Product(BaseEntity):
     related_products: list[RelatedProduct] = Field(default_factory=list)
 
     # --- Group 8: Temporal & Provenance ---
-    temporal_and_versioning: TemporalAndVersioning = Field(
-        default_factory=TemporalAndVersioning
-    )
+    temporal_and_versioning: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
     provenance_and_confidence: ProvenanceAndConfidence = Field(
         default_factory=ProvenanceAndConfidence
     )

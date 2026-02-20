@@ -162,10 +162,12 @@ def handle_get_neighbors(
 
     results = []
     for neighbor in neighbors:
-        results.append({
-            "entity": _compact_entity(neighbor),
-            "relationships": rel_lookup.get(neighbor.id, []),
-        })
+        results.append(
+            {
+                "entity": _compact_entity(neighbor),
+                "relationships": rel_lookup.get(neighbor.id, []),
+            }
+        )
     return results
 
 
@@ -239,12 +241,14 @@ def handle_centrality(metric: str = "degree", top_n: int = 20) -> list[dict]:
     for eid, score in ranked:
         entity = kg.get_entity(eid)
         if entity:
-            results.append({
-                "id": eid,
-                "name": entity.name,
-                "entity_type": entity.entity_type.value,
-                "score": round(score, 6),
-            })
+            results.append(
+                {
+                    "id": eid,
+                    "name": entity.name,
+                    "entity_type": entity.entity_type.value,
+                    "score": round(score, 6),
+                }
+            )
     return results
 
 
@@ -303,18 +307,9 @@ _STAT_DESC = (
     "Return high-level statistics about the knowledge graph: "
     "entity and relationship counts by type, density, connectivity."
 )
-_ETYPE_DESC = (
-    "Filter by entity type (person, department, system, etc.). "
-    "Leave empty for all."
-)
-_BLAST_DESC = (
-    "Compute all entities reachable within N hops of a given "
-    "entity (blast radius)."
-)
-_SEARCH_DESC = (
-    "Fuzzy search entities by name. Returns matching entities "
-    "with match scores."
-)
+_ETYPE_DESC = "Filter by entity type (person, department, system, etc.). Leave empty for all."
+_BLAST_DESC = "Compute all entities reachable within N hops of a given entity (blast radius)."
+_SEARCH_DESC = "Fuzzy search entities by name. Returns matching entities with match scores."
 _ASK_DESC = (
     "Ask a natural-language question and get relevant graph "
     "context via GraphRAG. Returns entities, relationships, "
@@ -339,10 +334,7 @@ OPENAI_TOOLS: list[dict] = [
         "type": "function",
         "function": {
             "name": "list_entities",
-            "description": (
-                "List entities in the knowledge graph, "
-                "optionally filtered by type."
-            ),
+            "description": ("List entities in the knowledge graph, optionally filtered by type."),
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -398,8 +390,7 @@ OPENAI_TOOLS: list[dict] = [
                     "relationship_type": {
                         "type": "string",
                         "description": (
-                            "Filter by relationship type "
-                            "(works_in, depends_on, etc.)."
+                            "Filter by relationship type (works_in, depends_on, etc.)."
                         ),
                     },
                 },
@@ -561,37 +552,41 @@ def create_app(graph_path: str | None = None) -> Any:
 
     @app.route("/", methods=["GET"])
     def index():  # type: ignore[no-untyped-def]
-        return _json_response({
-            "service": "hc-enterprise-kg",
-            "version": "0.1.0",
-            "endpoints": [
-                "GET  /               — This index",
-                "GET  /health         — Health check",
-                "GET  /statistics     — Graph statistics",
-                "GET  /entities       — List entities",
-                "GET  /entities/<id>  — Entity by ID",
-                "GET  /entities/<id>/neighbors — Neighbors",
-                "GET  /path/<src>/<tgt> — Shortest path",
-                "GET  /blast-radius/<id> — Blast radius",
-                "GET  /centrality     — Centrality scores",
-                "GET  /search         — Fuzzy search",
-                "POST /ask            — GraphRAG Q&A",
-                "GET  /openai/tools   — OpenAI tool defs",
-                "POST /openai/call    — Execute a tool",
-                "POST /load           — Load a graph file",
-            ],
-        })
+        return _json_response(
+            {
+                "service": "hc-enterprise-kg",
+                "version": "0.1.0",
+                "endpoints": [
+                    "GET  /               — This index",
+                    "GET  /health         — Health check",
+                    "GET  /statistics     — Graph statistics",
+                    "GET  /entities       — List entities",
+                    "GET  /entities/<id>  — Entity by ID",
+                    "GET  /entities/<id>/neighbors — Neighbors",
+                    "GET  /path/<src>/<tgt> — Shortest path",
+                    "GET  /blast-radius/<id> — Blast radius",
+                    "GET  /centrality     — Centrality scores",
+                    "GET  /search         — Fuzzy search",
+                    "POST /ask            — GraphRAG Q&A",
+                    "GET  /openai/tools   — OpenAI tool defs",
+                    "POST /openai/call    — Execute a tool",
+                    "POST /load           — Load a graph file",
+                ],
+            }
+        )
 
     @app.route("/health", methods=["GET"])
     def health():  # type: ignore[no-untyped-def]
         has_graph = _kg is not None
         stats = _kg.statistics if _kg else {}
-        return _json_response({
-            "status": "ok",
-            "graph_loaded": has_graph,
-            "entity_count": stats.get("entity_count", 0),
-            "relationship_count": stats.get("relationship_count", 0),
-        })
+        return _json_response(
+            {
+                "status": "ok",
+                "graph_loaded": has_graph,
+                "entity_count": stats.get("entity_count", 0),
+                "relationship_count": stats.get("relationship_count", 0),
+            }
+        )
 
     @app.route("/statistics", methods=["GET"])
     def statistics():  # type: ignore[no-untyped-def]
@@ -730,9 +725,7 @@ def create_app(graph_path: str | None = None) -> Any:
                 "search_entities": lambda args: handle_search(
                     args["query"], args.get("entity_type", ""), args.get("limit", 20)
                 ),
-                "ask_graph": lambda args: handle_ask(
-                    args["question"], args.get("top_k", 20)
-                ),
+                "ask_graph": lambda args: handle_ask(args["question"], args.get("top_k", 20)),
             }
 
             handler = dispatch.get(name)

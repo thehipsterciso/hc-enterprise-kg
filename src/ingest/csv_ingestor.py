@@ -86,9 +86,7 @@ class CSVIngestor(AbstractIngestor):
 
             # Process relationship mappings after entities are ingested
             if mapping.relationship_mappings:
-                self._process_relationship_mappings(
-                    mapping.relationship_mappings, result
-                )
+                self._process_relationship_mappings(mapping.relationship_mappings, result)
         elif entity_type:
             entity_class = EntityRegistry.get(entity_type)
             columns = list(rows[0].keys())
@@ -144,6 +142,4 @@ class CSVIngestor(AbstractIngestor):
                         )
                         result.relationships.append(rel)
                     except Exception as e:
-                        result.errors.append(
-                            f"Relationship {rm.relationship_type}: {e}"
-                        )
+                        result.errors.append(f"Relationship {rm.relationship_type}: {e}")

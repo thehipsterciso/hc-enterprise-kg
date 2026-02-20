@@ -211,39 +211,51 @@ class TestOpenAIEndpoints:
             assert "parameters" in tool["function"]
 
     def test_openai_call_get_statistics(self, client):
-        resp = client.post("/openai/call", json={
-            "name": "get_statistics",
-            "arguments": {},
-        })
+        resp = client.post(
+            "/openai/call",
+            json={
+                "name": "get_statistics",
+                "arguments": {},
+            },
+        )
         data = json.loads(resp.data)
         assert resp.status_code == 200
         assert "result" in data
         assert "entity_count" in data["result"]
 
     def test_openai_call_search(self, client):
-        resp = client.post("/openai/call", json={
-            "name": "search_entities",
-            "arguments": {"query": "alice"},
-        })
+        resp = client.post(
+            "/openai/call",
+            json={
+                "name": "search_entities",
+                "arguments": {"query": "alice"},
+            },
+        )
         data = json.loads(resp.data)
         assert resp.status_code == 200
         assert "result" in data
 
     def test_openai_call_ask_graph(self, client):
-        resp = client.post("/openai/call", json={
-            "name": "ask_graph",
-            "arguments": {"question": "What systems exist?"},
-        })
+        resp = client.post(
+            "/openai/call",
+            json={
+                "name": "ask_graph",
+                "arguments": {"question": "What systems exist?"},
+            },
+        )
         data = json.loads(resp.data)
         assert resp.status_code == 200
         assert "result" in data
         assert "context" in data["result"]
 
     def test_openai_call_unknown_tool(self, client):
-        resp = client.post("/openai/call", json={
-            "name": "nonexistent_tool",
-            "arguments": {},
-        })
+        resp = client.post(
+            "/openai/call",
+            json={
+                "name": "nonexistent_tool",
+                "arguments": {},
+            },
+        )
         assert resp.status_code == 400
 
 

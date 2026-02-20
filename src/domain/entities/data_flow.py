@@ -129,9 +129,7 @@ class DataFlow(BaseEntity):
     target_assets: list[FlowEndpoint] = Field(default_factory=list)
 
     # --- Transformation ---
-    transformation_logic: TransformationLogic = Field(
-        default_factory=TransformationLogic
-    )
+    transformation_logic: TransformationLogic = Field(default_factory=TransformationLogic)
     data_classification_in_flow: str = ""  # Highest classification level in this flow
 
     # --- Volume & Frequency ---
@@ -146,9 +144,7 @@ class DataFlow(BaseEntity):
     lineage_position: LineagePosition = Field(default_factory=LineagePosition)
 
     # --- Jurisdiction ---
-    crosses_jurisdiction: FlowJurisdictionCrossing = Field(
-        default_factory=FlowJurisdictionCrossing
-    )
+    crosses_jurisdiction: FlowJurisdictionCrossing = Field(default_factory=FlowJurisdictionCrossing)
 
     # --- Integration bridge (L5-to-L4) ---
     integration_references: list[str] = Field(default_factory=list)  # L4 Integration IDs
@@ -170,6 +166,4 @@ class DataFlow(BaseEntity):
 
     # --- Temporal & Provenance ---
     temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
-    provenance: ProvenanceAndConfidence = Field(
-        default_factory=ProvenanceAndConfidence
-    )
+    provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

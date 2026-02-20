@@ -15,34 +15,62 @@ def _build_rich_kg() -> KnowledgeGraph:
 
     people = [
         Person(
-            id="p1", first_name="Alice", last_name="Smith",
-            name="Alice Smith", email="alice@acme.com", title="Engineer",
+            id="p1",
+            first_name="Alice",
+            last_name="Smith",
+            name="Alice Smith",
+            email="alice@acme.com",
+            title="Engineer",
         ),
         Person(
-            id="p2", first_name="Bob", last_name="Johnson",
-            name="Bob Johnson", email="bob@acme.com", title="Manager",
+            id="p2",
+            first_name="Bob",
+            last_name="Johnson",
+            name="Bob Johnson",
+            email="bob@acme.com",
+            title="Manager",
         ),
         Person(
-            id="p3", first_name="Carol", last_name="Williams",
-            name="Carol Williams", email="carol@acme.com", title="Analyst",
+            id="p3",
+            first_name="Carol",
+            last_name="Williams",
+            name="Carol Williams",
+            email="carol@acme.com",
+            title="Analyst",
         ),
     ]
     dept = Department(
-        id="d1", name="Engineering", description="Eng dept", code="ENG", headcount=10,
+        id="d1",
+        name="Engineering",
+        description="Eng dept",
+        code="ENG",
+        headcount=10,
     )
 
     kg.add_entities_bulk(people)
     kg.add_entity(dept)
 
-    kg.add_relationship(BaseRelationship(
-        relationship_type=RelationshipType.WORKS_IN, source_id="p1", target_id="d1",
-    ))
-    kg.add_relationship(BaseRelationship(
-        relationship_type=RelationshipType.WORKS_IN, source_id="p2", target_id="d1",
-    ))
-    kg.add_relationship(BaseRelationship(
-        relationship_type=RelationshipType.MANAGES, source_id="p2", target_id="p1",
-    ))
+    kg.add_relationship(
+        BaseRelationship(
+            relationship_type=RelationshipType.WORKS_IN,
+            source_id="p1",
+            target_id="d1",
+        )
+    )
+    kg.add_relationship(
+        BaseRelationship(
+            relationship_type=RelationshipType.WORKS_IN,
+            source_id="p2",
+            target_id="d1",
+        )
+    )
+    kg.add_relationship(
+        BaseRelationship(
+            relationship_type=RelationshipType.MANAGES,
+            source_id="p2",
+            target_id="p1",
+        )
+    )
 
     return kg
 
