@@ -6,6 +6,8 @@ from pathlib import Path
 
 import click
 
+from cli.entity_overrides import entity_count_overrides
+
 
 @click.command()
 @click.option(
@@ -26,7 +28,16 @@ import click
     default=False,
     help="Remove previous output files (graph.json, graph.graphml, *_viz.html) before generating.",
 )
-def demo(profile: str, employees: int, seed: int, output: str, fmt: str, clean: bool) -> None:
+@entity_count_overrides
+def demo(
+    profile: str,
+    employees: int,
+    seed: int,
+    output: str,
+    fmt: str,
+    clean: bool,
+    count_overrides: dict[str, int],
+) -> None:
     """Generate a full enterprise KG, export it, and print a summary.
 
     \b
@@ -38,6 +49,10 @@ def demo(profile: str, employees: int, seed: int, output: str, fmt: str, clean: 
     \b
     Use --clean to remove previous output files first:
         hckg demo --clean --employees 200
+
+    \b
+    Override specific entity counts:
+        hckg demo --employees 5000 --systems 500 --vendors 100
     """
     from graph.knowledge_graph import KnowledgeGraph
     from synthetic.orchestrator import SyntheticOrchestrator
@@ -63,7 +78,12 @@ def demo(profile: str, employees: int, seed: int, output: str, fmt: str, clean: 
         raise click.BadParameter(f"Unknown profile: {profile}")
 
     kg = KnowledgeGraph()
-    orchestrator = SyntheticOrchestrator(kg, org_profile, seed=seed)
+    orchestrator = SyntheticOrchestrator(
+        kg, org_profile, seed=seed, count_overrides=count_overrides
+    )
+
+    if count_overrides:
+        click.echo(f"Entity count overrides: {count_overrides}")
 
     click.echo(f"Generating {org_profile.name} ({employees} employees, seed={seed})...")
     orchestrator.generate()

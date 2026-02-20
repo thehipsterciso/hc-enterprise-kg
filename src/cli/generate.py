@@ -6,6 +6,7 @@ from pathlib import Path
 
 import click
 
+from cli.entity_overrides import entity_count_overrides
 from graph.knowledge_graph import KnowledgeGraph
 
 
@@ -31,9 +32,22 @@ def generate() -> None:
     show_default=True,
     help="Export to JSON file.",
 )
+@entity_count_overrides
 @click.pass_context
-def org(ctx: click.Context, profile: str, employees: int, seed: int | None, output: str) -> None:
-    """Generate a full organizational knowledge graph."""
+def org(
+    ctx: click.Context,
+    profile: str,
+    employees: int,
+    seed: int | None,
+    output: str,
+    count_overrides: dict[str, int],
+) -> None:
+    """Generate a full organizational knowledge graph.
+
+    \b
+    Override specific entity counts with dedicated flags:
+        hckg generate org --employees 5000 --systems 500 --vendors 100
+    """
     from synthetic.orchestrator import SyntheticOrchestrator
 
     # Load profile
@@ -54,7 +68,12 @@ def org(ctx: click.Context, profile: str, employees: int, seed: int | None, outp
 
     backend = ctx.obj.get("backend", "networkx") if ctx.obj else "networkx"
     kg = KnowledgeGraph(backend=backend)
-    orchestrator = SyntheticOrchestrator(kg, org_profile, seed=seed)
+    orchestrator = SyntheticOrchestrator(
+        kg, org_profile, seed=seed, count_overrides=count_overrides
+    )
+
+    if count_overrides:
+        click.echo(f"Entity count overrides: {count_overrides}")
 
     click.echo(f"Generating {org_profile.name} with ~{employees} employees...")
     counts = orchestrator.generate()

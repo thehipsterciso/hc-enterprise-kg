@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.19.3] - 2026-02-20
+
+### Added
+- **Entity count override flags** — 25 individual CLI flags (`--systems`, `--vendors`, `--controls`, etc.) for `hckg demo` and `hckg generate org` to pin exact entity counts, bypassing `scaled_range()` (#115)
+- `count_overrides` parameter on `SyntheticOrchestrator` for programmatic use
+- 3 new tests for override mechanism (apply, noop, zero-suppression)
+
 ## [0.19.2] - 2026-02-20
 
 ### Changed

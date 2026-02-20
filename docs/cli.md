@@ -28,6 +28,7 @@ hckg demo
 hckg demo --profile healthcare --employees 500 --output hospital.json
 hckg demo --format graphml --output graph.graphml
 hckg demo --clean  # removes previous output files before generating
+hckg demo --employees 5000 --systems 500 --vendors 100  # override entity counts
 ```
 
 | Option | Default | Description |
@@ -38,6 +39,7 @@ hckg demo --clean  # removes previous output files before generating
 | `--output` | `graph.json` | Output file path |
 | `--format` | `json` | Output format: `json` or `graphml` |
 | `--clean` | off | Remove previous output files before generating (`graph.json`, `graph.graphml`, `result.json`, `*_viz.html`) |
+| `--systems`, `--vendors`, etc. | None | Override specific entity counts (see [Entity Count Overrides](#entity-count-overrides)) |
 
 ---
 
@@ -49,6 +51,7 @@ Synthetic generation with the same engine as `demo`, using different defaults. A
 hckg generate org
 hckg generate org --profile financial --employees 1000 --seed 99
 hckg generate org --output large_org.json
+hckg generate org --employees 14512 --systems 500 --vendors 100 --controls 200
 ```
 
 | Option | Default | Description |
@@ -57,6 +60,7 @@ hckg generate org --output large_org.json
 | `--employees` | `500` | Number of employees to generate |
 | `--seed` | None | Random seed for reproducibility (omit for random) |
 | `--output` | `graph.json` | Export file path |
+| `--systems`, `--vendors`, etc. | None | Override specific entity counts (see [Entity Count Overrides](#entity-count-overrides)) |
 
 ---
 
@@ -274,6 +278,52 @@ hckg export --source graph.json --format graphml --output graph.graphml
 | `--source` | — | Source JSON knowledge graph file (required) |
 | `--format` | `json` | Output format: `json` or `graphml` |
 | `--output` | — | Output file path (required) |
+
+---
+
+## Entity Count Overrides
+
+Both `hckg demo` and `hckg generate org` accept individual flags to override specific entity counts. When provided, these bypass the `scaled_range()` scaling formula and produce exactly the specified number of entities.
+
+```bash
+# Pin systems to 500 and vendors to 100, let everything else scale normally
+hckg generate org --employees 14512 --systems 500 --vendors 100
+
+# Override controls and risks for a compliance-focused scenario
+hckg demo --employees 5000 --controls 200 --risks 50 --customers 1000
+```
+
+### Available Override Flags
+
+| Flag | Entity Type |
+|---|---|
+| `--systems` | System |
+| `--data-assets` | DataAsset |
+| `--policies` | Policy |
+| `--vendors` | Vendor |
+| `--locations` | Location |
+| `--threat-actors` | ThreatActor |
+| `--incidents` | Incident |
+| `--regulations` | Regulation |
+| `--controls` | Control |
+| `--risks` | Risk |
+| `--threats` | Threat |
+| `--integrations` | Integration |
+| `--data-domains` | DataDomain |
+| `--data-flows` | DataFlow |
+| `--org-units` | OrganizationalUnit |
+| `--capabilities` | BusinessCapability |
+| `--sites` | Site |
+| `--geographies` | Geography |
+| `--jurisdictions` | Jurisdiction |
+| `--product-portfolios` | ProductPortfolio |
+| `--products` | Product |
+| `--market-segments` | MarketSegment |
+| `--customers` | Customer |
+| `--contracts` | Contract |
+| `--initiatives` | Initiative |
+
+**Not overridable** (derived from other state): departments, roles, networks, vulnerabilities, persons (use `--employees`).
 
 ---
 
