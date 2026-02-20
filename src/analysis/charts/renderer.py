@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from analysis.charts.theme import (
+    ENTITY_COLORS,
     ENTITY_TYPE_GROUPS,
+    FIGURE_SIZE_RADAR,
     FIGURE_SIZE_STANDARD,
     FIGURE_SIZE_WIDE,
     FONT_LABEL,
@@ -14,6 +16,7 @@ from analysis.charts.theme import (
     FONT_TITLE,
     GROUP_COLORS,
     PROFILE_COLORS,
+    QUALITY_DIMENSION_LABELS,
 )
 
 if TYPE_CHECKING:
@@ -52,6 +55,10 @@ class ChartRenderer:
             paths.append(self.render_performance_scaling())
         if self._config.render_density:
             paths.append(self.render_density_vs_scale())
+        if self._config.render_centrality:
+            paths.append(self.render_centrality_distribution())
+        if self._config.render_quality:
+            paths.append(self.render_quality_radar())
         return paths
 
     def _save_figure(self, fig: Any, name: str) -> str:
@@ -435,3 +442,114 @@ class ChartRenderer:
 
         fig.tight_layout()
         return self._save_figure(fig, "density_vs_scale")
+
+    # ------------------------------------------------------------------
+    # Chart 7: Centrality Distribution
+    # ------------------------------------------------------------------
+
+    def render_centrality_distribution(self) -> str:
+        """Horizontal bar chart of top entities by degree centrality."""
+        plt = _get_plt()
+
+        # Use the largest scale snapshot from the first profile
+        profile_name = self._data.profiles[0]
+        snapshots = self._data.by_profile(profile_name)
+        if not snapshots:
+            fig, ax = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+            ax.text(0.5, 0.5, "No data", ha="center", va="center")
+            return self._save_figure(fig, f"centrality_{profile_name}")
+
+        snap = snapshots[-1]  # largest scale
+        entries = snap.centrality_top_n[:15]
+        if not entries:
+            fig, ax = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+            ax.text(0.5, 0.5, "No centrality data", ha="center", va="center")
+            return self._save_figure(fig, f"centrality_{profile_name}")
+
+        names = [f"{name}" for _, name, _ in entries]
+        scores = [score for _, _, score in entries]
+
+        fig, ax = plt.subplots(figsize=FIGURE_SIZE_STANDARD)
+        y_pos = range(len(names))
+
+        # Try to color-code by entity type from the entity name pattern
+        colors = ["#4E79A7"] * len(names)
+        for i, (eid, _, _) in enumerate(entries):
+            # Look for entity type hint in the snapshot's entity_types keys
+            for etype, ecolor in ENTITY_COLORS.items():
+                if etype in eid.lower():
+                    colors[i] = ecolor
+                    break
+
+        ax.barh(y_pos, scores, color=colors, edgecolor="white", linewidth=0.5)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(names, fontsize=FONT_TICK)
+        ax.invert_yaxis()
+
+        ax.set_xlabel("Degree Centrality Score", fontsize=FONT_LABEL)
+        ax.set_title(
+            f"Top {len(entries)} Entities by Degree Centrality ({profile_name}, {snap.scale} emp)",
+            fontsize=FONT_TITLE,
+        )
+        ax.grid(True, axis="x", alpha=0.3)
+        ax.tick_params(labelsize=FONT_TICK)
+
+        fig.tight_layout()
+        return self._save_figure(fig, f"centrality_{profile_name}")
+
+    # ------------------------------------------------------------------
+    # Chart 8: Quality Radar
+    # ------------------------------------------------------------------
+
+    def render_quality_radar(self) -> str:
+        """5-axis radar/spider chart from QualityReport dimensions."""
+        plt = _get_plt()
+        import numpy as np
+
+        dimension_keys = list(QUALITY_DIMENSION_LABELS.keys())
+        dimension_labels = list(QUALITY_DIMENSION_LABELS.values())
+        n_dims = len(dimension_keys)
+
+        # Compute angles for radar chart
+        angles = np.linspace(0, 2 * np.pi, n_dims, endpoint=False).tolist()
+        angles += angles[:1]  # close the polygon
+
+        fig, ax = plt.subplots(figsize=FIGURE_SIZE_RADAR, subplot_kw={"polar": True})
+
+        has_data = False
+        for profile_name in self._data.profiles:
+            snapshots = self._data.by_profile(profile_name)
+            if not snapshots:
+                continue
+
+            # Use the largest scale snapshot
+            snap = snapshots[-1]
+            if not snap.quality_scores:
+                continue
+
+            values = [snap.quality_scores.get(k, 0.0) for k in dimension_keys]
+            values += values[:1]  # close the polygon
+
+            color = PROFILE_COLORS.get(profile_name, "#333333")
+            label = (
+                f"{profile_name.title()} ({snap.scale} emp)"
+                if len(self._data.profiles) > 1
+                else f"{snap.scale} employees"
+            )
+
+            ax.plot(angles, values, "o-", linewidth=2, label=label, color=color)
+            ax.fill(angles, values, alpha=0.15, color=color)
+            has_data = True
+
+        if not has_data:
+            ax.text(0.5, 0.5, "No quality data", ha="center", va="center",
+                    transform=ax.transAxes)
+
+        ax.set_xticks(angles[:-1])
+        ax.set_xticklabels(dimension_labels, fontsize=FONT_TICK)
+        ax.set_ylim(0, 1.05)
+        ax.set_title("Quality Score Radar", fontsize=FONT_TITLE, pad=20)
+        ax.legend(fontsize=FONT_TICK, loc="upper right", bbox_to_anchor=(1.3, 1.1))
+
+        fig.tight_layout()
+        return self._save_figure(fig, "quality_radar")

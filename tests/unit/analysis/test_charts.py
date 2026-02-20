@@ -435,7 +435,8 @@ class TestChartRenderer:
         renderer = ChartRenderer(dataset, cfg)
         paths = renderer.render_all()
 
-        assert len(paths) == 5  # scaling + entity + relationship + performance + density
+        # All 7 chart types for single profile (no profile_comparison)
+        assert len(paths) == 7
         for p in paths:
             assert Path(p).exists()
 
@@ -466,7 +467,8 @@ class TestChartRenderer:
         renderer = ChartRenderer(dataset, cfg)
         paths = renderer.render_all()
 
-        assert len(paths) == 4  # entity + relationship + performance + density
+        # 6 charts: all except scaling and profile_comparison
+        assert len(paths) == 6
         assert "entity_distribution" in paths[0]
 
     def test_render_relationship_distribution_creates_file(self, tmp_path):
@@ -544,3 +546,27 @@ class TestChartRenderer:
 
         assert Path(path).exists()
         assert "density_vs_scale" in Path(path).name
+
+    def test_render_centrality_distribution_creates_file(self, tmp_path):
+        """render_centrality_distribution() should produce a PNG file."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        path = renderer.render_centrality_distribution()
+
+        assert Path(path).exists()
+        assert "centrality" in Path(path).name
+
+    def test_render_quality_radar_creates_file(self, tmp_path):
+        """render_quality_radar() should produce a PNG file."""
+        from analysis.charts.renderer import ChartRenderer
+
+        dataset = _make_renderer_dataset()
+        cfg = ChartConfig(output_dir=str(tmp_path), format="png")
+        renderer = ChartRenderer(dataset, cfg)
+        path = renderer.render_quality_radar()
+
+        assert Path(path).exists()
+        assert "quality_radar" in Path(path).name
