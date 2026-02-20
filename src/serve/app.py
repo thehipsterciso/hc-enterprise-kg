@@ -59,13 +59,15 @@ def _compact_relationship(rel: Any) -> dict[str, Any]:
     return {k: v for k, v in raw.items() if k not in skip and v is not None and v != "" and v != {}}
 
 
-def _json_response(data: Any, status: int = 200) -> tuple[str, int, dict]:
-    """Return a JSON response tuple compatible with Flask."""
+def _json_response(data: Any, status: int = 200) -> Any:
+    """Return a Flask Response with application/json content type."""
+    from flask import Response
+
     body = json.dumps(data, default=str, indent=2)
-    return body, status, {"Content-Type": "application/json"}
+    return Response(body, status=status, content_type="application/json")
 
 
-def _error(msg: str, status: int = 400) -> tuple[str, int, dict]:
+def _error(msg: str, status: int = 400) -> Any:
     return _json_response({"error": msg}, status)
 
 
