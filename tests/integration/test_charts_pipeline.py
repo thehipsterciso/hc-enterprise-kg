@@ -67,10 +67,14 @@ class TestChartsPipeline:
         result = runner.invoke(
             charts,
             [
-                "--scales", "100",
-                "--profiles", "tech",
-                "--output", str(tmp_path),
-                "--format", "png",
+                "--scales",
+                "100",
+                "--profiles",
+                "tech",
+                "--output",
+                str(tmp_path),
+                "--format",
+                "png",
             ],
         )
         assert result.exit_code == 0, f"CLI failed: {result.output}"

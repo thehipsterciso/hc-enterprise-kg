@@ -32,9 +32,7 @@ class ScaleDataCollector:
     def __init__(self, config: ChartConfig) -> None:
         self._config = config
 
-    def collect(
-        self, progress_callback: Callable[[str, int], None] | None = None
-    ) -> ChartDataSet:
+    def collect(self, progress_callback: Callable[[str, int], None] | None = None) -> ChartDataSet:
         """Run generation at all (profile, scale) combinations and collect data."""
         dataset = ChartDataSet(
             profiles=list(self._config.profiles),

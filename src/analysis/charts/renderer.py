@@ -196,9 +196,7 @@ class ChartRenderer:
 
         ax.set_xlabel("Employee Count", fontsize=FONT_LABEL)
         ax.set_ylabel("Entity Count", fontsize=FONT_LABEL)
-        ax.set_title(
-            f"Entity Distribution by Type Group ({profile_name})", fontsize=FONT_TITLE
-        )
+        ax.set_title(f"Entity Distribution by Type Group ({profile_name})", fontsize=FONT_TITLE)
         ax.set_xticks(x)
         ax.set_xticklabels([str(s) for s in scales], fontsize=FONT_TICK)
         ax.legend(fontsize=FONT_TICK, loc="upper left")
@@ -277,9 +275,7 @@ class ChartRenderer:
         common_scale = max(self._data.scales)
         profile_snaps = []
         for profile_name in self._data.profiles:
-            snaps_at = [
-                s for s in self._data.at_scale(common_scale) if s.profile == profile_name
-            ]
+            snaps_at = [s for s in self._data.at_scale(common_scale) if s.profile == profile_name]
             if snaps_at:
                 profile_snaps.append(snaps_at[0])
 
@@ -330,9 +326,7 @@ class ChartRenderer:
                 )
 
         ax.set_ylabel("Count", fontsize=FONT_LABEL)
-        ax.set_title(
-            f"Profile Comparison at {common_scale:,} Employees", fontsize=FONT_TITLE
-        )
+        ax.set_title(f"Profile Comparison at {common_scale:,} Employees", fontsize=FONT_TITLE)
         ax.set_xticks(x)
         ax.set_xticklabels(metrics, fontsize=FONT_LABEL)
         ax.legend(fontsize=FONT_TICK)
@@ -542,8 +536,7 @@ class ChartRenderer:
             has_data = True
 
         if not has_data:
-            ax.text(0.5, 0.5, "No quality data", ha="center", va="center",
-                    transform=ax.transAxes)
+            ax.text(0.5, 0.5, "No quality data", ha="center", va="center", transform=ax.transAxes)
 
         ax.set_xticks(angles[:-1])
         ax.set_xticklabels(dimension_labels, fontsize=FONT_TICK)

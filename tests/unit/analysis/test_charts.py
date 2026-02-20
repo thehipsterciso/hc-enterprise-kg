@@ -501,9 +501,7 @@ class TestChartRenderer:
                     density=0.004,
                 )
             )
-        dataset = ChartDataSet(
-            snapshots=snapshots, profiles=["tech", "financial"], scales=[500]
-        )
+        dataset = ChartDataSet(snapshots=snapshots, profiles=["tech", "financial"], scales=[500])
         cfg = ChartConfig(output_dir=str(tmp_path), format="png")
         renderer = ChartRenderer(dataset, cfg)
         path = renderer.render_profile_comparison()
@@ -610,9 +608,12 @@ class TestChartsCLI:
         result = runner.invoke(
             charts,
             [
-                "--scales", "100",
-                "--profiles", "tech",
-                "--output", str(tmp_path),
+                "--scales",
+                "100",
+                "--profiles",
+                "tech",
+                "--output",
+                str(tmp_path),
                 "--no-centrality",
                 "--no-quality",
             ],
