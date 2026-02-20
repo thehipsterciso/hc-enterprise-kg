@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.20.7] - 2026-02-20
+
+### Added
+- **Analytics charts module** (`src/analysis/charts/`) — auto-generates 8 chart types showcasing scaling, distributions, performance, and quality (#126, #128, #130, #132, #134, #136, #138, #140)
+- **`hckg charts` CLI command** — generate charts from synthetic data at multiple scales and profiles
+- **`generate_all_charts()` API** — one-call function for programmatic chart generation
+- **8 chart types**: scaling curves, entity distribution, relationship distribution, profile comparison, performance scaling, density vs scale, centrality distribution, quality radar
+- **ScaleDataCollector** — generates graphs at multiple (profile, scale) combinations and captures comprehensive statistics
+- **ChartRenderer** — matplotlib-based rendering with Agg backend, PNG/SVG output, configurable DPI
+- **Visual theme** — consistent entity colors, profile colors, type groupings, quality dimension labels
+- 48 tests covering models, collector, renderer, CLI, public API, and integration pipeline
+
 ## [0.19.7] - 2026-02-20
 
 ### Security
