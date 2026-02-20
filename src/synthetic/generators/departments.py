@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import random
+
 from domain.base import EntityType
 from domain.entities.department import Department
 from synthetic.base import AbstractGenerator, GenerationContext, GeneratorRegistry
@@ -14,19 +16,22 @@ class DepartmentGenerator(AbstractGenerator):
     GENERATES = EntityType.DEPARTMENT
 
     def generate(self, count: int, context: GenerationContext) -> list[Department]:
-        faker = context.faker
         profile = context.profile
         departments: list[Department] = []
 
         for spec in profile.department_specs:
+            headcount = int(profile.employee_count * spec.headcount_fraction)
+            # Budget correlated with headcount: ~$80k-$150k per head
+            budget = round(headcount * random.uniform(80_000, 150_000), 2)
+
             dept = Department(
                 name=spec.name,
                 description=f"{spec.name} department at {profile.name}",
                 code=spec.name.upper().replace(" ", "_")[:8],
-                headcount=int(profile.employee_count * spec.headcount_fraction),
+                headcount=headcount,
                 tags=[spec.data_sensitivity],
                 metadata={"data_sensitivity": spec.data_sensitivity},
-                budget=round(faker.pyfloat(min_value=100000, max_value=10000000), 2),
+                budget=budget,
             )
             departments.append(dept)
 

@@ -2,7 +2,7 @@
 
 Each generator follows the same pattern as the v0.1 generators: extends
 AbstractGenerator, declares GENERATES, and is registered via decorator.
-Entities are created with realistic enterprise attributes populated.
+Entities are created with semantically coherent attributes.
 """
 
 from __future__ import annotations
@@ -44,6 +44,22 @@ from domain.shared import ProvenanceAndConfidence, TemporalAndVersioning
 from synthetic.base import AbstractGenerator, GenerationContext, GeneratorRegistry
 
 # ---------------------------------------------------------------------------
+# Risk matrix: likelihood × impact → risk level
+# ---------------------------------------------------------------------------
+
+RISK_MATRIX: dict[str, dict[str, str]] = {
+    "Very High": {"Critical": "Critical", "High": "Critical", "Medium": "High", "Low": "Medium"},
+    "High": {"Critical": "Critical", "High": "High", "Medium": "High", "Low": "Medium"},
+    "Medium": {"Critical": "High", "High": "High", "Medium": "Medium", "Low": "Low"},
+    "Low": {"Critical": "High", "High": "Medium", "Medium": "Low", "Low": "Low"},
+    "Very Low": {"Critical": "Medium", "High": "Low", "Medium": "Low", "Low": "Low"},
+}
+
+RISK_LEVEL_ORDER = {"Low": 0, "Medium": 1, "High": 2, "Critical": 3}
+LIKELIHOOD_CHOICES = ["Very High", "High", "Medium", "Low", "Very Low"]
+IMPACT_CHOICES = ["Critical", "High", "Medium", "Low"]
+
+# ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
@@ -65,143 +81,365 @@ REGULATION_NAMES = [
     ("FISMA", "Federal Information Security Modernization Act", "US", "Government IT"),
 ]
 
-CONTROL_FRAMEWORKS = ["NIST 800-53", "ISO 27001", "CIS Controls", "COBIT", "SOC2 TSC"]
-CONTROL_TYPES = ["Preventive", "Detective", "Corrective", "Compensating"]
-CONTROL_DOMAINS = [
-    "Access Control",
-    "Asset Management",
-    "Audit & Accountability",
-    "Configuration Management",
-    "Incident Response",
-    "Media Protection",
-    "Physical Security",
-    "Risk Assessment",
-    "System & Communications Protection",
-    "Vulnerability Management",
-    "Change Management",
-    "Data Protection",
+# Control templates: (framework, domain, type) tuples
+CONTROL_TEMPLATES = [
+    ("NIST 800-53", "Access Control", "Preventive",
+     "Enforce least-privilege access to systems and data"),
+    ("NIST 800-53", "Audit & Accountability", "Detective",
+     "Monitor and log all access to sensitive resources"),
+    ("NIST 800-53", "Incident Response", "Corrective",
+     "Contain and remediate security incidents within SLA"),
+    ("NIST 800-53", "Configuration Management", "Preventive",
+     "Maintain secure baseline configurations for all systems"),
+    ("NIST 800-53", "Risk Assessment", "Detective",
+     "Conduct periodic risk assessments and vulnerability scans"),
+    ("ISO 27001", "Asset Management", "Preventive",
+     "Maintain accurate inventory of information assets"),
+    ("ISO 27001", "Data Protection", "Preventive",
+     "Encrypt sensitive data at rest and in transit"),
+    ("ISO 27001", "Physical Security", "Preventive",
+     "Control physical access to facilities and server rooms"),
+    ("ISO 27001", "System & Communications Protection", "Preventive",
+     "Segment networks and enforce boundary controls"),
+    ("CIS Controls", "Vulnerability Management", "Detective",
+     "Scan for and remediate vulnerabilities per severity SLA"),
+    ("CIS Controls", "Access Control", "Preventive",
+     "Implement multi-factor authentication for privileged access"),
+    ("CIS Controls", "Change Management", "Preventive",
+     "Require approval workflow for production changes"),
+    ("COBIT", "Audit & Accountability", "Detective",
+     "Maintain audit trails for all critical transactions"),
+    ("COBIT", "Risk Assessment", "Detective",
+     "Assess IT-related risks and report to governance board"),
+    ("SOC2 TSC", "Data Protection", "Preventive",
+     "Protect confidentiality of customer data per trust criteria"),
+    ("SOC2 TSC", "Access Control", "Preventive",
+     "Validate access controls per SOC2 trust service criteria"),
 ]
 
-RISK_CATEGORIES = [
-    "Operational",
-    "Cybersecurity",
-    "Compliance",
-    "Financial",
-    "Strategic",
-    "Reputational",
-    "Third-Party",
-    "Technology",
-]
-RISK_LEVELS = ["Critical", "High", "Medium", "Low"]
+# Risk category → name suffixes (replaces faker.bs())
+RISK_NAME_TEMPLATES: dict[str, list[str]] = {
+    "Operational": [
+        "Process Failure", "Service Disruption", "Capacity Overrun",
+        "Key Personnel Loss", "Vendor Dependency Failure",
+    ],
+    "Cybersecurity": [
+        "Unpatched Critical Systems", "Credential Compromise",
+        "Ransomware Exposure", "Data Exfiltration", "Zero-Day Exploitation",
+    ],
+    "Compliance": [
+        "Regulatory Non-Compliance", "Audit Finding Backlog",
+        "Policy Violation", "Licensing Gap", "Data Retention Breach",
+    ],
+    "Financial": [
+        "Revenue Shortfall", "Budget Overrun", "Fraud Exposure",
+        "Currency Fluctuation", "Credit Default",
+    ],
+    "Strategic": [
+        "Market Position Erosion", "Technology Obsolescence",
+        "Competitive Disruption", "M&A Integration Failure",
+    ],
+    "Reputational": [
+        "Public Data Breach", "Customer Trust Erosion",
+        "Media Negative Coverage", "Social Media Crisis",
+    ],
+    "Third-Party": [
+        "Vendor Data Breach", "Supply Chain Disruption",
+        "Contractor Misconduct", "SLA Violation",
+    ],
+    "Technology": [
+        "Legacy System Failure", "Cloud Outage",
+        "Data Center Failure", "Integration Breakdown",
+    ],
+}
 
-THREAT_CATEGORIES = [
-    "Cyber",
-    "Physical",
-    "Insider",
-    "Supply Chain",
-    "Natural Disaster",
-    "Geopolitical",
-    "Regulatory Change",
-]
-THREAT_LIKELIHOOD = ["Very High", "High", "Medium", "Low", "Very Low"]
+# Threat category → pre-mapped type and source
+THREAT_CATEGORY_MAP: dict[str, dict] = {
+    "Cyber": {
+        "types": ["Targeted", "Opportunistic"],
+        "sources": ["External", "Partner"],
+        "names": [
+            "Advanced Persistent Threat", "Ransomware Campaign",
+            "Phishing Operation", "DDoS Attack", "Credential Stuffing",
+        ],
+    },
+    "Physical": {
+        "types": ["Environmental", "Opportunistic"],
+        "sources": ["External", "Environmental"],
+        "names": [
+            "Facility Intrusion", "Equipment Theft",
+            "Sabotage Attempt", "Unauthorized Physical Access",
+        ],
+    },
+    "Insider": {
+        "types": ["Targeted"],
+        "sources": ["Internal"],
+        "names": [
+            "Data Theft by Employee", "Privilege Abuse",
+            "Intellectual Property Theft", "Unauthorized Access Escalation",
+        ],
+    },
+    "Supply Chain": {
+        "types": ["Targeted", "Systemic"],
+        "sources": ["Partner", "External"],
+        "names": [
+            "Compromised Dependency", "Vendor Software Backdoor",
+            "Third-Party Data Breach", "Supply Chain Interruption",
+        ],
+    },
+    "Natural Disaster": {
+        "types": ["Environmental"],
+        "sources": ["Environmental"],
+        "names": [
+            "Severe Weather Event", "Earthquake Risk",
+            "Flooding", "Power Grid Failure",
+        ],
+    },
+    "Geopolitical": {
+        "types": ["Systemic"],
+        "sources": ["External"],
+        "names": [
+            "Sanctions Impact", "Trade Restriction",
+            "Political Instability", "Cross-Border Data Transfer Block",
+        ],
+    },
+    "Regulatory Change": {
+        "types": ["Systemic"],
+        "sources": ["External"],
+        "names": [
+            "New Privacy Regulation", "Compliance Framework Update",
+            "Licensing Requirement Change", "Reporting Mandate",
+        ],
+    },
+}
 
-INTEGRATION_TYPES = [
-    "API",
-    "ETL",
-    "File Transfer",
-    "Message Queue",
-    "Database Link",
-    "Webhook",
-    "CDC",
-    "ESB",
-]
-INTEGRATION_PROTOCOLS = ["REST", "SOAP", "gRPC", "SFTP", "Kafka", "AMQP", "JDBC"]
+# Integration type → protocol mapping
+INTEGRATION_TYPE_PROTOCOLS: dict[str, list[str]] = {
+    "API": ["REST", "gRPC", "SOAP"],
+    "ETL": ["JDBC", "SFTP"],
+    "File Transfer": ["SFTP", "REST"],
+    "Message Queue": ["Kafka", "AMQP"],
+    "Database Link": ["JDBC"],
+    "Webhook": ["REST"],
+    "CDC": ["Kafka", "JDBC"],
+    "ESB": ["SOAP", "AMQP"],
+}
+
+# Integration type → data format mapping
+INTEGRATION_TYPE_FORMATS: dict[str, list[str]] = {
+    "API": ["JSON", "XML"],
+    "ETL": ["CSV", "Parquet", "Avro"],
+    "File Transfer": ["CSV", "XML", "Binary"],
+    "Message Queue": ["JSON", "Avro"],
+    "Database Link": ["Binary"],
+    "Webhook": ["JSON"],
+    "CDC": ["JSON", "Avro"],
+    "ESB": ["XML", "JSON"],
+}
 
 DATA_DOMAIN_NAMES = [
-    "Customer Data",
-    "Financial Data",
-    "Employee Data",
-    "Product Data",
-    "Operational Data",
-    "Marketing Data",
-    "Compliance Data",
-    "Clinical Data",
-    "Trading Data",
-    "Risk Data",
-    "Supply Chain Data",
-    "Research Data",
+    "Customer Data", "Financial Data", "Employee Data", "Product Data",
+    "Operational Data", "Marketing Data", "Compliance Data", "Clinical Data",
+    "Trading Data", "Risk Data", "Supply Chain Data", "Research Data",
 ]
 
-CAPABILITY_NAMES = [
-    "Customer Relationship Management",
-    "Financial Planning & Analysis",
-    "Human Capital Management",
-    "Product Development",
-    "Supply Chain Management",
-    "Risk Management",
-    "Compliance Management",
-    "IT Service Management",
-    "Data Analytics",
-    "Digital Marketing",
-    "Order Management",
-    "Procurement",
-    "Quality Assurance",
-    "Strategic Planning",
-    "Cybersecurity Operations",
-    "Business Intelligence",
-    "Enterprise Architecture",
-    "Innovation Management",
-]
+DATA_DOMAIN_DESCRIPTIONS: dict[str, str] = {
+    "Customer Data": "Customer demographics, preferences, interactions, and account information",
+    "Financial Data": "Financial transactions, ledger entries, and accounting records",
+    "Employee Data": "Employee records, compensation, performance, and benefits data",
+    "Product Data": "Product specifications, pricing, inventory, and lifecycle data",
+    "Operational Data": "Operational metrics, process logs, and workflow data",
+    "Marketing Data": "Campaign analytics, lead scoring, and market research data",
+    "Compliance Data": "Regulatory filings, audit reports, and compliance evidence",
+    "Clinical Data": "Patient health records, lab results, and clinical trial data",
+    "Trading Data": "Trade execution records, market data, and position tracking",
+    "Risk Data": "Risk assessments, loss events, and risk indicator metrics",
+    "Supply Chain Data": "Supplier records, procurement data, and logistics tracking",
+    "Research Data": "Research outputs, experimental data, and intellectual property",
+}
+
+# Capability name → functional domain mapping
+CAPABILITY_DOMAIN_MAP: dict[str, str] = {
+    "Customer Relationship Management": "Sales & Marketing",
+    "Financial Planning & Analysis": "Finance",
+    "Human Capital Management": "HR",
+    "Product Development": "Technology",
+    "Supply Chain Management": "Operations",
+    "Risk Management": "Risk & Compliance",
+    "Compliance Management": "Risk & Compliance",
+    "IT Service Management": "Technology",
+    "Data Analytics": "Technology",
+    "Digital Marketing": "Sales & Marketing",
+    "Order Management": "Operations",
+    "Procurement": "Operations",
+    "Quality Assurance": "Operations",
+    "Strategic Planning": "Finance",
+    "Cybersecurity Operations": "Technology",
+    "Business Intelligence": "Technology",
+    "Enterprise Architecture": "Technology",
+    "Innovation Management": "Technology",
+}
+
+CAPABILITY_NAMES = list(CAPABILITY_DOMAIN_MAP.keys())
+
+# Importance → investment priority correlation
+IMPORTANCE_INVESTMENT: dict[str, list[str]] = {
+    "Differentiating": ["Invest"],
+    "Essential": ["Invest", "Maintain"],
+    "Commodity": ["Maintain", "Tolerate"],
+}
 
 SITE_TYPES = [
-    "Headquarters",
-    "Regional Office",
-    "Data Center",
-    "Branch Office",
-    "Operations Center",
-    "R&D Facility",
+    "Headquarters", "Regional Office", "Data Center",
+    "Branch Office", "Operations Center", "R&D Facility",
 ]
 
-PRODUCT_NAMES = [
-    "Enterprise Platform",
-    "Analytics Suite",
-    "Mobile App",
-    "Customer Portal",
-    "Risk Dashboard",
-    "Compliance Manager",
-    "Trading Platform",
-    "Claims Processor",
-    "EHR System",
-    "Payment Gateway",
-    "API Marketplace",
-    "Data Lake Platform",
-    "Security Operations Center",
-    "Cloud Infrastructure",
-    "Identity Management",
-    "Document Management",
-]
+# Site type → security tier correlation
+SITE_SECURITY_MAP: dict[str, list[str]] = {
+    "Headquarters": ["Enhanced", "Restricted"],
+    "Regional Office": ["Standard", "Enhanced"],
+    "Data Center": ["Restricted"],
+    "Branch Office": ["Standard"],
+    "Operations Center": ["Enhanced", "Restricted"],
+    "R&D Facility": ["Enhanced"],
+}
 
-INITIATIVE_TYPES = [
-    "Digital Transformation",
-    "Technology Migration / Modernization",
-    "Process Improvement",
-    "Regulatory Compliance",
-    "Security Remediation",
-    "AI / ML Initiative",
-    "Cost Optimization",
-    "Customer Experience",
-    "Data Governance",
-    "Infrastructure",
-]
+# Product templates: name → {type, criticality}
+PRODUCT_TEMPLATES: dict[str, dict] = {
+    "Enterprise Platform": {"type": "Platform", "criticality": "Critical"},
+    "Analytics Suite": {"type": "Software", "criticality": "High"},
+    "Mobile App": {"type": "Software", "criticality": "Medium"},
+    "Customer Portal": {"type": "SaaS", "criticality": "High"},
+    "Risk Dashboard": {"type": "Software", "criticality": "High"},
+    "Compliance Manager": {"type": "SaaS", "criticality": "Critical"},
+    "Trading Platform": {"type": "Platform", "criticality": "Critical"},
+    "Claims Processor": {"type": "Software", "criticality": "High"},
+    "EHR System": {"type": "Software", "criticality": "Critical"},
+    "Payment Gateway": {"type": "SaaS", "criticality": "Critical"},
+    "API Marketplace": {"type": "Platform", "criticality": "Medium"},
+    "Data Lake Platform": {"type": "Platform", "criticality": "High"},
+    "Security Operations Center": {"type": "Software", "criticality": "Critical"},
+    "Cloud Infrastructure": {"type": "Platform", "criticality": "Critical"},
+    "Identity Management": {"type": "SaaS", "criticality": "Critical"},
+    "Document Management": {"type": "SaaS", "criticality": "Medium"},
+}
+
+PRODUCT_NAMES = list(PRODUCT_TEMPLATES.keys())
+
+# Market segment name → segment_type
+SEGMENT_TYPE_MAP: dict[str, str] = {
+    "Enterprise": "Company Size",
+    "Mid-Market": "Company Size",
+    "SMB": "Company Size",
+    "Government": "Industry Vertical",
+    "Healthcare": "Industry Vertical",
+    "Financial Services": "Industry Vertical",
+    "Technology": "Industry Vertical",
+    "Education": "Industry Vertical",
+}
+
+# OrgUnit name templates by type (replaces faker.company_suffix())
+OU_NAME_TEMPLATES: dict[str, list[str]] = {
+    "Business Unit": [
+        "North America", "EMEA", "APAC", "Latin America",
+        "Enterprise", "Consumer", "Government",
+    ],
+    "Division": [
+        "Technology", "Operations", "Commercial", "Financial Services",
+        "Healthcare", "Corporate Services",
+    ],
+    "Department": [
+        "Engineering", "Product", "Sales", "Marketing",
+        "Finance", "Compliance", "Security",
+    ],
+    "Team": [
+        "Platform", "Infrastructure", "Data", "Customer Success",
+        "Incident Response", "DevOps",
+    ],
+    "Shared Service Center": [
+        "Global IT Services", "HR Shared Services", "Finance Operations",
+        "Procurement Center",
+    ],
+    "Center of Excellence": [
+        "Cloud CoE", "Data & AI CoE", "Security CoE",
+        "Agile CoE", "Automation CoE",
+    ],
+}
+
+OU_TYPES = list(OU_NAME_TEMPLATES.keys())
+
+# Initiative type → name suffixes (replaces faker.bs())
+INITIATIVE_NAME_TEMPLATES: dict[str, list[str]] = {
+    "Digital Transformation": [
+        "Cloud Migration Program", "Digital Workplace Modernization",
+        "Customer Experience Digitization", "Process Automation Initiative",
+    ],
+    "Technology Migration / Modernization": [
+        "Legacy System Replacement", "Platform Consolidation",
+        "Infrastructure Modernization", "Database Migration",
+    ],
+    "Process Improvement": [
+        "Operational Excellence Program", "Lean Process Optimization",
+        "Workflow Automation", "Service Delivery Enhancement",
+    ],
+    "Regulatory Compliance": [
+        "GDPR Compliance Program", "SOX Remediation",
+        "Privacy Framework Implementation", "Regulatory Reporting Upgrade",
+    ],
+    "Security Remediation": [
+        "Zero Trust Architecture", "Vulnerability Remediation Sprint",
+        "Identity Governance Overhaul", "SOC Modernization",
+    ],
+    "AI / ML Initiative": [
+        "AI-Powered Analytics", "Machine Learning Platform",
+        "Intelligent Automation", "Predictive Risk Modeling",
+    ],
+    "Cost Optimization": [
+        "Cloud Cost Optimization", "License Rationalization",
+        "Vendor Consolidation", "Infrastructure Right-Sizing",
+    ],
+    "Customer Experience": [
+        "Omnichannel Engagement", "Self-Service Portal",
+        "Customer Journey Optimization", "Personalization Engine",
+    ],
+    "Data Governance": [
+        "Enterprise Data Catalog", "Data Quality Program",
+        "Master Data Management", "Data Lineage Implementation",
+    ],
+    "Infrastructure": [
+        "Network Refresh", "Data Center Consolidation",
+        "Edge Computing Deployment", "Hybrid Cloud Implementation",
+    ],
+}
+
+INITIATIVE_TYPES = list(INITIATIVE_NAME_TEMPLATES.keys())
 
 INITIATIVE_STATUSES = [
-    "Proposed",
-    "Approved",
-    "Planning",
-    "In Progress",
-    "On Hold",
-    "At Risk",
-    "Completed",
+    "Proposed", "Approved", "Planning", "In Progress",
+    "On Hold", "At Risk", "Completed",
+]
+
+# Contract type → description
+CONTRACT_DESCRIPTIONS: dict[str, str] = {
+    "Master Services Agreement": (
+        "Master services agreement governing professional services engagement"
+    ),
+    "Statement of Work": "Statement of work defining specific deliverables and timelines",
+    "License Agreement": "Software license agreement with usage terms and restrictions",
+    "Support Agreement": "Technical support and maintenance agreement with SLA terms",
+    "NDA": "Non-disclosure agreement protecting confidential information exchange",
+    "Data Processing Agreement": "Data processing agreement governing personal data handling",
+}
+
+PORTFOLIO_TEMPLATES = [
+    ("Enterprise Solutions", "Product", "Mature", "Core"),
+    ("Consumer Products", "Product", "Growth", "Adjacent"),
+    ("Digital Services", "Service", "Growth", "Core"),
+    ("Platform Services", "Platform", "Mature", "Core"),
+    ("Professional Services", "Service", "Mature", "Adjacent"),
+    ("Data Products", "Product", "Emerging", "Transformational"),
+    ("Cloud Services", "Platform", "Growth", "Core"),
+    ("Security Solutions", "Product", "Growth", "Adjacent"),
 ]
 
 
@@ -224,12 +462,13 @@ class RegulationGenerator(AbstractGenerator):
             if i < len(selected):
                 short, full, jur, domain = selected[i]
             else:
-                short = f"REG-{faker.bothify('??###').upper()}"
-                full = f"{faker.bs().title()} Regulation"
-                jur = random.choice(["US", "EU", "Global", "UK", "APAC"])
+                # Generate overflow regulations with contextual names
                 domain = random.choice(
                     ["Data Privacy", "Financial", "Cybersecurity", "Operational"]
                 )
+                jur = random.choice(["US", "EU", "Global", "UK", "APAC"])
+                short = f"{jur}-{domain.replace(' ', '').upper()[:4]}-{i + 1:03d}"
+                full = f"{jur} {domain} Regulation {i + 1}"
 
             reg = Regulation(
                 name=full,
@@ -254,7 +493,7 @@ class RegulationGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class ControlGenerator(AbstractGenerator):
-    """Generates Control entities with testing and effectiveness attributes."""
+    """Generates Control entities with coherent framework/domain/type."""
 
     GENERATES = EntityType.CONTROL
 
@@ -262,16 +501,20 @@ class ControlGenerator(AbstractGenerator):
         faker = context.faker
         controls: list[Control] = []
         for i in range(count):
-            framework = random.choice(CONTROL_FRAMEWORKS)
-            domain = random.choice(CONTROL_DOMAINS)
+            if i < len(CONTROL_TEMPLATES):
+                framework, domain, ctrl_type, objective = CONTROL_TEMPLATES[i]
+            else:
+                t = CONTROL_TEMPLATES[i % len(CONTROL_TEMPLATES)]
+                framework, domain, ctrl_type, objective = t
+
             control = Control(
                 name=f"{domain} — {framework} Control",
-                description=f"{random.choice(CONTROL_TYPES)} control for {domain.lower()}",
+                description=f"{ctrl_type} control for {domain.lower()}",
                 control_id=f"CTL-{i + 1:05d}",
-                control_type=random.choice(CONTROL_TYPES),
+                control_type=ctrl_type,
                 control_domain=domain,
                 control_framework=framework,
-                control_objective=f"Ensure {domain.lower()} requirements are met",
+                control_objective=objective,
                 implementation_status=random.choice(
                     ["Implemented", "Partially Implemented", "Planned"]
                 ),
@@ -292,7 +535,7 @@ class ControlGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class RiskGenerator(AbstractGenerator):
-    """Generates Risk entities with impact and likelihood assessment."""
+    """Generates Risk entities with matrix-derived risk levels."""
 
     GENERATES = EntityType.RISK
 
@@ -300,22 +543,41 @@ class RiskGenerator(AbstractGenerator):
         faker = context.faker
         risks: list[Risk] = []
         for i in range(count):
-            category = random.choice(RISK_CATEGORIES)
+            category = random.choice(list(RISK_NAME_TEMPLATES.keys()))
+            name_suffix = random.choice(RISK_NAME_TEMPLATES[category])
+
+            # Inherent risk: derive level from likelihood × impact
+            inh_likelihood = random.choice(LIKELIHOOD_CHOICES)
+            inh_impact = random.choice(IMPACT_CHOICES)
+            inh_level = RISK_MATRIX[inh_likelihood][inh_impact]
+
+            # Residual risk: must be ≤ inherent (controls reduce risk)
+            res_likelihood = random.choice(LIKELIHOOD_CHOICES)
+            res_impact = random.choice(IMPACT_CHOICES)
+            res_level_raw = RISK_MATRIX[res_likelihood][res_impact]
+            # Clamp residual to not exceed inherent
+            if RISK_LEVEL_ORDER[res_level_raw] > RISK_LEVEL_ORDER[inh_level]:
+                res_level = inh_level
+            else:
+                res_level = res_level_raw
+
             risk = Risk(
-                name=f"{category} Risk — {faker.bs().title()}",
-                description=f"Risk in {category.lower()} domain",
+                name=f"{category} Risk — {name_suffix}",
+                description=f"{category} risk: {name_suffix.lower()}",
                 risk_id=f"RSK-{i + 1:05d}",
                 risk_category=category,
-                inherent_likelihood=random.choice(THREAT_LIKELIHOOD),
-                inherent_impact=random.choice(RISK_LEVELS),
-                inherent_risk_level=random.choice(RISK_LEVELS),
-                residual_likelihood=random.choice(THREAT_LIKELIHOOD),
-                residual_impact=random.choice(RISK_LEVELS),
-                residual_risk_level=random.choice(RISK_LEVELS),
+                inherent_likelihood=inh_likelihood,
+                inherent_impact=inh_impact,
+                inherent_risk_level=inh_level,
+                residual_likelihood=res_likelihood,
+                residual_impact=res_impact,
+                residual_risk_level=res_level,
                 risk_owner=faker.name(),
                 risk_status=random.choice(["Open", "Mitigated", "Accepted", "Transferred"]),
                 risk_response_strategy=random.choice(["Mitigate", "Accept", "Transfer", "Avoid"]),
-                last_assessment_date=str(faker.date_between(start_date="-6m", end_date="today")),
+                last_assessment_date=str(
+                    faker.date_between(start_date="-6m", end_date="today")
+                ),
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance=ProvenanceAndConfidence(
                     primary_data_source="ERM Platform",
@@ -331,27 +593,33 @@ class RiskGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class ThreatGenerator(AbstractGenerator):
-    """Generates Threat entities (distinct from ThreatActor)."""
+    """Generates Threat entities with category-correlated type/source."""
 
     GENERATES = EntityType.THREAT
 
     def generate(self, count: int, context: GenerationContext) -> list[Threat]:
-        faker = context.faker
         threats: list[Threat] = []
+        categories = list(THREAT_CATEGORY_MAP.keys())
+
         for i in range(count):
-            category = random.choice(THREAT_CATEGORIES)
+            category = random.choice(categories)
+            cat_map = THREAT_CATEGORY_MAP[category]
+            name_suffix = random.choice(cat_map["names"])
+
+            likelihood = random.choice(LIKELIHOOD_CHOICES)
+            impact = random.choice(IMPACT_CHOICES)
+            threat_level = RISK_MATRIX[likelihood][impact]
+
             threat = Threat(
-                name=f"{category} Threat — {faker.bs().title()}",
-                description=f"Threat in {category.lower()} domain",
+                name=f"{category} Threat — {name_suffix}",
+                description=f"{category} threat: {name_suffix.lower()}",
                 threat_id=f"THR-{i + 1:05d}",
                 threat_category=category,
-                threat_type=random.choice(
-                    ["Targeted", "Opportunistic", "Environmental", "Systemic"]
-                ),
-                likelihood=random.choice(THREAT_LIKELIHOOD),
-                impact_if_realized=random.choice(RISK_LEVELS),
-                threat_level=random.choice(RISK_LEVELS),
-                threat_source=random.choice(["External", "Internal", "Environmental", "Partner"]),
+                threat_type=random.choice(cat_map["types"]),
+                likelihood=likelihood,
+                impact_if_realized=impact,
+                threat_level=threat_level,
+                threat_source=random.choice(cat_map["sources"]),
                 threat_status=random.choice(["Active", "Emerging", "Historical", "Mitigated"]),
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance=ProvenanceAndConfidence(
@@ -373,24 +641,26 @@ class ThreatGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class IntegrationGenerator(AbstractGenerator):
-    """Generates Integration entities between systems."""
+    """Generates Integration entities with type-correlated protocol/format."""
 
     GENERATES = EntityType.INTEGRATION
 
     def generate(self, count: int, context: GenerationContext) -> list[Integration]:
         integrations: list[Integration] = []
+        int_types = list(INTEGRATION_TYPE_PROTOCOLS.keys())
 
         for i in range(count):
-            int_type = random.choice(INTEGRATION_TYPES)
-            protocol = random.choice(INTEGRATION_PROTOCOLS)
+            int_type = random.choice(int_types)
+            protocol = random.choice(INTEGRATION_TYPE_PROTOCOLS[int_type])
+            data_format = random.choice(INTEGRATION_TYPE_FORMATS[int_type])
 
             integration = Integration(
                 name=f"{int_type} Integration — {protocol}",
-                description=f"{int_type} integration using {protocol}",
+                description=f"{int_type} integration using {protocol} with {data_format} payloads",
                 integration_id=f"INT-{i + 1:05d}",
                 integration_type=int_type,
                 protocol=protocol,
-                data_format=random.choice(["JSON", "XML", "CSV", "Avro", "Parquet", "Binary"]),
+                data_format=data_format,
                 frequency=random.choice(
                     ["Real-time", "Near Real-time", "Hourly", "Daily", "Weekly"]
                 ),
@@ -417,7 +687,7 @@ class IntegrationGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class DataDomainGenerator(AbstractGenerator):
-    """Generates DataDomain entities."""
+    """Generates DataDomain entities with contextual descriptions."""
 
     GENERATES = EntityType.DATA_DOMAIN
 
@@ -427,17 +697,25 @@ class DataDomainGenerator(AbstractGenerator):
         selected = random.sample(DATA_DOMAIN_NAMES, k=min(count, len(DATA_DOMAIN_NAMES)))
 
         for i in range(count):
-            name = selected[i] if i < len(selected) else f"{faker.word().title()} Data Domain"
+            if i < len(selected):
+                name = selected[i]
+                desc = DATA_DOMAIN_DESCRIPTIONS.get(name, f"Enterprise data domain: {name}")
+            else:
+                name = random.choice(DATA_DOMAIN_NAMES)
+                desc = DATA_DOMAIN_DESCRIPTIONS.get(name, f"Enterprise data domain: {name}")
+
             domain = DataDomain(
                 name=name,
-                description=f"Enterprise data domain: {name}",
+                description=desc,
                 domain_id=f"DD-{i + 1:05d}",
                 domain_owner=faker.name(),
                 data_steward=faker.name(),
                 classification_level=random.choice(
                     ["Public", "Internal", "Confidential", "Restricted"]
                 ),
-                governance_status=random.choice(["Governed", "Partially Governed", "Ungoverned"]),
+                governance_status=random.choice(
+                    ["Governed", "Partially Governed", "Ungoverned"]
+                ),
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance=ProvenanceAndConfidence(
                     primary_data_source="Data Governance Platform",
@@ -453,7 +731,7 @@ class DataDomainGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class DataFlowGenerator(AbstractGenerator):
-    """Generates DataFlow entities between systems/domains."""
+    """Generates DataFlow entities with correlation fixes."""
 
     GENERATES = EntityType.DATA_FLOW
 
@@ -462,20 +740,38 @@ class DataFlowGenerator(AbstractGenerator):
         flows: list[DataFlow] = []
 
         for i in range(count):
-            src = random.choice(systems).name if systems else "External Source"
-            tgt = random.choice(systems).name if systems else "External Target"
+            if systems and len(systems) >= 2:
+                src_sys, tgt_sys = random.sample(systems, 2)
+                src = src_sys.name
+                tgt = tgt_sys.name
+            elif systems:
+                src = systems[0].name
+                tgt = "External Target"
+            else:
+                src = "External Source"
+                tgt = "External Target"
+
+            classification = random.choice(
+                ["Public", "Internal", "Confidential", "Restricted"]
+            )
+            method = random.choice(
+                ["API", "ETL", "File Transfer", "Streaming", "Replication"]
+            )
+            # Encryption required for sensitive classifications
+            encrypted = classification in ("Restricted", "Confidential") or random.random() < 0.3
+
             flow = DataFlow(
                 name=f"Flow: {src} → {tgt}",
-                description=f"Data flow from {src} to {tgt}",
+                description=(
+                    f"{method} transfer of {classification.lower()} data from {src} to {tgt}"
+                ),
                 flow_id=f"DF-{i + 1:05d}",
-                data_classification=random.choice(
-                    ["Public", "Internal", "Confidential", "Restricted"]
+                data_classification=classification,
+                transfer_method=method,
+                frequency=random.choice(
+                    ["Real-time", "Hourly", "Daily", "Weekly", "On Demand"]
                 ),
-                transfer_method=random.choice(
-                    ["API", "ETL", "File Transfer", "Streaming", "Replication"]
-                ),
-                frequency=random.choice(["Real-time", "Hourly", "Daily", "Weekly", "On Demand"]),
-                encryption_in_transit=random.choice([True, False]),
+                encryption_in_transit=encrypted,
                 status=random.choice(["Active", "Inactive", "Under Review"]),
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance=ProvenanceAndConfidence(
@@ -495,19 +791,9 @@ class DataFlowGenerator(AbstractGenerator):
 # ---------------------------------------------------------------------------
 
 
-OU_TYPES = [
-    "Business Unit",
-    "Division",
-    "Department",
-    "Team",
-    "Shared Service Center",
-    "Center of Excellence",
-]
-
-
 @GeneratorRegistry.register
 class OrgUnitGenerator(AbstractGenerator):
-    """Generates OrganizationalUnit entities."""
+    """Generates OrganizationalUnit entities with realistic names."""
 
     GENERATES = EntityType.ORGANIZATIONAL_UNIT
 
@@ -517,27 +803,40 @@ class OrgUnitGenerator(AbstractGenerator):
 
         for i in range(count):
             unit_type = random.choice(OU_TYPES)
+            name_pool = OU_NAME_TEMPLATES[unit_type]
+            base_name = random.choice(name_pool)
+
+            # Map functional domain from name
+            domain_map = {
+                "Technology": "Technology", "Engineering": "Technology",
+                "Platform": "Technology", "Infrastructure": "Technology",
+                "Data": "Technology", "DevOps": "Technology",
+                "Cloud CoE": "Technology", "Data & AI CoE": "Technology",
+                "Security CoE": "Technology", "Agile CoE": "Technology",
+                "Automation CoE": "Technology", "Incident Response": "Technology",
+                "Sales": "Sales", "Commercial": "Sales", "Customer Success": "Sales",
+                "Marketing": "Marketing",
+                "Finance": "Finance", "Finance Operations": "Finance",
+                "HR Shared Services": "HR",
+                "Compliance": "Compliance", "Legal": "Legal",
+                "Operations": "Operations", "Procurement Center": "Operations",
+                "Global IT Services": "Technology",
+            }
+            func_domain = domain_map.get(
+                base_name,
+                random.choice(["Technology", "Finance", "Operations", "Sales"])
+            )
+
             unit = OrganizationalUnit(
-                name=f"{faker.company_suffix()} {unit_type}",
-                description=f"{unit_type} organizational unit",
+                name=f"{base_name} {unit_type}",
+                description=f"{unit_type}: {base_name}",
                 unit_id=f"OU-{i + 1:05d}",
                 unit_type=unit_type,
                 operational_status=random.choice(
                     ["Active", "Planned", "Under Restructuring", "Dissolved"]
                 ),
                 geographic_scope=random.choice(["Global", "Regional", "National", "Local"]),
-                functional_domain_primary=random.choice(
-                    [
-                        "Technology",
-                        "Finance",
-                        "Operations",
-                        "Sales",
-                        "Marketing",
-                        "HR",
-                        "Legal",
-                        "Compliance",
-                    ]
-                ),
+                functional_domain_primary=func_domain,
                 unit_leader=faker.name(),
                 unit_leader_title=random.choice(
                     ["VP", "SVP", "Director", "Managing Director", "Head"]
@@ -563,17 +862,20 @@ class OrgUnitGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class CapabilityGenerator(AbstractGenerator):
-    """Generates BusinessCapability entities."""
+    """Generates BusinessCapability entities with correlated domain/investment."""
 
     GENERATES = EntityType.BUSINESS_CAPABILITY
 
     def generate(self, count: int, context: GenerationContext) -> list[BusinessCapability]:
-        faker = context.faker
         caps: list[BusinessCapability] = []
         selected = random.sample(CAPABILITY_NAMES, k=min(count, len(CAPABILITY_NAMES)))
 
         for i in range(count):
-            name = selected[i] if i < len(selected) else f"{faker.bs().title()} Capability"
+            name = selected[i] if i < len(selected) else random.choice(CAPABILITY_NAMES)
+            func_domain = CAPABILITY_DOMAIN_MAP.get(name, "Operations")
+            importance = random.choice(["Differentiating", "Essential", "Commodity"])
+            investment = random.choice(IMPORTANCE_INVESTMENT[importance])
+
             cap = BusinessCapability(
                 name=name,
                 description=f"Enterprise capability: {name}",
@@ -584,20 +886,10 @@ class CapabilityGenerator(AbstractGenerator):
                 maturity_level=random.choice(
                     ["Initial", "Developing", "Defined", "Managed", "Optimized"]
                 ),
-                strategic_importance=random.choice(["Differentiating", "Essential", "Commodity"]),
+                strategic_importance=importance,
                 business_criticality=random.choice(["Critical", "High", "Medium", "Low"]),
-                investment_priority=random.choice(["Invest", "Maintain", "Divest", "Tolerate"]),
-                functional_domain=random.choice(
-                    [
-                        "Sales & Marketing",
-                        "Finance",
-                        "Operations",
-                        "Technology",
-                        "HR",
-                        "Risk & Compliance",
-                        "Customer Service",
-                    ]
-                ),
+                investment_priority=investment,
+                functional_domain=func_domain,
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance=ProvenanceAndConfidence(
                     primary_data_source="Enterprise Architecture",
@@ -618,7 +910,7 @@ class CapabilityGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class SiteGenerator(AbstractGenerator):
-    """Generates Site entities with facility attributes."""
+    """Generates Site entities with type-correlated security tier."""
 
     GENERATES = EntityType.SITE
 
@@ -628,9 +920,11 @@ class SiteGenerator(AbstractGenerator):
         for i in range(count):
             site_type = random.choice(SITE_TYPES)
             city = faker.city()
+            security_tier = random.choice(SITE_SECURITY_MAP.get(site_type, ["Standard"]))
+
             site = Site(
                 name=f"{city} {site_type}",
-                description=f"{site_type} facility",
+                description=f"{site_type} facility in {city}",
                 site_id=f"SITE-{i + 1:05d}",
                 site_type=site_type,
                 site_status=random.choice(
@@ -647,8 +941,10 @@ class SiteGenerator(AbstractGenerator):
                 current_occupancy=CurrentOccupancy(
                     headcount=random.randint(20, 4000),
                 ),
-                physical_security_tier=random.choice(["Standard", "Enhanced", "Restricted"]),
-                business_continuity_tier=random.choice(["Tier 1", "Tier 2", "Tier 3", "Tier 4"]),
+                physical_security_tier=security_tier,
+                business_continuity_tier=random.choice(
+                    ["Tier 1", "Tier 2", "Tier 3", "Tier 4"]
+                ),
                 temporal=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance=ProvenanceAndConfidence(
                     primary_data_source="Facilities Management",
@@ -753,34 +1049,28 @@ class JurisdictionGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class ProductPortfolioGenerator(AbstractGenerator):
-    """Generates ProductPortfolio entities."""
+    """Generates ProductPortfolio entities with coordinated attributes."""
 
     GENERATES = EntityType.PRODUCT_PORTFOLIO
 
     def generate(self, count: int, context: GenerationContext) -> list[ProductPortfolio]:
         faker = context.faker
         portfolios: list[ProductPortfolio] = []
-        portfolio_names = [
-            "Enterprise Solutions",
-            "Consumer Products",
-            "Digital Services",
-            "Platform Services",
-            "Professional Services",
-            "Data Products",
-        ]
         for i in range(count):
-            name = (
-                portfolio_names[i]
-                if i < len(portfolio_names)
-                else f"{faker.bs().title()} Portfolio"
-            )
+            if i < len(PORTFOLIO_TEMPLATES):
+                name, ptype, lifecycle, role = PORTFOLIO_TEMPLATES[i]
+            else:
+                t = PORTFOLIO_TEMPLATES[i % len(PORTFOLIO_TEMPLATES)]
+                name = f"{t[0]} v{(i // len(PORTFOLIO_TEMPLATES)) + 1}"
+                ptype, lifecycle, role = t[1], t[2], t[3]
+
             portfolio = ProductPortfolio(
                 name=name,
                 description=f"Product portfolio: {name}",
                 portfolio_id=f"PF-{i + 1:05d}",
-                portfolio_type=random.choice(["Product", "Service", "Platform", "Hybrid"]),
-                lifecycle_stage=random.choice(["Growth", "Mature", "Harvest", "Emerging"]),
-                strategic_role=random.choice(["Core", "Adjacent", "Transformational"]),
+                portfolio_type=ptype,
+                lifecycle_stage=lifecycle,
+                strategic_role=role,
                 portfolio_owner=faker.name(),
                 product_count=random.randint(2, 20),
                 temporal_and_versioning=TemporalAndVersioning(schema_version="1.0.0"),
@@ -798,7 +1088,7 @@ class ProductPortfolioGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class ProductGenerator(AbstractGenerator):
-    """Generates Product entities with enterprise attributes."""
+    """Generates Product entities with name-correlated type/criticality."""
 
     GENERATES = EntityType.PRODUCT
 
@@ -808,18 +1098,28 @@ class ProductGenerator(AbstractGenerator):
         selected = random.sample(PRODUCT_NAMES, k=min(count, len(PRODUCT_NAMES)))
 
         for i in range(count):
-            name = selected[i] if i < len(selected) else f"{faker.word().title()} Product"
+            if i < len(selected):
+                name = selected[i]
+                tmpl = PRODUCT_TEMPLATES[name]
+                prod_type = tmpl["type"]
+                criticality = tmpl["criticality"]
+            else:
+                name = random.choice(PRODUCT_NAMES)
+                tmpl = PRODUCT_TEMPLATES[name]
+                prod_type = tmpl["type"]
+                criticality = tmpl["criticality"]
+
             product = Product(
                 name=name,
-                description=f"Enterprise product: {name}",
+                description=f"{prod_type} product: {name}",
                 product_id=f"PRD-{i + 1:05d}",
-                product_type=random.choice(["Software", "Service", "Platform", "Hardware", "SaaS"]),
+                product_type=prod_type,
                 lifecycle_stage=random.choice(
                     ["Development", "Launch", "Growth", "Mature", "Decline", "Retired"]
                 ),
                 product_owner=faker.name(),
                 product_manager=faker.name(),
-                business_criticality=random.choice(["Critical", "High", "Medium", "Low"]),
+                business_criticality=criticality,
                 temporal_and_versioning=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance_and_confidence=ProvenanceAndConfidence(
                     primary_data_source="Product Management",
@@ -840,34 +1140,28 @@ class ProductGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class MarketSegmentGenerator(AbstractGenerator):
-    """Generates MarketSegment entities."""
+    """Generates MarketSegment entities with name-correlated type."""
 
     GENERATES = EntityType.MARKET_SEGMENT
 
     def generate(self, count: int, context: GenerationContext) -> list[MarketSegment]:
         faker = context.faker
         segments: list[MarketSegment] = []
-        segment_names = [
-            "Enterprise",
-            "Mid-Market",
-            "SMB",
-            "Government",
-            "Healthcare",
-            "Financial Services",
-            "Technology",
-            "Education",
-        ]
+        segment_names = list(SEGMENT_TYPE_MAP.keys())
+
         for i in range(count):
-            name = segment_names[i] if i < len(segment_names) else f"{faker.bs().title()} Segment"
+            name = segment_names[i] if i < len(segment_names) else random.choice(segment_names)
+            seg_type = SEGMENT_TYPE_MAP.get(name, "Use Case")
+
             segment = MarketSegment(
                 name=name,
-                description=f"Market segment: {name}",
+                description=f"{seg_type} market segment: {name}",
                 segment_id=f"SEG-{i + 1:05d}",
-                segment_type=random.choice(
-                    ["Industry Vertical", "Company Size", "Geography", "Use Case"]
-                ),
+                segment_type=seg_type,
                 segment_owner=faker.name(),
-                strategic_priority=random.choice(["Primary", "Secondary", "Emerging", "Declining"]),
+                strategic_priority=random.choice(
+                    ["Primary", "Secondary", "Emerging", "Declining"]
+                ),
                 temporal_and_versioning=TemporalAndVersioning(schema_version="1.0.0"),
                 provenance_and_confidence=ProvenanceAndConfidence(
                     primary_data_source="Strategy Team",
@@ -883,7 +1177,7 @@ class MarketSegmentGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class CustomerGenerator(AbstractGenerator):
-    """Generates Customer entities with enterprise attributes."""
+    """Generates Customer entities with contextual descriptions."""
 
     GENERATES = EntityType.CUSTOMER
 
@@ -891,18 +1185,22 @@ class CustomerGenerator(AbstractGenerator):
         faker = context.faker
         customers: list[Customer] = []
         for i in range(count):
+            customer_type = random.choice(
+                ["Enterprise", "Mid-Market", "SMB", "Government", "Non-Profit"]
+            )
+            industry = random.choice(
+                ["Technology", "Healthcare", "Financial Services", "Manufacturing", "Retail"]
+            )
             customer = Customer(
                 name=faker.company(),
-                description="Enterprise customer",
+                description=f"{customer_type} customer in {industry}",
                 customer_id=f"CUST-{i + 1:05d}",
-                customer_type=random.choice(
-                    ["Enterprise", "Mid-Market", "SMB", "Government", "Non-Profit"]
+                customer_type=customer_type,
+                relationship_status=random.choice(
+                    ["Active", "Prospect", "Churned", "Dormant"]
                 ),
-                relationship_status=random.choice(["Active", "Prospect", "Churned", "Dormant"]),
                 account_tier=random.choice(["Strategic", "Key", "Standard", "Growth"]),
-                industry=random.choice(
-                    ["Technology", "Healthcare", "Financial Services", "Manufacturing", "Retail"]
-                ),
+                industry=industry,
                 account_manager=faker.name(),
                 relationship_start_date=str(
                     faker.date_between(start_date="-10y", end_date="today")
@@ -927,7 +1225,7 @@ class CustomerGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class ContractGenerator(AbstractGenerator):
-    """Generates Contract entities linked to vendors."""
+    """Generates Contract entities with type-contextual descriptions."""
 
     GENERATES = EntityType.CONTRACT
 
@@ -935,22 +1233,18 @@ class ContractGenerator(AbstractGenerator):
         faker = context.faker
         vendors = context.get_entities(EntityType.VENDOR)
         contracts: list[Contract] = []
+        contract_types = list(CONTRACT_DESCRIPTIONS.keys())
+
         for i in range(count):
             vendor = random.choice(vendors) if vendors else None
+            contract_type = random.choice(contract_types)
+            desc = CONTRACT_DESCRIPTIONS[contract_type]
+
             contract = Contract(
                 name=f"Contract — {vendor.name if vendor else faker.company()}",
-                description="Master agreement",
+                description=desc,
                 contract_id=f"CTR-{i + 1:05d}",
-                contract_type=random.choice(
-                    [
-                        "Master Services Agreement",
-                        "Statement of Work",
-                        "License Agreement",
-                        "Support Agreement",
-                        "NDA",
-                        "Data Processing Agreement",
-                    ]
-                ),
+                contract_type=contract_type,
                 contract_status=random.choice(
                     ["Active", "Expired", "Under Negotiation", "Terminated"]
                 ),
@@ -982,7 +1276,7 @@ class ContractGenerator(AbstractGenerator):
 
 @GeneratorRegistry.register
 class InitiativeGenerator(AbstractGenerator):
-    """Generates Initiative entities with strategic attributes."""
+    """Generates Initiative entities with contextual names."""
 
     GENERATES = EntityType.INITIATIVE
 
@@ -993,35 +1287,38 @@ class InitiativeGenerator(AbstractGenerator):
 
         for i in range(count):
             init_type = random.choice(INITIATIVE_TYPES)
+            name_suffix = random.choice(INITIATIVE_NAME_TEMPLATES[init_type])
             budget = round(random.uniform(100_000, 20_000_000), 2)
             status = random.choice(INITIATIVE_STATUSES)
 
             initiative = Initiative(
-                name=f"{init_type} — {faker.bs().title()}",
-                description=f"Strategic initiative: {init_type}",
+                name=f"{init_type} — {name_suffix}",
+                description=f"Strategic initiative: {name_suffix}",
                 initiative_id=f"SI-{i + 1:05d}",
-                initiative_tier=random.choice(["Portfolio", "Program", "Project", "Workstream"]),
+                initiative_tier=random.choice(
+                    ["Portfolio", "Program", "Project", "Workstream"]
+                ),
                 initiative_type=init_type,
                 initiative_category=random.choice(
                     ["Strategic", "Operational", "Regulatory", "Remediation"]
                 ),
                 strategic_priority=random.choice(["Must Do", "Should Do", "Could Do"]),
-                origin=random.choice(
-                    [
-                        "Strategic Planning",
-                        "Board Directive",
-                        "Regulatory Requirement",
-                        "Audit Finding",
-                        "Competitive Response",
-                        "Technology End-of-Life",
-                    ]
-                ),
+                origin=random.choice([
+                    "Strategic Planning", "Board Directive",
+                    "Regulatory Requirement", "Audit Finding",
+                    "Competitive Response", "Technology End-of-Life",
+                ]),
                 current_status=status,
-                phase=random.choice(
-                    ["Initiation", "Planning", "Execution", "Monitoring & Control", "Closing"]
+                phase=random.choice([
+                    "Initiation", "Planning", "Execution",
+                    "Monitoring & Control", "Closing",
+                ]),
+                planned_start_date=str(
+                    faker.date_between(start_date="-1y", end_date="today")
                 ),
-                planned_start_date=str(faker.date_between(start_date="-1y", end_date="today")),
-                planned_end_date=str(faker.date_between(start_date="today", end_date="+2y")),
+                planned_end_date=str(
+                    faker.date_between(start_date="today", end_date="+2y")
+                ),
                 total_budget=TotalBudget(
                     approved_budget=budget,
                     currency="USD",
@@ -1029,18 +1326,26 @@ class InitiativeGenerator(AbstractGenerator):
                 ),
                 budget_breakdown=[
                     BudgetBreakdown(
-                        category="Technology / Licensing", amount=round(budget * 0.4, 2)
+                        category="Technology / Licensing",
+                        amount=round(budget * 0.4, 2),
                     ),
                     BudgetBreakdown(
-                        category="Professional Services", amount=round(budget * 0.3, 2)
+                        category="Professional Services",
+                        amount=round(budget * 0.3, 2),
                     ),
-                    BudgetBreakdown(category="Personnel / Labor", amount=round(budget * 0.25, 2)),
-                    BudgetBreakdown(category="Contingency", amount=round(budget * 0.05, 2)),
+                    BudgetBreakdown(
+                        category="Personnel / Labor",
+                        amount=round(budget * 0.25, 2),
+                    ),
+                    BudgetBreakdown(
+                        category="Contingency",
+                        amount=round(budget * 0.05, 2),
+                    ),
                 ],
                 funding_source=FundingSource(
-                    source_type=random.choice(
-                        ["Operating Budget", "Capital Budget", "Innovation Fund"]
-                    ),
+                    source_type=random.choice([
+                        "Operating Budget", "Capital Budget", "Innovation Fund",
+                    ]),
                 ),
                 business_case_summary=BusinessCaseSummary(
                     expected_costs=budget,
@@ -1059,17 +1364,17 @@ class InitiativeGenerator(AbstractGenerator):
                 initiative_lead=faker.name(),
                 owning_org_unit="",
                 initiative_risk_profile=InitiativeRiskProfile(
-                    overall_risk=random.choice(RISK_LEVELS),
-                    schedule_risk=random.choice(RISK_LEVELS),
-                    budget_risk=random.choice(RISK_LEVELS),
+                    overall_risk=random.choice(IMPACT_CHOICES),
+                    schedule_risk=random.choice(IMPACT_CHOICES),
+                    budget_risk=random.choice(IMPACT_CHOICES),
                 ),
                 active_risks=[
                     ActiveRisk(
                         risk_id=f"IR-{i + 1:03d}-001",
-                        description=f"Key risk for {init_type}",
-                        probability=random.choice(THREAT_LIKELIHOOD),
-                        impact=random.choice(RISK_LEVELS),
-                        risk_level=random.choice(RISK_LEVELS),
+                        description=f"Key risk for {name_suffix}",
+                        probability=random.choice(LIKELIHOOD_CHOICES),
+                        impact=random.choice(IMPACT_CHOICES),
+                        risk_level=random.choice(IMPACT_CHOICES),
                         owner=faker.name(),
                     ),
                 ],
@@ -1081,7 +1386,9 @@ class InitiativeGenerator(AbstractGenerator):
                 key_milestones=[
                     KeyMilestone(
                         milestone_name="Go-Live",
-                        planned_date=str(faker.date_between(start_date="today", end_date="+2y")),
+                        planned_date=str(
+                            faker.date_between(start_date="today", end_date="+2y")
+                        ),
                         status=random.choice(["Not Started", "On Track", "At Risk"]),
                         milestone_type="Go-Live",
                     ),
@@ -1089,9 +1396,9 @@ class InitiativeGenerator(AbstractGenerator):
                 impacts_systems=[
                     ImpactsSystem(
                         system_id=random.choice(systems).id if systems else "",
-                        impact_type=random.choice(
-                            ["Implements New", "Migrates", "Upgrades", "Decommissions"]
-                        ),
+                        impact_type=random.choice([
+                            "Implements New", "Migrates", "Upgrades", "Decommissions",
+                        ]),
                     ),
                 ]
                 if systems
