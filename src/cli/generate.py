@@ -88,5 +88,14 @@ def org(
 
     from export.json_export import JSONExporter
 
-    JSONExporter().export(kg.engine, Path(output))
+    output_path = Path(output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        JSONExporter().export(kg.engine, output_path)
+    except PermissionError:
+        click.echo(f"Error: permission denied writing to {output_path}", err=True)
+        raise SystemExit(1) from None
+    except OSError as exc:
+        click.echo(f"Error writing output file: {exc}", err=True)
+        raise SystemExit(1) from None
     click.echo(f"\nExported to {output}")
