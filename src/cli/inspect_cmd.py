@@ -15,9 +15,21 @@ def inspect_cmd(source: str) -> None:
     from ingest.json_ingestor import JSONIngestor
 
     kg = KnowledgeGraph()
-
     ingestor = JSONIngestor()
-    result = ingestor.ingest(Path(source))
+
+    try:
+        result = ingestor.ingest(Path(source))
+    except Exception as exc:
+        click.echo(f"Error reading {source}: {exc}", err=True)
+        raise SystemExit(1) from None
+
+    # Check for fatal ingest errors (e.g., invalid JSON, file not found)
+    if not result.entities and result.errors:
+        click.echo(f"Error: could not load {source}", err=True)
+        for err in result.errors[:5]:
+            click.echo(f"  {err}", err=True)
+        raise SystemExit(1)
+
     kg.add_entities_bulk(result.entities)
     kg.add_relationships_bulk(result.relationships)
 
