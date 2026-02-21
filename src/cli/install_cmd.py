@@ -74,6 +74,50 @@ def _write_config(path: Path, data: dict) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Config sync (called by demo/generate after export)
+# ---------------------------------------------------------------------------
+
+
+def sync_claude_graph_path(graph_path: str | Path) -> bool:
+    """Update HCKG_DEFAULT_GRAPH in Claude Desktop config if registered.
+
+    Called after graph export by demo/generate commands so that Claude
+    Desktop always points to the latest graph file without re-install.
+
+    Returns True if the config was updated, False if not registered or
+    config not found.
+    """
+    conf_file = _detect_claude_config_path()
+    if conf_file is None or not conf_file.exists():
+        return False
+
+    try:
+        config = _read_config(conf_file)
+    except SystemExit:
+        return False
+
+    servers = config.get("mcpServers")
+    if not isinstance(servers, dict) or "hc-enterprise-kg" not in servers:
+        return False
+
+    entry = servers["hc-enterprise-kg"]
+    if not isinstance(entry, dict):
+        return False
+
+    abs_graph = str(Path(graph_path).resolve())
+    if not isinstance(entry.get("env"), dict):
+        entry["env"] = {}
+    entry["env"]["HCKG_DEFAULT_GRAPH"] = abs_graph
+
+    try:
+        _write_config(conf_file, config)
+    except SystemExit:
+        return False
+
+    return True
+
+
+# ---------------------------------------------------------------------------
 # Detection helpers
 # ---------------------------------------------------------------------------
 

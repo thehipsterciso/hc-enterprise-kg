@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+import json
+from typing import TYPE_CHECKING
 from unittest.mock import patch
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from click.testing import CliRunner
 
@@ -71,3 +76,45 @@ class TestGenerateRuns:
                 ],
             )
             assert result.exit_code == 0, f"{profile} failed: {result.output}"
+
+
+class TestGenerateClaudeSync:
+    def test_syncs_claude_config_when_registered(self, tmp_path: Path):
+        """Generate updates Claude Desktop config with new graph path."""
+        config_path = tmp_path / "claude_config.json"
+        config_path.write_text(
+            json.dumps(
+                {
+                    "mcpServers": {
+                        "hc-enterprise-kg": {
+                            "command": "python",
+                            "args": ["-m", "mcp_server.server"],
+                            "env": {"HCKG_DEFAULT_GRAPH": "/old/graph.json"},
+                        }
+                    }
+                }
+            )
+        )
+        output = tmp_path / "graph.json"
+        with patch("cli.install_cmd._detect_claude_config_path", return_value=config_path):
+            result = CliRunner().invoke(
+                cli, ["generate", "org", "--employees", "10", "--output", str(output)]
+            )
+        assert result.exit_code == 0, result.output
+        assert "Claude Desktop config updated" in result.output
+        config = json.loads(config_path.read_text())
+        assert config["mcpServers"]["hc-enterprise-kg"]["env"]["HCKG_DEFAULT_GRAPH"] == str(
+            output.resolve()
+        )
+
+    def test_no_sync_when_not_registered(self, tmp_path: Path):
+        """Generate does not crash or print sync message when not registered."""
+        config_path = tmp_path / "claude_config.json"
+        config_path.write_text(json.dumps({"mcpServers": {}}))
+        output = tmp_path / "graph.json"
+        with patch("cli.install_cmd._detect_claude_config_path", return_value=config_path):
+            result = CliRunner().invoke(
+                cli, ["generate", "org", "--employees", "10", "--output", str(output)]
+            )
+        assert result.exit_code == 0, result.output
+        assert "Claude Desktop config updated" not in result.output

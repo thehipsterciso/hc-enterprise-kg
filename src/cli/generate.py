@@ -99,3 +99,9 @@ def org(
         click.echo(f"Error writing output file: {exc}", err=True)
         raise SystemExit(1) from None
     click.echo(f"\nExported to {output}")
+
+    # Sync Claude Desktop config if registered
+    from cli.install_cmd import sync_claude_graph_path
+
+    if sync_claude_graph_path(output_path):
+        click.echo(f"Claude Desktop config updated: {output_path.resolve()}")
