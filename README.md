@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
 
-An open-source enterprise knowledge graph platform that generates structurally accurate organizational models in seconds, enabling scenario analysis, dependency mapping, and risk quantification without standing up a production data platform or waiting on a six-month consulting engagement.
+An open-source enterprise knowledge graph platform that generates structurally accurate organizational models in seconds, enabling scenario analysis, dependency mapping, and risk quantification without standing up a production data platform or waiting on a six-month consulting engagement. Every major design choice is [formally documented](docs/adr/) with rationale, trade-offs, and re-evaluation triggers.
 
 ---
 
@@ -91,7 +91,7 @@ src/
   rag/          GraphRAG retrieval pipeline
   serve/        REST API server (Flask, OpenAI-compatible endpoints)
   mcp_server/   MCP server for Claude Desktop (10 tools, auto-reload)
-tests/          692+ tests (unit, integration, stress, performance)
+tests/          740+ tests (unit, integration, stress, performance)
 ```
 
 > See [Architecture](ARCHITECTURE.md) for the full system design.
@@ -128,8 +128,26 @@ tests/          692+ tests (unit, integration, stress, performance)
 | [Performance & Benchmarking](docs/performance.md) | Benchmark results, scaling characteristics, memory profile, system requirements |
 | [Architecture](ARCHITECTURE.md) | System design, layer pipeline, engine abstraction, data flow |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues, setup, runnable examples |
+| [Architecture Decision Records](docs/adr/) | Design rationale for key architectural choices (see index below) |
 | [Contributing](CONTRIBUTING.md) | Development setup, code style, adding entity types |
 | [Changelog](CHANGELOG.md) | Release history |
+
+### Architecture Decision Records
+
+| ADR | Decision |
+|-----|----------|
+| [001](docs/adr/001-custom-synthetic-data-pipeline.md) | Custom synthetic data pipeline over external libraries (SDV, Faker, Gretel) |
+| [002](docs/adr/002-pydantic-v2-extra-allow.md) | Pydantic v2 with `extra="allow"` for entity models |
+| [003](docs/adr/003-networkx-multidigraph.md) | NetworkX MultiDiGraph as pluggable graph backend |
+| [004](docs/adr/004-knowledge-graph-facade.md) | KnowledgeGraph facade with synchronous event bus |
+| [005](docs/adr/005-layered-generation-order.md) | Layered generation order for referential integrity |
+| [006](docs/adr/006-coordinated-template-dicts.md) | Coordinated template dicts over random generation |
+| [007](docs/adr/007-research-backed-scaling.md) | Research-backed scaling with industry coefficients |
+| [008](docs/adr/008-relationship-weaving.md) | Relationship weaving as post-generation phase |
+| [009](docs/adr/009-mcp-mtime-auto-reload.md) | MCP server with mtime-based auto-reload |
+| [010](docs/adr/010-compact-entity-serialization.md) | Compact entity serialization for LLM context windows |
+| [011](docs/adr/011-rapidfuzz-search.md) | rapidfuzz over embedding-based search |
+| [012](docs/adr/012-json-primary-export.md) | JSON as primary export format |
 
 ---
 
@@ -164,7 +182,7 @@ poetry install --extras dev         # Development tools (pytest, mypy, ruff)
 
 ```bash
 make install    # Install with dev dependencies
-make test       # Run all tests (~692)
+make test       # Run all tests (~740)
 make test-cov   # Tests with coverage report
 make lint       # Lint with ruff
 make format     # Auto-format with ruff

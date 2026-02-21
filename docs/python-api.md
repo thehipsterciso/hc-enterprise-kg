@@ -311,7 +311,7 @@ json_string = JSONExporter().export_string(kg.engine)
 
 ## Event Bus
 
-Track mutations to the graph in real time.
+Track mutations to the graph in real time. The event bus is synchronous and in-process — see [ADR-004](adr/004-knowledge-graph-facade.md) for the design rationale and trade-offs.
 
 ```python
 from graph.knowledge_graph import KnowledgeGraph, MutationType
@@ -329,4 +329,4 @@ print(kg.event_log)
 
 ---
 
-For the full entity model reference, see [Entity Model](entity-model.md). For CLI usage, see [CLI Reference](cli.md).
+For the full entity model reference, see [Entity Model](entity-model.md). For CLI usage, see [CLI Reference](cli.md). For design rationale on the facade, event bus, and export format, see [ADR-004](adr/004-knowledge-graph-facade.md) and [ADR-012](adr/012-json-primary-export.md).

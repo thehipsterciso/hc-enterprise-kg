@@ -166,12 +166,21 @@ CSV/JSON file → Ingestor (with schema mapping + transforms) → IngestResult (
 
 ## Key Design Decisions
 
-1. **Pydantic v2 for entities** — Runtime validation, JSON serialization, and IDE support. `extra="allow"` enables forward compatibility but requires careful field naming.
+Each major architectural decision is documented in a formal Architecture Decision Record (ADR) with rationale, rejected alternatives, trade-offs, and re-evaluation triggers.
 
-2. **NetworkX MultiDiGraph** — Supports multiple edges between same nodes (common in enterprise graphs), directed relationships, and rich node/edge attributes. In-memory, no external dependencies.
+| Decision | ADR | Summary |
+|----------|-----|---------|
+| Pydantic v2 with `extra="allow"` | [002](docs/adr/002-pydantic-v2-extra-allow.md) | Forward compatibility over strict validation |
+| NetworkX MultiDiGraph | [003](docs/adr/003-networkx-multidigraph.md) | In-memory, zero-infrastructure, pluggable backend |
+| KnowledgeGraph facade + event bus | [004](docs/adr/004-knowledge-graph-facade.md) | Single entry point with synchronous event dispatch |
+| Layered generation order | [005](docs/adr/005-layered-generation-order.md) | Sequential topological build for referential integrity |
+| Coordinated template dicts | [006](docs/adr/006-coordinated-template-dicts.md) | Semantic coherence over random generation |
+| Research-backed scaling | [007](docs/adr/007-research-backed-scaling.md) | Industry coefficients from Gartner, NIST, McKinsey |
+| Relationship weaving | [008](docs/adr/008-relationship-weaving.md) | Post-generation phase with enriched metadata |
+| MCP mtime auto-reload | [009](docs/adr/009-mcp-mtime-auto-reload.md) | Zero-dependency file change detection |
+| Compact serialization | [010](docs/adr/010-compact-entity-serialization.md) | Optimized for LLM context windows |
+| rapidfuzz search | [011](docs/adr/011-rapidfuzz-search.md) | Fuzzy string matching over embeddings |
+| JSON primary export | [012](docs/adr/012-json-primary-export.md) | Human-readable, round-trip-safe |
+| Custom synthetic pipeline | [001](docs/adr/001-custom-synthetic-data-pipeline.md) | Purpose-built over SDV, Faker, Gretel |
 
-3. **mtime-based reload** — Zero-dependency file change detection. Checked on every tool call (microsecond cost) rather than file watching (which requires extra threads/dependencies).
-
-4. **Profile-driven generation** — Industry profiles (tech, healthcare, financial) control generation parameters. Easy to add new profiles without changing generators.
-
-5. **Layer-ordered generation** — Ensures referential integrity. L01 entities exist before L02 entities reference them.
+> See [docs/adr/](docs/adr/) for the complete Architecture Decision Records.
