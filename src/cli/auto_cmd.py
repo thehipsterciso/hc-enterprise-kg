@@ -63,6 +63,7 @@ def build(
         llm_model=llm_model,
     )
 
+    demo_tmp: str | None = None
     if demo:
         import tempfile
 
@@ -72,13 +73,25 @@ def build(
         ) as tmp:
             tmp.write(csv_content)
             data = tmp.name
+            demo_tmp = tmp.name
         click.echo("Running auto-KG pipeline on dynamically generated sample data...")
     else:
         source_path = Path(source)  # type: ignore[arg-type]
-        data = source if source_path.suffix == ".csv" else source_path.read_text()  # type: ignore[assignment]
+        try:
+            data = source if source_path.suffix == ".csv" else source_path.read_text()  # type: ignore[assignment]
+        except UnicodeDecodeError:
+            click.echo(f"Error: {source} contains invalid encoding. Expected UTF-8.", err=True)
+            raise SystemExit(1) from None
         click.echo(f"Running auto-KG pipeline on {source}...")
 
-    result = pipeline.run(data)
+    try:
+        result = pipeline.run(data)
+    except Exception as exc:
+        click.echo(f"Error running pipeline: {exc}", err=True)
+        raise SystemExit(1) from None
+    finally:
+        if demo_tmp:
+            Path(demo_tmp).unlink(missing_ok=True)
 
     click.echo("\nPipeline results:")
     for key, value in result.stats.items():
@@ -87,7 +100,13 @@ def build(
     if output:
         from export.json_export import JSONExporter
 
-        JSONExporter().export(kg.engine, Path(output))
+        output_path = Path(output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            JSONExporter().export(kg.engine, output_path)
+        except (PermissionError, OSError) as exc:
+            click.echo(f"Error writing output file: {exc}", err=True)
+            raise SystemExit(1) from None
         click.echo(f"\nExported to {output}")
 
 
