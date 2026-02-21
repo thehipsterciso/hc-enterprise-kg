@@ -1,0 +1,6 @@
+name,cve_id,cvss_score,severity,status,exploit_available,patch_available,affected_component,description
+CVE-2024-29847,CVE-2024-29847,9.8,critical,open,true,true,Web Framework,Remote code execution in web framework dependency
+CVE-2024-21762,CVE-2024-21762,9.6,critical,remediated,true,true,VPN Gateway,Out-of-bounds write in SSL VPN
+CVE-2024-3400,CVE-2024-3400,10.0,critical,open,true,false,Firewall,Command injection in firewall management interface
+CVE-2024-1234,CVE-2024-1234,7.5,high,remediated,false,true,Database,SQL injection in stored procedure
+CVE-2024-5678,CVE-2024-5678,5.3,medium,open,false,true,Web Server,Information disclosure via error messages
