@@ -356,6 +356,66 @@ class TestBuildServerEntry:
 
 
 # ===================================================================
+# _detect_default_graph
+# ===================================================================
+
+
+class TestDetectDefaultGraph:
+    def test_finds_graph_in_project_root(self, tmp_path: Path):
+        graph = tmp_path / "graph.json"
+        graph.write_text("{}")
+        result = install_cmd._detect_default_graph(tmp_path)
+        assert result == graph.resolve()
+
+    def test_finds_graph_in_cwd(self, tmp_path: Path):
+        graph = tmp_path / "graph.json"
+        graph.write_text("{}")
+        with patch("cli.install_cmd.Path.cwd", return_value=tmp_path):
+            result = install_cmd._detect_default_graph(None)
+        assert result == graph.resolve()
+
+    def test_prefers_project_root_over_cwd(self, tmp_path: Path):
+        root_dir = tmp_path / "project"
+        root_dir.mkdir()
+        root_graph = root_dir / "graph.json"
+        root_graph.write_text('{"source": "root"}')
+        cwd_dir = tmp_path / "other"
+        cwd_dir.mkdir()
+        cwd_graph = cwd_dir / "graph.json"
+        cwd_graph.write_text('{"source": "cwd"}')
+        with patch("cli.install_cmd.Path.cwd", return_value=cwd_dir):
+            result = install_cmd._detect_default_graph(root_dir)
+        assert result == root_graph.resolve()
+
+    def test_returns_none_when_no_graph(self, tmp_path: Path):
+        with patch("cli.install_cmd.Path.cwd", return_value=tmp_path):
+            result = install_cmd._detect_default_graph(None)
+        assert result is None
+
+    def test_returns_none_with_project_root_but_no_graph(self, tmp_path: Path):
+        root_dir = tmp_path / "project"
+        root_dir.mkdir()
+        with patch("cli.install_cmd.Path.cwd", return_value=tmp_path):
+            result = install_cmd._detect_default_graph(root_dir)
+        assert result is None
+
+    def test_ignores_directories_named_graph_json(self, tmp_path: Path):
+        """A directory named graph.json should not be detected."""
+        (tmp_path / "graph.json").mkdir()
+        with patch("cli.install_cmd.Path.cwd", return_value=tmp_path):
+            result = install_cmd._detect_default_graph(tmp_path)
+        assert result is None
+
+    def test_deduplicates_when_root_equals_cwd(self, tmp_path: Path):
+        """When project root IS the cwd, graph.json is checked once."""
+        graph = tmp_path / "graph.json"
+        graph.write_text("{}")
+        with patch("cli.install_cmd.Path.cwd", return_value=tmp_path):
+            result = install_cmd._detect_default_graph(tmp_path)
+        assert result == graph.resolve()
+
+
+# ===================================================================
 # install claude
 # ===================================================================
 
@@ -452,6 +512,65 @@ class TestInstallClaude:
             config = json.loads(config_path.read_text())
             entry = config["mcpServers"]["hc-enterprise-kg"]
             assert "cwd" not in entry
+
+    def test_auto_detects_graph_in_project_root(self, tmp_path: Path):
+        """When --graph is omitted, auto-detects graph.json in project root."""
+        config_path = tmp_path / "config.json"
+        project_root = _setup_project_tree(str(tmp_path))
+        graph = project_root / "graph.json"
+        graph.write_text('{"entities": [], "relationships": []}')
+        with patch("cli.install_cmd._detect_project_root", return_value=project_root):
+            result = CliRunner().invoke(
+                cli, ["install", "claude", "--config", str(config_path)]
+            )
+        assert result.exit_code == 0, result.output
+        assert "auto-detected" in result.output
+        config = json.loads(config_path.read_text())
+        entry = config["mcpServers"]["hc-enterprise-kg"]
+        assert "HCKG_DEFAULT_GRAPH" in entry.get("env", {})
+        assert entry["env"]["HCKG_DEFAULT_GRAPH"] == str(graph.resolve())
+
+    def test_warns_when_no_graph_found(self, tmp_path: Path):
+        """When --graph omitted and no graph.json exists, warns the user."""
+        config_path = tmp_path / "config.json"
+        with (
+            patch("cli.install_cmd._detect_default_graph", return_value=None),
+        ):
+            result = CliRunner().invoke(
+                cli, ["install", "claude", "--config", str(config_path)]
+            )
+        assert result.exit_code == 0, result.output
+        assert "no graph file found" in result.output
+        assert "hckg demo --clean" in result.output
+        # Config should still be written (server works, just no pre-loaded graph)
+        config = json.loads(config_path.read_text())
+        entry = config["mcpServers"]["hc-enterprise-kg"]
+        assert "env" not in entry
+
+    def test_next_steps_with_graph(self, tmp_path: Path):
+        """Next steps should say 'Show me graph statistics' when graph configured."""
+        config_path = tmp_path / "config.json"
+        graph = tmp_path / "graph.json"
+        graph.write_text("{}")
+        result = CliRunner().invoke(
+            cli,
+            ["install", "claude", "--config", str(config_path), "--graph", str(graph)],
+        )
+        assert result.exit_code == 0, result.output
+        assert "Show me graph statistics" in result.output
+        # Should NOT show the multi-step "generate then re-run" instructions
+        assert "Re-run" not in result.output
+
+    def test_next_steps_without_graph(self, tmp_path: Path):
+        """Next steps should guide user to generate + re-install when no graph."""
+        config_path = tmp_path / "config.json"
+        with patch("cli.install_cmd._detect_default_graph", return_value=None):
+            result = CliRunner().invoke(
+                cli, ["install", "claude", "--config", str(config_path)]
+            )
+        assert result.exit_code == 0, result.output
+        assert "hckg demo --clean" in result.output
+        assert "hckg install claude" in result.output
 
 
 # ===================================================================
