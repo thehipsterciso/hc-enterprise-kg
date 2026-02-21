@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.20.10] - 2026-02-21
+
+### Added
+- **Architecture Decision Records** — 12 formal ADRs (001-012) documenting every major design choice, each with context, decision, alternatives, honest divergence analysis, and re-evaluation triggers (#187)
+
+### Changed
+- **ADR cross-references across documentation** — Added ADR links at decision-point context throughout ARCHITECTURE.md, README.md, CONTRIBUTING.md, CLAUDE.md, entity-model.md, profiles.md, performance.md, python-api.md, cli.md (#188)
+- **CONTRIBUTING.md** — Added ADR authoring guidance section for contributors, updated test count (689→740), added ADR directory to documentation table
+- **GitHub repo description** — Updated to mention formally documented architectural decisions
+
 ## [0.20.7] - 2026-02-20
 
 ### Added
