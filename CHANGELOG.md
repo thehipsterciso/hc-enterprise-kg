@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.20.14] - 2026-02-21
+
+### Changed
+- **Disable publish workflow** — Switch `publish.yml` trigger from `release:published` to `workflow_dispatch` so releases no longer fire failing PyPI publishes; original trigger preserved as comment for re-enablement (#196)
+
+## [0.20.13] - 2026-02-21
+
+### Fixed
+- **CI format check** — Apply `ruff format` to `install_cmd.py` and `test_mcp_cmd.py` to fix CI failures introduced in v0.20.12 (#195)
+
 ## [0.20.12] - 2026-02-21
 
 ### Changed
