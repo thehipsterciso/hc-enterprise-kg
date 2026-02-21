@@ -139,6 +139,32 @@ def _detect_project_root() -> Path | None:
     return None
 
 
+def _generate_default_graph(project_root: Path | None) -> str:
+    """Generate a default 100-employee tech graph and return the absolute path.
+
+    Places graph.json in the project root (source checkout) or cwd.
+    """
+    from export.json_export import JSONExporter
+    from graph.knowledge_graph import KnowledgeGraph
+    from synthetic.orchestrator import SyntheticOrchestrator
+    from synthetic.profiles.tech_company import mid_size_tech_company
+
+    output_dir = project_root if project_root else Path.cwd()
+    output_path = output_dir / "graph.json"
+
+    click.echo()
+    click.echo("  Generating default graph (tech, 100 employees)...")
+    kg = KnowledgeGraph()
+    profile = mid_size_tech_company(100)
+    orchestrator = SyntheticOrchestrator(kg, profile, seed=42)
+    orchestrator.generate()
+    JSONExporter().export(kg.engine, output_path)
+    stats = kg.statistics
+    click.echo(f"    Entities:      {stats['entity_count']}")
+    click.echo(f"    Relationships: {stats['relationship_count']}")
+    return str(output_path.resolve())
+
+
 def _detect_default_graph(project_root: Path | None) -> Path | None:
     """Auto-detect a graph.json file in the project root or cwd.
 
@@ -395,7 +421,7 @@ def install_claude(config_path: str | None, graph_path: str | None, skip_checks:
     else:
         click.echo("    Source:  (installed package — no source checkout detected)")
 
-    # --- Resolve graph path (explicit or auto-detected) ---
+    # --- Resolve graph path (explicit → auto-detect → generate) ---
     if graph_path:
         abs_graph = Path(graph_path).resolve()
         if not abs_graph.exists():
@@ -409,10 +435,9 @@ def install_claude(config_path: str | None, graph_path: str | None, skip_checks:
             graph_path = str(detected)
             click.echo(f"    Graph:   {detected} (auto-detected)")
         else:
-            click.echo()
-            click.echo("  Warning: no graph file found.")
-            click.echo("  Generate one first:  hckg demo --clean")
-            click.echo("  Or specify one:      hckg install claude --graph <path>")
+            # No graph anywhere — generate a default one
+            graph_path = _generate_default_graph(project_root)
+            click.echo(f"    Graph:   {graph_path} (generated)")
 
     # --- Pre-flight checks ---
     if not skip_checks:
@@ -448,12 +473,7 @@ def install_claude(config_path: str | None, graph_path: str | None, skip_checks:
     click.echo()
     click.echo("  Next steps:")
     click.echo("    1. Restart Claude Desktop")
-    if graph_path:
-        click.echo('    2. Ask Claude: "Show me graph statistics"')
-    else:
-        click.echo("    2. Generate a graph:  hckg demo --clean")
-        click.echo("    3. Re-run:            hckg install claude")
-        click.echo('    4. Ask Claude: "Show me graph statistics"')
+    click.echo('    2. Ask Claude: "Show me graph statistics"')
 
 
 # ---------------------------------------------------------------------------
