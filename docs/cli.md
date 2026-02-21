@@ -83,6 +83,39 @@ hckg inspect graph.json   # inspect it
 
 ---
 
+## `hckg import`
+
+Import real organizational data from JSON or CSV files into the knowledge graph. Validates data before writing and supports column mapping files for vendor exports.
+
+```bash
+hckg import organization.json                          # JSON import
+hckg import people.csv -t person                       # CSV with explicit type
+hckg import workday.csv --mapping workday-hr.mapping.json  # CSV with column mapping
+hckg import data.json --dry-run --strict               # validate only
+hckg import new-data.json --merge existing.json        # merge into existing graph
+```
+
+**Arguments:**
+
+| Argument | Required | Description |
+|---|---|---|
+| `SOURCE` | Yes | Path to JSON or CSV file |
+
+**Options:**
+
+| Option | Default | Description |
+|---|---|---|
+| `-o`, `--output` | `graph.json` | Output graph file path |
+| `-t`, `--entity-type` | auto-detect | Entity type for CSV import |
+| `-m`, `--merge` | — | Merge into existing graph file |
+| `--mapping` | — | Column mapping file for CSV (`.mapping.json`) |
+| `--dry-run` | off | Validate only, do not write output |
+| `--strict` | off | Treat warnings as errors |
+
+**Notes:** `--mapping` and `--entity-type` are mutually exclusive. `--mapping` is CSV-only. See [Import Guide](import-guide.md) for full documentation.
+
+---
+
 ## `hckg auto build`
 
 Construct a knowledge graph from a CSV file. The pipeline infers entity types from column headers, extracts entities, links relationships by shared attributes, and deduplicates.

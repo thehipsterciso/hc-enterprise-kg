@@ -7,11 +7,13 @@
 ## Quick Commands
 
 ```bash
-poetry run pytest tests/ -v          # Run all tests (~799)
+poetry run pytest tests/ -v          # Run all tests (~1012)
 poetry run pytest tests/performance/ -v  # Performance regression tests
 poetry run ruff check src/ tests/    # Lint
 poetry run hckg demo --clean         # Generate fresh graph.json
 poetry run hckg demo --employees 200 # Larger org
+poetry run hckg import data.json     # Import real org data
+poetry run hckg import people.csv -t person  # Import CSV
 poetry run hckg charts               # Generate analytics charts (default: tech, 100-5000)
 poetry run hckg charts --full        # All 3 profiles, 6 scales
 ```
@@ -25,7 +27,7 @@ src/
   graph/        # KnowledgeGraph facade (ADR-004), event bus, QueryBuilder
   synthetic/    # Profile-driven generators (ADR-001, ADR-006) + relationship weaving (ADR-008) + quality scoring
   auto/         # Auto KG from CSV/text (rule-based + optional LLM)
-  ingest/       # CSVIngestor, JSONIngestor with schema mappings
+  ingest/       # CSVIngestor, JSONIngestor, validator, mapping_loader
   export/       # JSONExporter (ADR-012), GraphMLExporter
   analysis/     # Centrality, risk scoring, attack paths, blast radius, benchmarking, charts
   rag/          # GraphRAG retrieval pipeline
@@ -138,3 +140,6 @@ All major design choices are formally documented in `docs/adr/`. Before proposin
 - Relationship enrichment tests in `tests/unit/synthetic/test_relationship_enrichment.py`
 - Performance regression tests in `tests/performance/` (run with `make benchmark`)
 - Ingestor tests in `tests/unit/ingest/`
+- Import CLI tests in `tests/unit/cli/test_import_cmd.py`
+- Import template integration tests in `tests/integration/test_import_templates.py`
+- Schema inference tests in `tests/unit/auto/test_schema_inference.py`
