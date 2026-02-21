@@ -1,0 +1,6 @@
+name,control_id,control_type,control_domain,control_status,control_owner,description
+Multi-Factor Authentication,CTL-001,Preventive,Access Control,Implemented,Identity Team,MFA required for all privileged and remote access
+Endpoint Detection and Response,CTL-002,Detective,Endpoint Security,Implemented,SOC Team,EDR agents deployed on all managed endpoints
+Network Segmentation,CTL-003,Preventive,Network Security,Implemented,Network Team,Microsegmentation between production zones
+Data Loss Prevention,CTL-004,Detective,Data Security,Partially Implemented,Data Security Team,DLP monitoring on email and cloud storage
+Vulnerability Scanning,CTL-005,Detective,Vulnerability Management,Implemented,Security Engineering,Weekly automated vulnerability scans of all assets

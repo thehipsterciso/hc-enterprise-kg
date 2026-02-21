@@ -1,0 +1,6 @@
+name,risk_id,risk_category,inherent_risk_level,residual_risk_level,risk_status,risk_owner,risk_treatment,description
+Customer Data Breach,RSK-001,Cybersecurity,High,Medium,Open,CISO,Mitigate,Unauthorized access to customer PII
+Ransomware Attack,RSK-002,Cybersecurity,Critical,High,Open,CISO,Mitigate,Encryption of critical business systems by ransomware
+Third-Party Data Leak,RSK-003,Third Party,High,Medium,Open,Vendor Manager,Transfer,Data exposure through vendor compromise
+Regulatory Non-Compliance,RSK-004,Compliance,Medium,Low,Monitoring,Compliance Officer,Mitigate,Failure to meet GDPR or SOX requirements
+Key Person Dependency,RSK-005,Operational,Medium,Medium,Open,HR Director,Accept,Critical knowledge concentrated in single individuals

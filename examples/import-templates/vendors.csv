@@ -1,0 +1,6 @@
+name,vendor_type,risk_tier,has_data_access,primary_contact,description
+CloudProvider Inc,Cloud Services,critical,true,vendor-mgmt@cloudprovider.example.com,Primary cloud infrastructure provider
+SecureSoft Ltd,Security Tools,high,true,support@securesoft.example.com,SIEM and endpoint detection vendor
+OfficeSupply Co,Office Supplies,low,false,orders@officesupply.example.com,Office equipment and supplies
+ConsultCorp,Professional Services,medium,true,engage@consultcorp.example.com,IT consulting and staff augmentation
+DataAnalytics Inc,Analytics,high,true,sales@dataanalytics.example.com,Business intelligence and analytics platform

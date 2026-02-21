@@ -1,0 +1,490 @@
+{
+  "entities": [
+    {
+      "id": "person-001",
+      "entity_type": "person",
+      "name": "Jane Doe",
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "email": "jane.doe@example.com",
+      "title": "Senior Software Engineer",
+      "employee_id": "EMP-001",
+      "is_active": true,
+      "hire_date": "2021-03-15",
+      "department_id": "dept-eng"
+    },
+    {
+      "id": "person-002",
+      "entity_type": "person",
+      "name": "John Smith",
+      "first_name": "John",
+      "last_name": "Smith",
+      "email": "john.smith@example.com",
+      "title": "CISO",
+      "employee_id": "EMP-002",
+      "is_active": true,
+      "hire_date": "2019-01-10"
+    },
+    {
+      "id": "dept-eng",
+      "entity_type": "department",
+      "name": "Engineering",
+      "description": "Software engineering and platform development",
+      "code": "ENG",
+      "headcount": 45
+    },
+    {
+      "id": "dept-sec",
+      "entity_type": "department",
+      "name": "Information Security",
+      "description": "Cybersecurity and risk management",
+      "code": "SEC",
+      "headcount": 12
+    },
+    {
+      "id": "role-swe",
+      "entity_type": "role",
+      "name": "Software Engineer",
+      "description": "Designs, develops, and maintains software systems"
+    },
+    {
+      "id": "role-ciso",
+      "entity_type": "role",
+      "name": "Chief Information Security Officer",
+      "description": "Executive responsible for information security strategy"
+    },
+    {
+      "id": "sys-webapp",
+      "entity_type": "system",
+      "name": "Customer Portal",
+      "system_type": "application",
+      "hostname": "portal-prod-01",
+      "ip_address": "10.1.1.100",
+      "os": "Linux",
+      "criticality": "high",
+      "environment": "production",
+      "is_internet_facing": true
+    },
+    {
+      "id": "sys-erp",
+      "entity_type": "system",
+      "name": "ERP System",
+      "system_type": "application",
+      "hostname": "erp-prod-01",
+      "ip_address": "10.1.2.50",
+      "os": "Windows Server 2022",
+      "criticality": "critical",
+      "environment": "production",
+      "is_internet_facing": false
+    },
+    {
+      "id": "net-corp",
+      "entity_type": "network",
+      "name": "Corporate LAN",
+      "description": "Primary corporate network",
+      "zone": "internal",
+      "cidr": "10.1.0.0/16"
+    },
+    {
+      "id": "net-dmz",
+      "entity_type": "network",
+      "name": "DMZ",
+      "description": "Demilitarized zone for internet-facing services",
+      "zone": "dmz",
+      "cidr": "172.16.0.0/24"
+    },
+    {
+      "id": "da-custdb",
+      "entity_type": "data_asset",
+      "name": "Customer Database",
+      "description": "Primary customer records database",
+      "classification": "confidential",
+      "is_encrypted": true,
+      "retention_days": 2555
+    },
+    {
+      "id": "pol-access",
+      "entity_type": "policy",
+      "name": "Access Control Policy",
+      "description": "Defines access control requirements across all systems"
+    },
+    {
+      "id": "pol-ir",
+      "entity_type": "policy",
+      "name": "Incident Response Policy",
+      "description": "Procedures for detecting and responding to security incidents"
+    },
+    {
+      "id": "loc-hq",
+      "entity_type": "location",
+      "name": "Headquarters",
+      "description": "Corporate headquarters",
+      "address": "100 Main Street",
+      "city": "New York",
+      "state": "NY",
+      "country": "US"
+    },
+    {
+      "id": "vuln-001",
+      "entity_type": "vulnerability",
+      "name": "CVE-2024-29847",
+      "description": "Remote code execution in web framework",
+      "cve_id": "CVE-2024-29847",
+      "cvss_score": 9.8,
+      "severity": "critical",
+      "status": "open",
+      "exploit_available": true,
+      "patch_available": true
+    },
+    {
+      "id": "ta-apt29",
+      "entity_type": "threat_actor",
+      "name": "APT29",
+      "description": "State-sponsored threat group targeting government and technology sectors"
+    },
+    {
+      "id": "inc-001",
+      "entity_type": "incident",
+      "name": "Phishing Campaign Detected",
+      "description": "Targeted phishing emails sent to finance department",
+      "incident_type": "phishing",
+      "severity": "high",
+      "status": "resolved",
+      "detection_method": "email gateway",
+      "occurred_at": "2024-11-15T08:30:00Z",
+      "detected_at": "2024-11-15T09:15:00Z",
+      "resolved_at": "2024-11-15T14:00:00Z"
+    },
+    {
+      "id": "vnd-cloud",
+      "entity_type": "vendor",
+      "name": "CloudProvider Inc",
+      "vendor_type": "Cloud Services",
+      "risk_tier": "critical",
+      "has_data_access": true,
+      "primary_contact": "vendor-mgmt@cloudprovider.example.com"
+    },
+    {
+      "id": "reg-gdpr",
+      "entity_type": "regulation",
+      "name": "General Data Protection Regulation",
+      "regulation_id": "REG-001",
+      "regulation_category": "Data Privacy",
+      "description": "EU data protection and privacy regulation"
+    },
+    {
+      "id": "ctl-mfa",
+      "entity_type": "control",
+      "name": "Multi-Factor Authentication",
+      "control_id": "CTL-001",
+      "control_type": "Preventive",
+      "control_domain": "Access Control",
+      "control_status": "Implemented",
+      "control_owner": "Identity Team"
+    },
+    {
+      "id": "rsk-breach",
+      "entity_type": "risk",
+      "name": "Customer Data Breach",
+      "risk_id": "RSK-001",
+      "risk_category": "Cybersecurity",
+      "inherent_risk_level": "High",
+      "residual_risk_level": "Medium",
+      "risk_status": "Open",
+      "risk_owner": "CISO",
+      "risk_treatment": "Mitigate"
+    },
+    {
+      "id": "thr-ransom",
+      "entity_type": "threat",
+      "name": "Ransomware",
+      "threat_id": "THR-001",
+      "threat_category": "Cyber",
+      "description": "Ransomware attack targeting enterprise systems"
+    },
+    {
+      "id": "int-crm-erp",
+      "entity_type": "integration",
+      "name": "CRM to ERP Integration",
+      "integration_id": "INT-001",
+      "integration_type": "API",
+      "integration_pattern": "Request-Response",
+      "description": "Synchronizes customer data between CRM and ERP"
+    },
+    {
+      "id": "dd-customer",
+      "entity_type": "data_domain",
+      "name": "Customer Data Domain",
+      "domain_id": "DD-001",
+      "domain_owner": "Data Governance Lead",
+      "maturity_level": "Managed",
+      "description": "All customer-related data assets"
+    },
+    {
+      "id": "df-crm-dw",
+      "entity_type": "data_flow",
+      "name": "CRM to Data Warehouse",
+      "flow_id": "DF-001",
+      "frequency": "Daily",
+      "data_classification_in_flow": "Confidential",
+      "description": "Nightly batch load of customer data to analytics warehouse"
+    },
+    {
+      "id": "ou-tech",
+      "entity_type": "organizational_unit",
+      "name": "Technology Division",
+      "unit_id": "OU-001",
+      "unit_type": "Division",
+      "unit_leader": "VP Engineering",
+      "description": "All technology and engineering functions"
+    },
+    {
+      "id": "bc-crm",
+      "entity_type": "business_capability",
+      "name": "Customer Relationship Management",
+      "capability_id": "BC-001",
+      "tier": "Strategic",
+      "maturity_composite_score": 3.5,
+      "business_criticality": "Business Critical",
+      "description": "Ability to manage customer relationships end-to-end"
+    },
+    {
+      "id": "site-hq",
+      "entity_type": "site",
+      "name": "New York Headquarters",
+      "site_id": "SITE-001",
+      "site_type": "Headquarters",
+      "site_status": "Active",
+      "description": "Primary corporate office"
+    },
+    {
+      "id": "geo-na",
+      "entity_type": "geography",
+      "name": "North America",
+      "geography_id": "GEO-001",
+      "geography_type": "Region",
+      "description": "North American operating region"
+    },
+    {
+      "id": "jur-us",
+      "entity_type": "jurisdiction",
+      "name": "United States Federal",
+      "jurisdiction_id": "JUR-001",
+      "jurisdiction_type": "Federal",
+      "jurisdiction_code": "US",
+      "description": "US federal regulatory jurisdiction"
+    },
+    {
+      "id": "pf-enterprise",
+      "entity_type": "product_portfolio",
+      "name": "Enterprise Solutions",
+      "portfolio_id": "PF-001",
+      "portfolio_type": "Product",
+      "description": "Enterprise software product line"
+    },
+    {
+      "id": "prd-platform",
+      "entity_type": "product",
+      "name": "Enterprise Platform",
+      "product_id": "PRD-001",
+      "offering_type": "SaaS",
+      "lifecycle_stage": "Growth",
+      "description": "Core enterprise SaaS platform"
+    },
+    {
+      "id": "seg-enterprise",
+      "entity_type": "market_segment",
+      "name": "Enterprise",
+      "segment_id": "SEG-001",
+      "segment_type": "Company Size",
+      "description": "Large enterprise customers (1000+ employees)"
+    },
+    {
+      "id": "cust-acme",
+      "entity_type": "customer",
+      "name": "Acme Corp",
+      "customer_id": "CUST-001",
+      "customer_type": "Enterprise",
+      "account_tier": "Strategic",
+      "relationship_status": "Active",
+      "description": "Strategic enterprise customer"
+    },
+    {
+      "id": "ctr-cloud",
+      "entity_type": "contract",
+      "name": "Cloud Services Agreement",
+      "contract_id": "CTR-001",
+      "contract_type": "Master Services Agreement",
+      "contract_status": "Active",
+      "total_contract_value": 2500000.00,
+      "description": "MSA with CloudProvider Inc for cloud infrastructure"
+    },
+    {
+      "id": "init-cloud",
+      "entity_type": "initiative",
+      "name": "Cloud Migration Program",
+      "initiative_id": "SI-001",
+      "initiative_type": "Digital Transformation",
+      "current_status": "In Progress",
+      "executive_sponsor": "CTO",
+      "description": "Multi-year cloud migration for core business systems"
+    }
+  ],
+  "relationships": [
+    {
+      "relationship_type": "works_in",
+      "source_id": "person-001",
+      "target_id": "dept-eng"
+    },
+    {
+      "relationship_type": "works_in",
+      "source_id": "person-002",
+      "target_id": "dept-sec"
+    },
+    {
+      "relationship_type": "has_role",
+      "source_id": "person-001",
+      "target_id": "role-swe"
+    },
+    {
+      "relationship_type": "has_role",
+      "source_id": "person-002",
+      "target_id": "role-ciso"
+    },
+    {
+      "relationship_type": "responsible_for",
+      "source_id": "dept-eng",
+      "target_id": "sys-webapp"
+    },
+    {
+      "relationship_type": "responsible_for",
+      "source_id": "dept-eng",
+      "target_id": "sys-erp"
+    },
+    {
+      "relationship_type": "connects_to",
+      "source_id": "sys-webapp",
+      "target_id": "net-dmz"
+    },
+    {
+      "relationship_type": "connects_to",
+      "source_id": "sys-erp",
+      "target_id": "net-corp"
+    },
+    {
+      "relationship_type": "stores",
+      "source_id": "sys-webapp",
+      "target_id": "da-custdb"
+    },
+    {
+      "relationship_type": "governs",
+      "source_id": "pol-access",
+      "target_id": "sys-webapp"
+    },
+    {
+      "relationship_type": "governs",
+      "source_id": "pol-ir",
+      "target_id": "inc-001"
+    },
+    {
+      "relationship_type": "located_at",
+      "source_id": "dept-eng",
+      "target_id": "loc-hq"
+    },
+    {
+      "relationship_type": "affects",
+      "source_id": "vuln-001",
+      "target_id": "sys-webapp"
+    },
+    {
+      "relationship_type": "targets",
+      "source_id": "ta-apt29",
+      "target_id": "inc-001"
+    },
+    {
+      "relationship_type": "supplies",
+      "source_id": "vnd-cloud",
+      "target_id": "sys-webapp"
+    },
+    {
+      "relationship_type": "subject_to",
+      "source_id": "da-custdb",
+      "target_id": "reg-gdpr"
+    },
+    {
+      "relationship_type": "implements",
+      "source_id": "ctl-mfa",
+      "target_id": "pol-access"
+    },
+    {
+      "relationship_type": "mitigates",
+      "source_id": "ctl-mfa",
+      "target_id": "rsk-breach"
+    },
+    {
+      "relationship_type": "exploits",
+      "source_id": "thr-ransom",
+      "target_id": "vuln-001"
+    },
+    {
+      "relationship_type": "integrates_with",
+      "source_id": "int-crm-erp",
+      "target_id": "sys-erp"
+    },
+    {
+      "relationship_type": "belongs_to",
+      "source_id": "da-custdb",
+      "target_id": "dd-customer"
+    },
+    {
+      "relationship_type": "flows_to",
+      "source_id": "df-crm-dw",
+      "target_id": "da-custdb"
+    },
+    {
+      "relationship_type": "contains",
+      "source_id": "ou-tech",
+      "target_id": "dept-eng"
+    },
+    {
+      "relationship_type": "supports",
+      "source_id": "sys-webapp",
+      "target_id": "bc-crm"
+    },
+    {
+      "relationship_type": "located_at",
+      "source_id": "site-hq",
+      "target_id": "geo-na"
+    },
+    {
+      "relationship_type": "governed_by",
+      "source_id": "geo-na",
+      "target_id": "jur-us"
+    },
+    {
+      "relationship_type": "contains",
+      "source_id": "pf-enterprise",
+      "target_id": "prd-platform"
+    },
+    {
+      "relationship_type": "targets",
+      "source_id": "prd-platform",
+      "target_id": "seg-enterprise"
+    },
+    {
+      "relationship_type": "buys",
+      "source_id": "cust-acme",
+      "target_id": "prd-platform"
+    },
+    {
+      "relationship_type": "contracts_with",
+      "source_id": "ctr-cloud",
+      "target_id": "vnd-cloud"
+    },
+    {
+      "relationship_type": "impacts",
+      "source_id": "init-cloud",
+      "target_id": "sys-erp"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+name,description,code,headcount,head_id,parent_department_id
+Engineering,Software engineering and platform development,ENG,45,,
+Information Security,Cybersecurity and risk management,SEC,12,,
+Product Management,Product strategy and roadmap,PROD,8,,
+Human Resources,People operations and talent management,HR,10,,
+Finance,Financial planning and accounting,FIN,15,,
