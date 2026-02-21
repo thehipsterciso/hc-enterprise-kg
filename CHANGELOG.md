@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.21.5] - 2026-02-21
+
+### Changed
+- **Complete import templates** — JSON + CSV templates for all 30 entity types (was 8 CSV-only); singular entity_type naming convention; fixed unquoted CSV fields; 129 parametrized integration tests (#241)
+
 ## [0.21.4] - 2026-02-21
 
 ### Added

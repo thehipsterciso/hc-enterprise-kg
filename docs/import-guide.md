@@ -127,20 +127,17 @@ hckg import people.csv
 
 Auto-detection works for all 30 entity types based on column name patterns. Use `-t` when auto-detection picks the wrong type.
 
-### CSV Templates
+### Templates
 
-Ready-to-use templates are in `examples/import-templates/`:
+Ready-to-use JSON and CSV templates are in `examples/import-templates/` — one of each format for every entity type, plus `organization.json` covering all 30 types.
 
-| File | Entity Type | Key Columns |
+| File pattern | Format | Contents |
 |---|---|---|
-| `people.csv` | person | name, first_name, last_name, email, title, employee_id, hire_date |
-| `departments.csv` | department | name, description, code, headcount |
-| `systems.csv` | system | name, system_type, hostname, ip_address, os, criticality, environment |
-| `vendors.csv` | vendor | name, vendor_type, risk_tier, has_data_access, primary_contact |
-| `vulnerabilities.csv` | vulnerability | name, cve_id, cvss_score, severity, status, exploit_available |
-| `risks.csv` | risk | name, risk_id, risk_category, inherent_risk_level, residual_risk_level |
-| `controls.csv` | control | name, control_id, control_type, control_domain, control_status |
-| `incidents.csv` | incident | name, incident_type, severity, status, detection_method |
+| `<entity_type>.json` | JSON | 3 sample entities per type |
+| `<entity_type>.csv` | CSV | 5 data rows per type |
+| `organization.json` | JSON | All 30 types + 31 relationships |
+
+Files are named by entity type value (singular): `person.csv`, `system.json`, `vulnerability.csv`, etc.
 
 ## Column Mappings
 
@@ -219,13 +216,13 @@ hckg import my-org.json -o graph.json
 
 ```bash
 # Import people first
-hckg import people.csv -t person -o graph.json
+hckg import person.csv -t person -o graph.json
 
 # Add systems, merging into existing graph
-hckg import systems.csv -t system --merge graph.json -o graph.json
+hckg import system.csv -t system --merge graph.json -o graph.json
 
 # Add vendors
-hckg import vendors.csv -t vendor --merge graph.json -o graph.json
+hckg import vendor.csv -t vendor --merge graph.json -o graph.json
 ```
 
 ### Import vendor exports with mappings
