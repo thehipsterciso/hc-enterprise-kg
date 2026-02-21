@@ -139,6 +139,26 @@ def _detect_project_root() -> Path | None:
     return None
 
 
+def _detect_default_graph(project_root: Path | None) -> Path | None:
+    """Auto-detect a graph.json file in the project root or cwd.
+
+    Checks the project root first (source checkout), then falls back to
+    the current working directory.  Returns the absolute path if found,
+    or None.
+    """
+    candidates: list[Path] = []
+    if project_root is not None:
+        candidates.append(project_root / "graph.json")
+    cwd = Path.cwd()
+    cwd_candidate = cwd / "graph.json"
+    if cwd_candidate not in candidates:
+        candidates.append(cwd_candidate)
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate.resolve()
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Pre-flight validation checks
 # ---------------------------------------------------------------------------
@@ -375,7 +395,7 @@ def install_claude(config_path: str | None, graph_path: str | None, skip_checks:
     else:
         click.echo("    Source:  (installed package — no source checkout detected)")
 
-    # --- Validate --graph path ---
+    # --- Resolve graph path (explicit or auto-detected) ---
     if graph_path:
         abs_graph = Path(graph_path).resolve()
         if not abs_graph.exists():
@@ -383,6 +403,16 @@ def install_claude(config_path: str | None, graph_path: str | None, skip_checks:
             click.echo(f"  Warning: graph file not found: {abs_graph}")
             click.echo("  The server will start without a pre-loaded graph.")
         click.echo(f"    Graph:   {abs_graph}")
+    else:
+        detected = _detect_default_graph(project_root)
+        if detected:
+            graph_path = str(detected)
+            click.echo(f"    Graph:   {detected} (auto-detected)")
+        else:
+            click.echo()
+            click.echo("  Warning: no graph file found.")
+            click.echo("  Generate one first:  hckg demo --clean")
+            click.echo("  Or specify one:      hckg install claude --graph <path>")
 
     # --- Pre-flight checks ---
     if not skip_checks:
@@ -418,7 +448,12 @@ def install_claude(config_path: str | None, graph_path: str | None, skip_checks:
     click.echo()
     click.echo("  Next steps:")
     click.echo("    1. Restart Claude Desktop")
-    click.echo('    2. Ask Claude: "Load the graph and show me statistics"')
+    if graph_path:
+        click.echo('    2. Ask Claude: "Show me graph statistics"')
+    else:
+        click.echo("    2. Generate a graph:  hckg demo --clean")
+        click.echo("    3. Re-run:            hckg install claude")
+        click.echo('    4. Ask Claude: "Show me graph statistics"')
 
 
 # ---------------------------------------------------------------------------
