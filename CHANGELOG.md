@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.20.26] - 2026-02-21
+
+### Fixed
+- **demo/generate: auto-update Claude Desktop config** — After graph export, `demo` and `generate` commands automatically update `HCKG_DEFAULT_GRAPH` in Claude Desktop config if registered. No re-install needed when regenerating graphs; 10 new tests (#221)
+
+## [0.20.25] - 2026-02-21
+
+### Fixed
+- **install claude: auto-generate graph** — When no graph.json exists anywhere, `hckg install claude` now generates a default 100-employee tech graph automatically. Single command always produces a fully working setup; 5 new tests (#220)
+
 ## [0.20.24] - 2026-02-21
 
 ### Fixed
