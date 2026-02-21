@@ -72,7 +72,13 @@ def benchmark(
         scale_list = [100, 500, 1000, 5000, 10000, 20000]
     else:
         profile_list = [p.strip() for p in profiles.split(",")]
-        scale_list = [int(s.strip()) for s in scales.split(",")]
+        try:
+            scale_list = [int(s.strip()) for s in scales.split(",")]
+        except ValueError:
+            raise click.BadParameter(
+                f"Invalid scale values '{scales}'. Must be comma-separated integers.",
+                param_hint="--scales",
+            ) from None
 
     valid_profiles = {"tech", "financial", "healthcare"}
     for p in profile_list:
@@ -100,7 +106,12 @@ def benchmark(
 
     if output:
         out_path = Path(output)
-        out_path.write_text(content)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            out_path.write_text(content)
+        except (PermissionError, OSError) as exc:
+            click.echo(f"Error writing report: {exc}", err=True)
+            raise SystemExit(1) from None
         click.echo(f"Report saved to {out_path}")
     else:
         click.echo(content)
