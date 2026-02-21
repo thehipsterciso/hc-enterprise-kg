@@ -22,6 +22,7 @@ from cli.charts_cmd import charts  # noqa: E402
 from cli.demo_cmd import demo  # noqa: E402
 from cli.export_cmd import export_cmd  # noqa: E402
 from cli.generate import generate  # noqa: E402
+from cli.import_cmd import import_cmd  # noqa: E402
 from cli.inspect_cmd import inspect_cmd  # noqa: E402
 from cli.install_cmd import install_group  # noqa: E402
 from cli.serve_cmd import serve_cmd  # noqa: E402
@@ -33,6 +34,7 @@ cli.add_command(demo)
 cli.add_command(generate)
 cli.add_command(auto)
 cli.add_command(export_cmd, name="export")
+cli.add_command(import_cmd, name="import")
 cli.add_command(inspect_cmd, name="inspect")
 cli.add_command(visualize_cmd, name="visualize")
 cli.add_command(serve_cmd, name="serve")
