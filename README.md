@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://docs.astral.sh/ruff/)
 
-An open-source enterprise knowledge graph platform that generates structurally accurate organizational models in seconds, enabling scenario analysis, dependency mapping, and risk quantification without standing up a production data platform or waiting on a six-month consulting engagement.
+Rapid enterprise organizational modeling for data, AI, and cybersecurity leaders — stress-test scenarios, surface dependencies, and find quick wins before committing resources.
 
 ---
 
