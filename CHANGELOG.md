@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.20.12] - 2026-02-21
+
+### Changed
+- **Install reliability rewrite** — complete rewrite of `hckg install claude` fixing 20 failure modes: import-based validation (works for pip installs), atomic config writes, Python >= 3.11 enforcement, malformed JSON handling, source-checkout vs pip-install detection, `--graph` path validation (#193)
+- **`hckg install doctor`** — comprehensive diagnostics: validates command, args, cwd, graph file, Python version, MCP SDK, and server module importability
+- 67 install tests (up from 24), 799 total passing
+
 ## [0.20.11] - 2026-02-21
 
 ### Added
