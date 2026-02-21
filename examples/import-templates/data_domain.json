@@ -1,0 +1,40 @@
+{
+  "entities": [
+    {
+      "id": "dd-001",
+      "entity_type": "data_domain",
+      "name": "Customer Data",
+      "description": "All customer-related data assets",
+      "domain_id": "DD-001",
+      "domain_type": "Business",
+      "domain_owner": "Data Governance Lead",
+      "data_classification": "Confidential",
+      "maturity_level": "Managed",
+      "strategic_value": "High"
+    },
+    {
+      "id": "dd-002",
+      "entity_type": "data_domain",
+      "name": "Financial Data",
+      "description": "Accounting and financial reporting data",
+      "domain_id": "DD-002",
+      "domain_type": "Business",
+      "domain_owner": "CFO",
+      "data_classification": "Restricted",
+      "maturity_level": "Optimized",
+      "strategic_value": "Critical"
+    },
+    {
+      "id": "dd-003",
+      "entity_type": "data_domain",
+      "name": "Employee Data",
+      "description": "HR and personnel records",
+      "domain_id": "DD-003",
+      "domain_type": "Business",
+      "domain_owner": "CHRO",
+      "data_classification": "Restricted",
+      "maturity_level": "Managed",
+      "strategic_value": "High"
+    }
+  ]
+}

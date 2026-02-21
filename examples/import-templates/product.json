@@ -1,0 +1,34 @@
+{
+  "entities": [
+    {
+      "id": "prd-001",
+      "entity_type": "product",
+      "name": "Enterprise Platform",
+      "description": "Core enterprise SaaS platform",
+      "product_id": "PRD-001",
+      "offering_type": "SaaS",
+      "offering_subtype": "Platform",
+      "lifecycle_stage": "Growth"
+    },
+    {
+      "id": "prd-002",
+      "entity_type": "product",
+      "name": "Mobile App",
+      "description": "Customer-facing mobile application",
+      "product_id": "PRD-002",
+      "offering_type": "SaaS",
+      "offering_subtype": "Application",
+      "lifecycle_stage": "Growth"
+    },
+    {
+      "id": "prd-003",
+      "entity_type": "product",
+      "name": "Analytics Dashboard",
+      "description": "Business intelligence and reporting",
+      "product_id": "PRD-003",
+      "offering_type": "SaaS",
+      "offering_subtype": "Application",
+      "lifecycle_stage": "Maturity"
+    }
+  ]
+}

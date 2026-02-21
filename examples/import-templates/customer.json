@@ -1,0 +1,34 @@
+{
+  "entities": [
+    {
+      "id": "cust-001",
+      "entity_type": "customer",
+      "name": "Acme Corp",
+      "description": "Strategic enterprise customer",
+      "customer_id": "CUST-001",
+      "customer_type": "Enterprise",
+      "account_tier": "Strategic",
+      "relationship_status": "Active"
+    },
+    {
+      "id": "cust-002",
+      "entity_type": "customer",
+      "name": "Global Bank",
+      "description": "Major financial services client",
+      "customer_id": "CUST-002",
+      "customer_type": "Enterprise",
+      "account_tier": "Strategic",
+      "relationship_status": "Active"
+    },
+    {
+      "id": "cust-003",
+      "entity_type": "customer",
+      "name": "HealthCo",
+      "description": "Regional healthcare provider",
+      "customer_id": "CUST-003",
+      "customer_type": "Mid-Market",
+      "account_tier": "Growth",
+      "relationship_status": "Active"
+    }
+  ]
+}

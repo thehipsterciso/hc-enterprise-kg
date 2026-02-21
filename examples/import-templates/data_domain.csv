@@ -1,0 +1,6 @@
+name,description,domain_id,domain_type,domain_owner,data_classification,maturity_level,strategic_value
+Customer Data,All customer-related data assets,DD-001,Business,Data Governance Lead,Confidential,Managed,High
+Financial Data,Accounting and financial reporting data,DD-002,Business,CFO,Restricted,Optimized,Critical
+Employee Data,HR and personnel records,DD-003,Business,CHRO,Restricted,Managed,High
+Product Data,Product catalog and engineering data,DD-004,Technical,VP Product,Internal,Developing,Medium
+Security Data,"Logs, alerts, and threat intelligence",DD-005,Technical,CISO,Confidential,Managed,High

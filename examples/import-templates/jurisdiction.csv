@@ -1,0 +1,6 @@
+name,description,jurisdiction_id,jurisdiction_type,jurisdiction_code,parent_jurisdiction
+United States Federal,US federal regulatory jurisdiction,JUR-001,Federal,US,
+European Union,EU regulatory jurisdiction,JUR-002,Supranational,EU,
+State of California,California state jurisdiction,JUR-003,State,US-CA,United States Federal
+State of New York,New York state jurisdiction,JUR-004,State,US-NY,United States Federal
+United Kingdom,UK regulatory jurisdiction,JUR-005,National,GB,

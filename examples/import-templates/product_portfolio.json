@@ -1,0 +1,37 @@
+{
+  "entities": [
+    {
+      "id": "pf-001",
+      "entity_type": "product_portfolio",
+      "name": "Enterprise Solutions",
+      "description": "Enterprise software product line",
+      "portfolio_id": "PF-001",
+      "portfolio_type": "Product",
+      "portfolio_level": "L1",
+      "strategic_role": "Core",
+      "lifecycle_stage": "Growth"
+    },
+    {
+      "id": "pf-002",
+      "entity_type": "product_portfolio",
+      "name": "SMB Solutions",
+      "description": "Small business product line",
+      "portfolio_id": "PF-002",
+      "portfolio_type": "Product",
+      "portfolio_level": "L1",
+      "strategic_role": "Growth",
+      "lifecycle_stage": "Maturity"
+    },
+    {
+      "id": "pf-003",
+      "entity_type": "product_portfolio",
+      "name": "Platform Services",
+      "description": "Infrastructure and platform APIs",
+      "portfolio_id": "PF-003",
+      "portfolio_type": "Service",
+      "portfolio_level": "L1",
+      "strategic_role": "Core",
+      "lifecycle_stage": "Growth"
+    }
+  ]
+}

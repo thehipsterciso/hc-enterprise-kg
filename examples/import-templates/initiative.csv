@@ -1,0 +1,6 @@
+name,description,initiative_id,initiative_type,initiative_tier,current_status,executive_sponsor,planned_start_date,planned_end_date
+Cloud Migration,Multi-year cloud migration program,SI-001,Digital Transformation,Tier 1,In Progress,CTO,2024-01-01,2026-12-31
+Zero Trust Architecture,Network security modernization,SI-002,Security,Tier 1,In Progress,CISO,2024-06-01,2025-12-31
+Data Platform Modernization,Unified data lake and analytics,SI-003,Digital Transformation,Tier 2,Planning,CDO,2025-01-01,2026-06-30
+ERP Upgrade,Major ERP version upgrade,SI-004,Infrastructure,Tier 2,In Progress,CFO,2024-03-01,2025-03-01
+Customer Experience Redesign,Digital customer journey overhaul,SI-005,Business,Tier 1,Planning,CMO,2025-03-01,2026-03-01

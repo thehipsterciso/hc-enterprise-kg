@@ -1,0 +1,6 @@
+name,description,product_id,offering_type,offering_subtype,lifecycle_stage
+Enterprise Platform,Core enterprise SaaS platform,PRD-001,SaaS,Platform,Growth
+Mobile App,Customer-facing mobile application,PRD-002,SaaS,Application,Growth
+Analytics Dashboard,Business intelligence and reporting,PRD-003,SaaS,Application,Maturity
+API Gateway,Developer API access and management,PRD-004,PaaS,Platform,Introduction
+Legacy CRM,On-premise CRM being sunset,PRD-005,On-Premise,Application,Decline

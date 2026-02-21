@@ -1,0 +1,6 @@
+name,description,portfolio_id,portfolio_type,portfolio_level,strategic_role,lifecycle_stage
+Enterprise Solutions,Enterprise software product line,PF-001,Product,L1,Core,Growth
+SMB Solutions,Small business product line,PF-002,Product,L1,Growth,Maturity
+Platform Services,Infrastructure and platform APIs,PF-003,Service,L1,Core,Growth
+Data Products,Analytics and data services,PF-004,Product,L2,Innovation,Introduction
+Legacy Products,Products scheduled for sunset,PF-005,Product,L1,Harvest,Decline

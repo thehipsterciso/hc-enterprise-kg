@@ -1,0 +1,34 @@
+{
+  "entities": [
+    {
+      "id": "seg-001",
+      "entity_type": "market_segment",
+      "name": "Enterprise",
+      "description": "Large enterprise customers 1000+ employees",
+      "segment_id": "SEG-001",
+      "segment_type": "Company Size",
+      "competitive_intensity": "High",
+      "strategic_priority": "Primary"
+    },
+    {
+      "id": "seg-002",
+      "entity_type": "market_segment",
+      "name": "Mid-Market",
+      "description": "Mid-size companies 100-999 employees",
+      "segment_id": "SEG-002",
+      "segment_type": "Company Size",
+      "competitive_intensity": "Medium",
+      "strategic_priority": "Secondary"
+    },
+    {
+      "id": "seg-003",
+      "entity_type": "market_segment",
+      "name": "Financial Services",
+      "description": "Banking and insurance vertical",
+      "segment_id": "SEG-003",
+      "segment_type": "Industry",
+      "competitive_intensity": "High",
+      "strategic_priority": "Primary"
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "entities": [
+    {
+      "id": "role-001",
+      "entity_type": "role",
+      "name": "Software Engineer",
+      "description": "Designs and develops software systems",
+      "role_id": "ROLE-001",
+      "role_type": "Technical",
+      "access_level": "standard",
+      "is_privileged": false
+    },
+    {
+      "id": "role-002",
+      "entity_type": "role",
+      "name": "CISO",
+      "description": "Executive responsible for information security",
+      "role_id": "ROLE-002",
+      "role_type": "Executive",
+      "access_level": "privileged",
+      "is_privileged": true
+    },
+    {
+      "id": "role-003",
+      "entity_type": "role",
+      "name": "Security Analyst",
+      "description": "Monitors and responds to security events",
+      "role_id": "ROLE-003",
+      "role_type": "Technical",
+      "access_level": "elevated",
+      "is_privileged": true
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+name,description,actor_type,sophistication,motivation,origin_country,first_seen
+APT29,State-sponsored group targeting government and tech,nation_state,advanced,espionage,RU,2014-01-01
+FIN7,Financially motivated cybercrime group,cybercrime,advanced,financial,RU,2013-06-01
+Lazarus Group,State-sponsored group targeting financial sector,nation_state,advanced,financial,KP,2009-01-01
+LockBit,Ransomware-as-a-service operation,cybercrime,intermediate,financial,,2019-09-01
+Insider-Risk-001,Disgruntled employee with privileged access,insider,basic,revenge,US,2024-01-15

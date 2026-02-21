@@ -1,0 +1,43 @@
+{
+  "entities": [
+    {
+      "id": "inc-001",
+      "entity_type": "incident",
+      "name": "Phishing Campaign Detected",
+      "description": "Targeted phishing emails to finance dept",
+      "incident_type": "phishing",
+      "severity": "high",
+      "status": "resolved",
+      "detection_method": "email gateway",
+      "occurred_at": "2024-11-15T08:30:00Z",
+      "detected_at": "2024-11-15T09:15:00Z",
+      "resolved_at": "2024-11-15T14:00:00Z"
+    },
+    {
+      "id": "inc-002",
+      "entity_type": "incident",
+      "name": "Unauthorized Access Attempt",
+      "description": "Brute force login attempts on VPN",
+      "incident_type": "unauthorized_access",
+      "severity": "medium",
+      "status": "resolved",
+      "detection_method": "SIEM",
+      "occurred_at": "2024-10-22T03:00:00Z",
+      "detected_at": "2024-10-22T03:12:00Z",
+      "resolved_at": "2024-10-22T06:00:00Z"
+    },
+    {
+      "id": "inc-003",
+      "entity_type": "incident",
+      "name": "Malware Detection",
+      "description": "Trojan on developer workstation",
+      "incident_type": "malware",
+      "severity": "high",
+      "status": "resolved",
+      "detection_method": "EDR",
+      "occurred_at": "2024-09-10T14:20:00Z",
+      "detected_at": "2024-09-10T14:22:00Z",
+      "resolved_at": "2024-09-11T10:00:00Z"
+    }
+  ]
+}

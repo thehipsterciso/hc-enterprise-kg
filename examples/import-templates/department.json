@@ -1,0 +1,31 @@
+{
+  "entities": [
+    {
+      "id": "dept-001",
+      "entity_type": "department",
+      "name": "Engineering",
+      "description": "Software engineering and platform development",
+      "code": "ENG",
+      "headcount": 45,
+      "budget": 5000000.0
+    },
+    {
+      "id": "dept-002",
+      "entity_type": "department",
+      "name": "Information Security",
+      "description": "Cybersecurity and risk management",
+      "code": "SEC",
+      "headcount": 12,
+      "budget": 2000000.0
+    },
+    {
+      "id": "dept-003",
+      "entity_type": "department",
+      "name": "Product Management",
+      "description": "Product strategy and roadmap",
+      "code": "PROD",
+      "headcount": 8,
+      "budget": 1500000.0
+    }
+  ]
+}

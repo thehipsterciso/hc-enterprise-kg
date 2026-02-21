@@ -1,0 +1,6 @@
+name,description,address,city,state,country,location_type,is_primary
+Headquarters,Corporate headquarters,100 Main Street,New York,NY,US,office,true
+West Coast Office,San Francisco engineering hub,500 Market Street,San Francisco,CA,US,office,false
+Data Center East,Primary data center,200 Industrial Park,Ashburn,VA,US,data_center,true
+London Office,EMEA headquarters,10 Finsbury Square,London,,GB,office,false
+Singapore Office,APAC headquarters,1 Raffles Place,Singapore,,SG,office,false

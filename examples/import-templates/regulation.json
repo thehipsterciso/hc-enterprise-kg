@@ -1,0 +1,40 @@
+{
+  "entities": [
+    {
+      "id": "reg-001",
+      "entity_type": "regulation",
+      "name": "General Data Protection Regulation",
+      "description": "EU data protection and privacy regulation",
+      "regulation_id": "REG-001",
+      "short_name": "GDPR",
+      "regulation_type": "Legislative",
+      "regulation_category": "Data Privacy",
+      "applicability_status": "Applicable",
+      "effective_date": "2018-05-25"
+    },
+    {
+      "id": "reg-002",
+      "entity_type": "regulation",
+      "name": "SOX Act",
+      "description": "US financial reporting requirements",
+      "regulation_id": "REG-002",
+      "short_name": "SOX",
+      "regulation_type": "Legislative",
+      "regulation_category": "Financial",
+      "applicability_status": "Applicable",
+      "effective_date": "2002-07-30"
+    },
+    {
+      "id": "reg-003",
+      "entity_type": "regulation",
+      "name": "PCI DSS v4.0",
+      "description": "Payment card industry data security standard",
+      "regulation_id": "REG-003",
+      "short_name": "PCI DSS",
+      "regulation_type": "Industry Standard",
+      "regulation_category": "Payment Security",
+      "applicability_status": "Applicable",
+      "effective_date": "2024-03-31"
+    }
+  ]
+}

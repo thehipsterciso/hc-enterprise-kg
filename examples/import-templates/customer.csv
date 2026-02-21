@@ -1,0 +1,6 @@
+name,description,customer_id,customer_type,account_tier,relationship_status
+Acme Corp,Strategic enterprise customer,CUST-001,Enterprise,Strategic,Active
+Global Bank,Major financial services client,CUST-002,Enterprise,Strategic,Active
+HealthCo,Regional healthcare provider,CUST-003,Mid-Market,Growth,Active
+TechStart Inc,Growing technology startup,CUST-004,SMB,Standard,Active
+RetailMax,National retail chain,CUST-005,Enterprise,Key,At Risk

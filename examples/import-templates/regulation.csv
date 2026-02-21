@@ -1,0 +1,6 @@
+name,description,regulation_id,short_name,regulation_type,regulation_category,applicability_status,effective_date
+General Data Protection Regulation,EU data protection and privacy regulation,REG-001,GDPR,Legislative,Data Privacy,Applicable,2018-05-25
+SOX Act,US financial reporting requirements,REG-002,SOX,Legislative,Financial,Applicable,2002-07-30
+HIPAA,US health information privacy and security,REG-003,HIPAA,Legislative,Healthcare,Not Applicable,1996-08-21
+PCI DSS v4.0,Payment card industry data security standard,REG-004,PCI DSS,Industry Standard,Payment Security,Applicable,2024-03-31
+NIST CSF 2.0,Cybersecurity framework for critical infrastructure,REG-005,NIST CSF,Framework,Cybersecurity,Adopted,2024-02-26

@@ -1,0 +1,37 @@
+{
+  "entities": [
+    {
+      "id": "ta-001",
+      "entity_type": "threat_actor",
+      "name": "APT29",
+      "description": "State-sponsored group targeting government and tech",
+      "actor_type": "nation_state",
+      "sophistication": "advanced",
+      "motivation": "espionage",
+      "origin_country": "RU",
+      "first_seen": "2014-01-01"
+    },
+    {
+      "id": "ta-002",
+      "entity_type": "threat_actor",
+      "name": "FIN7",
+      "description": "Financially motivated cybercrime group",
+      "actor_type": "cybercrime",
+      "sophistication": "advanced",
+      "motivation": "financial",
+      "origin_country": "RU",
+      "first_seen": "2013-06-01"
+    },
+    {
+      "id": "ta-003",
+      "entity_type": "threat_actor",
+      "name": "Lazarus Group",
+      "description": "State-sponsored group targeting financial sector",
+      "actor_type": "nation_state",
+      "sophistication": "advanced",
+      "motivation": "financial",
+      "origin_country": "KP",
+      "first_seen": "2009-01-01"
+    }
+  ]
+}

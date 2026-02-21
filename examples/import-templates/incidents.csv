@@ -1,6 +1,0 @@
-name,incident_type,severity,status,detection_method,occurred_at,detected_at,resolved_at,impact_description,description
-Phishing Campaign Detected,phishing,high,resolved,email gateway,2024-11-15T08:30:00Z,2024-11-15T09:15:00Z,2024-11-15T14:00:00Z,3 users clicked malicious links,Targeted phishing emails sent to finance department
-Unauthorized Access Attempt,unauthorized_access,medium,resolved,SIEM,2024-10-22T03:00:00Z,2024-10-22T03:12:00Z,2024-10-22T06:00:00Z,No data exfiltration confirmed,Brute force login attempts against VPN gateway
-Malware Detection on Endpoint,malware,high,resolved,EDR,2024-09-10T14:20:00Z,2024-09-10T14:22:00Z,2024-09-11T10:00:00Z,One workstation isolated and reimaged,Trojan detected on developer workstation
-Data Exposure via Misconfiguration,data_exposure,critical,resolved,external report,2024-08-05T00:00:00Z,2024-08-06T09:00:00Z,2024-08-06T15:00:00Z,S3 bucket with internal docs was publicly accessible,Cloud storage bucket left publicly accessible
-DDoS Attack on Web Services,ddos,medium,resolved,WAF,2024-07-18T11:00:00Z,2024-07-18T11:05:00Z,2024-07-18T13:30:00Z,Customer portal intermittent for 2.5 hours,Volumetric DDoS attack against customer portal

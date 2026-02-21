@@ -1,0 +1,40 @@
+{
+  "entities": [
+    {
+      "id": "person-001",
+      "entity_type": "person",
+      "name": "Jane Doe",
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "email": "jane.doe@example.com",
+      "title": "Senior Software Engineer",
+      "employee_id": "EMP-001",
+      "is_active": true,
+      "hire_date": "2021-03-15"
+    },
+    {
+      "id": "person-002",
+      "entity_type": "person",
+      "name": "John Smith",
+      "first_name": "John",
+      "last_name": "Smith",
+      "email": "john.smith@example.com",
+      "title": "CISO",
+      "employee_id": "EMP-002",
+      "is_active": true,
+      "hire_date": "2019-01-10"
+    },
+    {
+      "id": "person-003",
+      "entity_type": "person",
+      "name": "Maria Garcia",
+      "first_name": "Maria",
+      "last_name": "Garcia",
+      "email": "maria.garcia@example.com",
+      "title": "Product Manager",
+      "employee_id": "EMP-003",
+      "is_active": true,
+      "hire_date": "2022-06-01"
+    }
+  ]
+}

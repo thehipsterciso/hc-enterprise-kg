@@ -1,0 +1,37 @@
+{
+  "entities": [
+    {
+      "id": "ctl-001",
+      "entity_type": "control",
+      "name": "Multi-Factor Authentication",
+      "description": "MFA for all privileged and remote access",
+      "control_id": "CTL-001",
+      "control_type": "Preventive",
+      "control_domain": "Access Control",
+      "control_status": "Implemented",
+      "control_owner": "Identity Team"
+    },
+    {
+      "id": "ctl-002",
+      "entity_type": "control",
+      "name": "Endpoint Detection and Response",
+      "description": "EDR on all managed endpoints",
+      "control_id": "CTL-002",
+      "control_type": "Detective",
+      "control_domain": "Endpoint Security",
+      "control_status": "Implemented",
+      "control_owner": "SOC Team"
+    },
+    {
+      "id": "ctl-003",
+      "entity_type": "control",
+      "name": "Network Segmentation",
+      "description": "Microsegmentation between production zones",
+      "control_id": "CTL-003",
+      "control_type": "Preventive",
+      "control_domain": "Network Security",
+      "control_status": "Implemented",
+      "control_owner": "Network Team"
+    }
+  ]
+}

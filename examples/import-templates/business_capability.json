@@ -1,0 +1,37 @@
+{
+  "entities": [
+    {
+      "id": "bc-001",
+      "entity_type": "business_capability",
+      "name": "Customer Relationship Management",
+      "description": "End-to-end customer lifecycle management",
+      "capability_id": "BC-001",
+      "tier": "Strategic",
+      "capability_type": "Business",
+      "business_criticality": "Business Critical",
+      "lifecycle_state": "Active"
+    },
+    {
+      "id": "bc-002",
+      "entity_type": "business_capability",
+      "name": "Identity and Access Management",
+      "description": "Authentication and authorization services",
+      "capability_id": "BC-002",
+      "tier": "Component",
+      "capability_type": "Technology",
+      "business_criticality": "Mission Critical",
+      "lifecycle_state": "Active"
+    },
+    {
+      "id": "bc-003",
+      "entity_type": "business_capability",
+      "name": "Financial Reporting",
+      "description": "Regulatory and management financial reporting",
+      "capability_id": "BC-003",
+      "tier": "Strategic",
+      "capability_type": "Business",
+      "business_criticality": "Business Critical",
+      "lifecycle_state": "Active"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+name,description,unit_id,unit_type,operating_model,functional_domain_primary
+Technology Division,All engineering and IT functions,OU-001,Division,Hybrid,Technology
+Commercial Division,"Sales, marketing, and customer success",OU-002,Division,Centralized,Commercial
+Risk & Compliance,Enterprise risk and regulatory compliance,OU-003,Department Group,Centralized,Governance
+Product Engineering,Product development and platform teams,OU-004,Department Group,Agile,Technology
+Shared Services,"Finance, HR, and legal functions",OU-005,Division,Centralized,Corporate

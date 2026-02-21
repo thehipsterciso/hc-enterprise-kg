@@ -1,0 +1,6 @@
+name,description,vendor_id,vendor_type,risk_tier,has_data_access,primary_contact
+CloudProvider Inc,Primary cloud infrastructure provider,VND-001,Cloud Services,critical,true,vendor-mgmt@cloudprovider.example.com
+SecureSoft Ltd,SIEM and endpoint detection vendor,VND-002,Security Tools,high,true,support@securesoft.example.com
+OfficeSupply Co,Office equipment and supplies,VND-003,Office Supplies,low,false,orders@officesupply.example.com
+ConsultCorp,IT consulting and staff augmentation,VND-004,Professional Services,medium,true,engage@consultcorp.example.com
+DataAnalytics Inc,Business intelligence platform,VND-005,Analytics,high,true,sales@dataanalytics.example.com

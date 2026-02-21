@@ -1,0 +1,40 @@
+{
+  "entities": [
+    {
+      "id": "loc-001",
+      "entity_type": "location",
+      "name": "Headquarters",
+      "description": "Corporate headquarters",
+      "address": "100 Main Street",
+      "city": "New York",
+      "state": "NY",
+      "country": "US",
+      "location_type": "office",
+      "is_primary": true
+    },
+    {
+      "id": "loc-002",
+      "entity_type": "location",
+      "name": "West Coast Office",
+      "description": "San Francisco engineering hub",
+      "address": "500 Market Street",
+      "city": "San Francisco",
+      "state": "CA",
+      "country": "US",
+      "location_type": "office",
+      "is_primary": false
+    },
+    {
+      "id": "loc-003",
+      "entity_type": "location",
+      "name": "Data Center East",
+      "description": "Primary data center",
+      "address": "200 Industrial Park",
+      "city": "Ashburn",
+      "state": "VA",
+      "country": "US",
+      "location_type": "data_center",
+      "is_primary": true
+    }
+  ]
+}

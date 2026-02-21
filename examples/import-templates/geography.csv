@@ -1,0 +1,6 @@
+name,description,geography_id,geography_type,parent_geography
+North America,North American operating region,GEO-001,Region,
+Europe,European operating region,GEO-002,Region,
+Asia Pacific,APAC operating region,GEO-003,Region,
+United States,US market,GEO-004,Country,North America
+United Kingdom,UK market,GEO-005,Country,Europe

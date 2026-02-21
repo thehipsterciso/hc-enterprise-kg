@@ -1,0 +1,37 @@
+{
+  "entities": [
+    {
+      "id": "da-001",
+      "entity_type": "data_asset",
+      "name": "Customer Database",
+      "description": "Primary customer records",
+      "data_type": "structured",
+      "classification": "confidential",
+      "format": "PostgreSQL",
+      "is_encrypted": true,
+      "retention_days": 2555
+    },
+    {
+      "id": "da-002",
+      "entity_type": "data_asset",
+      "name": "Employee Records",
+      "description": "HR personnel data",
+      "data_type": "structured",
+      "classification": "restricted",
+      "format": "Oracle",
+      "is_encrypted": true,
+      "retention_days": 3650
+    },
+    {
+      "id": "da-003",
+      "entity_type": "data_asset",
+      "name": "Transaction Logs",
+      "description": "Payment processing logs",
+      "data_type": "semi-structured",
+      "classification": "confidential",
+      "format": "JSON",
+      "is_encrypted": true,
+      "retention_days": 365
+    }
+  ]
+}

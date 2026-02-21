@@ -1,0 +1,6 @@
+name,description,segment_id,segment_type,competitive_intensity,strategic_priority
+Enterprise,Large enterprise customers 1000+ employees,SEG-001,Company Size,High,Primary
+Mid-Market,Mid-size companies 100-999 employees,SEG-002,Company Size,Medium,Secondary
+Financial Services,Banking and insurance vertical,SEG-003,Industry,High,Primary
+Healthcare,Hospitals and health systems,SEG-004,Industry,Medium,Emerging
+Government,Federal and state government agencies,SEG-005,Industry,Low,Opportunistic

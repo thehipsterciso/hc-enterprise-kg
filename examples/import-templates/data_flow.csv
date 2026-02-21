@@ -1,0 +1,6 @@
+name,description,flow_id,flow_type,data_classification_in_flow,frequency,operational_status,monitoring_status
+CRM to Data Warehouse,Nightly customer data ETL,DF-001,ETL,Confidential,Daily,Active,Monitored
+HRIS to IAM,Employee provisioning feed,DF-002,Event-Driven,Restricted,Real-Time,Active,Monitored
+Payment Processing,Transaction data to payment gateway,DF-003,API,Restricted,Real-Time,Active,Monitored
+Log Aggregation,Security logs to SIEM,DF-004,Streaming,Internal,Real-Time,Active,Monitored
+Reporting Feed,Analytics data to BI platform,DF-005,ETL,Internal,Hourly,Active,Unmonitored

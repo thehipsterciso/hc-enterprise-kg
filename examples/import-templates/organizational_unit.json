@@ -1,0 +1,34 @@
+{
+  "entities": [
+    {
+      "id": "ou-001",
+      "entity_type": "organizational_unit",
+      "name": "Technology Division",
+      "description": "All engineering and IT functions",
+      "unit_id": "OU-001",
+      "unit_type": "Division",
+      "operating_model": "Hybrid",
+      "functional_domain_primary": "Technology"
+    },
+    {
+      "id": "ou-002",
+      "entity_type": "organizational_unit",
+      "name": "Commercial Division",
+      "description": "Sales, marketing, and customer success",
+      "unit_id": "OU-002",
+      "unit_type": "Division",
+      "operating_model": "Centralized",
+      "functional_domain_primary": "Commercial"
+    },
+    {
+      "id": "ou-003",
+      "entity_type": "organizational_unit",
+      "name": "Risk & Compliance",
+      "description": "Enterprise risk and regulatory compliance",
+      "unit_id": "OU-003",
+      "unit_type": "Department Group",
+      "operating_model": "Centralized",
+      "functional_domain_primary": "Governance"
+    }
+  ]
+}
