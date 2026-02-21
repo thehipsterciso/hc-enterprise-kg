@@ -3,12 +3,77 @@
 from __future__ import annotations
 
 import json
+import os
 import platform
+import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import click
+
+# Minimum Python version required by hc-enterprise-kg
+_MIN_PYTHON = (3, 11)
+
+# ---------------------------------------------------------------------------
+# Config I/O helpers (centralised JSON handling)
+# ---------------------------------------------------------------------------
+
+
+def _read_config(path: Path) -> dict:
+    """Read and parse the Claude Desktop config file.
+
+    Returns an empty dict if the file does not exist.
+    Raises SystemExit with a clear message on malformed JSON or permission
+    errors.
+    """
+    if not path.exists():
+        return {}
+    try:
+        text = path.read_text(encoding="utf-8")
+    except PermissionError as exc:
+        click.echo(f"  Error: permission denied reading {path}", err=True)
+        raise SystemExit(1) from exc
+    if not text.strip():
+        return {}
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        click.echo(f"  Error: config file contains malformed JSON: {exc}", err=True)
+        click.echo(f"  File: {path}", err=True)
+        click.echo("  Fix the file manually or delete it and re-run.", err=True)
+        raise SystemExit(1) from exc
+    if not isinstance(data, dict):
+        click.echo("  Error: config file root is not a JSON object.", err=True)
+        raise SystemExit(1)
+    return data
+
+
+def _write_config(path: Path, data: dict) -> None:
+    """Atomically write *data* as JSON to *path*.
+
+    Uses write-to-temp-then-rename so Claude Desktop never reads a
+    partially-written file.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(data, indent=2) + "\n"
+    try:
+        fd, tmp = tempfile.mkstemp(
+            dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp"
+        )
+        try:
+            os.write(fd, payload.encode("utf-8"))
+        finally:
+            os.close(fd)
+        os.replace(tmp, str(path))  # atomic on POSIX
+    except PermissionError as exc:
+        click.echo(f"  Error: permission denied writing {path}", err=True)
+        raise SystemExit(1) from exc
+    except OSError as exc:
+        click.echo(f"  Error writing config: {exc}", err=True)
+        raise SystemExit(1) from exc
+
 
 # ---------------------------------------------------------------------------
 # Detection helpers
@@ -16,7 +81,7 @@ import click
 
 
 def _detect_claude_config_path() -> Path | None:
-    """Auto-detect the Claude Desktop config file path based on the OS."""
+    """Auto-detect the Claude Desktop config file path."""
     system = platform.system()
     if system == "Darwin":
         return (
@@ -27,81 +92,62 @@ def _detect_claude_config_path() -> Path | None:
             / "claude_desktop_config.json"
         )
     if system == "Windows":
-        appdata = Path.home() / "AppData" / "Roaming" / "Claude"
-        return appdata / "claude_desktop_config.json"
+        appdata = os.environ.get("APPDATA", str(Path.home() / "AppData" / "Roaming"))
+        return Path(appdata) / "Claude" / "claude_desktop_config.json"
     if system == "Linux":
-        config_home = Path(
-            __import__("os").environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))
-        )
-        return config_home / "claude" / "claude_desktop_config.json"
+        config_home = os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))
+        return Path(config_home) / "Claude" / "claude_desktop_config.json"
     return None
 
 
 def _detect_python_path() -> str:
     """Get the path to the current Python interpreter."""
-    return sys.executable
+    exe = sys.executable
+    if not exe:
+        raise click.ClickException(
+            "Cannot determine Python interpreter path (sys.executable is empty)."
+        )
+    return exe
 
 
-def _detect_project_root() -> Path:
-    """Walk up from this file to find the project root."""
+def _is_source_checkout() -> bool:
+    """Return True if we are running from a source checkout (not pip-installed)."""
+    # If __file__ is inside a site-packages directory, it's a pip install
+    here = Path(__file__).resolve()
+    return "site-packages" not in str(here)
+
+
+def _detect_project_root() -> Path | None:
+    """Find the hc-enterprise-kg project root, or None if pip-installed.
+
+    Walks up from this file looking for a pyproject.toml that belongs to
+    hc-enterprise-kg.  Returns None when running from a pip install (no
+    source tree available).
+    """
+    if not _is_source_checkout():
+        return None
+
     current = Path(__file__).resolve().parent
     for _ in range(10):
-        if (current / "pyproject.toml").exists():
-            return current
+        candidate = current / "pyproject.toml"
+        if candidate.exists():
+            try:
+                text = candidate.read_text(encoding="utf-8")
+                if "hc-enterprise-kg" in text:
+                    return current
+            except OSError:
+                pass
         current = current.parent
-    return Path.cwd()
+    return None
 
 
 # ---------------------------------------------------------------------------
-# Pre-flight validation
+# Pre-flight validation checks
 # ---------------------------------------------------------------------------
-
-
-def _check_mcp_importable(python_path: str) -> tuple[bool, str]:
-    """Check whether the MCP SDK is importable from the given interpreter.
-
-    Returns (ok, detail) where *detail* is a human-readable diagnostic.
-    """
-    try:
-        result = subprocess.run(  # noqa: S603
-            [
-                python_path,
-                "-c",
-                "from mcp.server.fastmcp import FastMCP; print('ok')",
-            ],
-            capture_output=True,
-            text=True,
-            timeout=15,
-        )
-        if result.returncode == 0 and "ok" in result.stdout:
-            return True, "mcp SDK is importable"
-        # Parse the error for a helpful message
-        stderr = result.stderr.strip()
-        if "No module named 'mcp'" in stderr:
-            return False, (
-                "The 'mcp' package is not installed in this Python environment.\n"
-                "  Fix: poetry install --extras mcp"
-            )
-        return False, f"Import check failed:\n  {stderr}"
-    except FileNotFoundError:
-        return False, f"Python interpreter not found: {python_path}"
-    except subprocess.TimeoutExpired:
-        return False, "Import check timed out (>15s)"
-
-
-def _check_server_module(project_root: Path) -> tuple[bool, str]:
-    """Check that mcp_server/server.py exists under src/."""
-    server_file = project_root / "src" / "mcp_server" / "server.py"
-    if server_file.exists():
-        return True, f"Server module found: {server_file}"
-    return False, (
-        f"Server module not found: {server_file}\n"
-        "  Ensure you are running from the hc-enterprise-kg project directory."
-    )
 
 
 def _check_python_version(python_path: str) -> tuple[bool, str]:
-    """Report the Python version for the detected interpreter."""
+    """Verify the interpreter exists and meets the minimum version."""
     try:
         result = subprocess.run(  # noqa: S603
             [python_path, "--version"],
@@ -109,44 +155,161 @@ def _check_python_version(python_path: str) -> tuple[bool, str]:
             text=True,
             timeout=10,
         )
-        version = result.stdout.strip() or result.stderr.strip()
-        return True, version
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        return False, f"Could not determine version for: {python_path}"
+    except FileNotFoundError:
+        return False, f"interpreter not found: {python_path}"
+    except subprocess.TimeoutExpired:
+        return False, f"timed out checking: {python_path}"
+
+    version_str = (result.stdout.strip() or result.stderr.strip())
+    match = re.search(r"(\d+)\.(\d+)", version_str)
+    if not match:
+        return False, f"could not parse version from: {version_str}"
+    major, minor = int(match.group(1)), int(match.group(2))
+    if (major, minor) < _MIN_PYTHON:
+        return False, (
+            f"{version_str} — requires Python >={_MIN_PYTHON[0]}.{_MIN_PYTHON[1]}\n"
+            f"  Fix: install Python {_MIN_PYTHON[0]}.{_MIN_PYTHON[1]}+"
+            " and re-create your virtualenv"
+        )
+    return True, version_str
 
 
-def _run_preflight(python_path: str, project_root: Path) -> list[tuple[str, bool, str]]:
-    """Run all pre-flight checks. Returns list of (check_name, passed, detail)."""
+def _check_mcp_importable(python_path: str) -> tuple[bool, str]:
+    """Check whether the MCP SDK is importable from the given interpreter."""
+    try:
+        result = subprocess.run(  # noqa: S603
+            [python_path, "-c", "from mcp.server.fastmcp import FastMCP; print('ok')"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+    except FileNotFoundError:
+        return False, f"interpreter not found: {python_path}"
+    except subprocess.TimeoutExpired:
+        return False, "import check timed out (>15s)"
+
+    if result.returncode == 0 and "ok" in result.stdout:
+        return True, "mcp SDK is importable"
+
+    stderr = result.stderr.strip()
+    if "No module named 'mcp'" in stderr:
+        return False, (
+            "the 'mcp' package is not installed in this Python environment.\n"
+            "  Fix: poetry install --extras mcp\n"
+            "   or: pip install 'hc-enterprise-kg[mcp]'"
+        )
+    return False, f"import failed:\n  {stderr.splitlines()[0] if stderr else 'unknown error'}"
+
+
+def _check_server_importable(python_path: str) -> tuple[bool, str]:
+    """Check whether the mcp_server module is importable."""
+    try:
+        result = subprocess.run(  # noqa: S603
+            [python_path, "-c", "import mcp_server.state; print('ok')"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+    except FileNotFoundError:
+        return False, f"interpreter not found: {python_path}"
+    except subprocess.TimeoutExpired:
+        return False, "import check timed out (>15s)"
+
+    if result.returncode == 0 and "ok" in result.stdout:
+        return True, "mcp_server module is importable"
+
+    stderr = result.stderr.strip()
+    if "No module named 'mcp_server'" in stderr:
+        return False, (
+            "the hc-enterprise-kg package is not installed in this Python environment.\n"
+            "  Fix: poetry install --extras mcp\n"
+            "   or: pip install 'hc-enterprise-kg[mcp]'"
+        )
+    if "No module named 'mcp'" in stderr:
+        return False, (
+            "the 'mcp' package is not installed (required by mcp_server).\n"
+            "  Fix: poetry install --extras mcp\n"
+            "   or: pip install 'hc-enterprise-kg[mcp]'"
+        )
+    first_line = stderr.splitlines()[0] if stderr else "unknown error"
+    return False, f"import failed:\n  {first_line}"
+
+
+def _run_preflight(python_path: str) -> list[tuple[str, bool, str]]:
+    """Run all pre-flight checks.
+
+    Returns list of (check_name, passed, detail).  Short-circuits if the
+    Python interpreter is not reachable.
+    """
     checks: list[tuple[str, bool, str]] = []
 
-    # 1. Python version (informational — always "passes" if reachable)
+    # 1. Python version — gates everything else
     ok, detail = _check_python_version(python_path)
     checks.append(("Python version", ok, detail))
+    if not ok:
+        checks.append(("MCP SDK", False, "skipped — Python interpreter not reachable"))
+        checks.append(("Server module", False, "skipped — Python interpreter not reachable"))
+        return checks
 
-    # 2. Server module exists
-    ok, detail = _check_server_module(project_root)
-    checks.append(("Server module", ok, detail))
-
-    # 3. MCP SDK importable (the critical one)
+    # 2. MCP SDK
     ok, detail = _check_mcp_importable(python_path)
     checks.append(("MCP SDK", ok, detail))
+
+    # 3. Server module
+    ok, detail = _check_server_importable(python_path)
+    checks.append(("Server module", ok, detail))
 
     return checks
 
 
 def _print_checks(checks: list[tuple[str, bool, str]]) -> int:
-    """Print check results. Returns count of failures."""
+    """Print check results and return the number of failures."""
     failures = 0
     for name, passed, detail in checks:
         icon = "PASS" if passed else "FAIL"
         click.echo(f"  [{icon}] {name}: {detail.split(chr(10))[0]}")
         if not passed:
             failures += 1
-            # Print additional lines indented
-            lines = detail.split("\n")
-            for line in lines[1:]:
+            for line in detail.split("\n")[1:]:
                 click.echo(f"         {line}")
     return failures
+
+
+# ---------------------------------------------------------------------------
+# Config entry builder
+# ---------------------------------------------------------------------------
+
+
+def _build_server_entry(
+    python_path: str,
+    project_root: Path | None,
+    graph_path: str | None,
+) -> dict:
+    """Build the mcpServers entry dict.
+
+    When the package is properly installed (pip or poetry), ``cwd`` is
+    omitted — modules resolve from site-packages.  When running from a
+    source checkout where modules are NOT installed, ``cwd`` points to
+    ``src/`` so Python can find them via ``-m``.
+    """
+    entry: dict = {
+        "command": python_path,
+        "args": ["-m", "mcp_server.server"],
+    }
+    # Only set cwd when running from source AND the module is NOT installed.
+    # In practice, `poetry install` installs the package, so cwd is rarely
+    # needed.  But if someone clones without installing, this is the
+    # fallback.
+    if project_root is not None:
+        src_dir = project_root / "src"
+        if src_dir.is_dir():
+            entry["cwd"] = str(src_dir)
+
+    if graph_path:
+        abs_graph = Path(graph_path).resolve()
+        entry["env"] = {"HCKG_DEFAULT_GRAPH": str(abs_graph)}
+
+    return entry
 
 
 # ---------------------------------------------------------------------------
@@ -161,23 +324,15 @@ def install_group() -> None:
 
 @install_group.command("claude")
 @click.option(
-    "--config",
-    "config_path",
-    type=click.Path(),
-    default=None,
+    "--config", "config_path", type=click.Path(), default=None,
     help="Path to claude_desktop_config.json. Auto-detected if omitted.",
 )
 @click.option(
-    "--graph",
-    "graph_path",
-    type=click.Path(),
-    default=None,
+    "--graph", "graph_path", type=click.Path(), default=None,
     help="Default graph file to auto-load on startup.",
 )
 @click.option(
-    "--skip-checks",
-    is_flag=True,
-    default=False,
+    "--skip-checks", is_flag=True, default=False,
     help="Skip pre-flight validation checks.",
 )
 def install_claude(
@@ -192,19 +347,16 @@ def install_claude(
     Examples:
       hckg install claude
       hckg install claude --graph graph.json
-      hckg install claude --config ~/custom/claude_desktop_config.json
       hckg install claude --skip-checks
     """
+    # --- Resolve config path ---
     if config_path:
         conf_file = Path(config_path).expanduser()
     else:
         conf_file = _detect_claude_config_path()
         if conf_file is None:
-            click.echo(
-                "Error: Could not detect Claude Desktop config.",
-                err=True,
-            )
-            click.echo("Specify manually: --config <path>", err=True)
+            click.echo("  Error: could not detect Claude Desktop config path.", err=True)
+            click.echo("  Specify manually: --config <path>", err=True)
             raise SystemExit(1)
 
     python_path = _detect_python_path()
@@ -212,17 +364,28 @@ def install_claude(
 
     click.echo()
     click.echo("  Environment")
-    click.echo(f"    Config:  {conf_file}")
     click.echo(f"    Python:  {python_path}")
-    click.echo(f"    Project: {project_root}")
+    click.echo(f"    Config:  {conf_file}")
+    if project_root:
+        click.echo(f"    Source:  {project_root}")
+    else:
+        click.echo("    Source:  (installed package — no source checkout detected)")
+
+    # --- Validate --graph path ---
+    if graph_path:
+        abs_graph = Path(graph_path).resolve()
+        if not abs_graph.exists():
+            click.echo()
+            click.echo(f"  Warning: graph file not found: {abs_graph}")
+            click.echo("  The server will start without a pre-loaded graph.")
+        click.echo(f"    Graph:   {abs_graph}")
 
     # --- Pre-flight checks ---
     if not skip_checks:
         click.echo()
         click.echo("  Pre-flight checks")
-        checks = _run_preflight(python_path, project_root)
+        checks = _run_preflight(python_path)
         failures = _print_checks(checks)
-
         if failures > 0:
             click.echo()
             click.echo(
@@ -231,37 +394,32 @@ def install_claude(
             )
             raise SystemExit(1)
 
-        click.echo()
-
     # --- Write config ---
-    server_entry: dict = {
-        "command": python_path,
-        "args": ["-m", "mcp_server.server"],
-        "cwd": str(project_root / "src"),
-    }
+    click.echo()
+    server_entry = _build_server_entry(python_path, project_root, graph_path)
+    existing = _read_config(conf_file)
 
-    if graph_path:
-        abs_graph = Path(graph_path).resolve()
-        server_entry["env"] = {"HCKG_DEFAULT_GRAPH": str(abs_graph)}
-        click.echo(f"  Graph:   {abs_graph}")
-
-    existing = json.loads(conf_file.read_text()) if conf_file.exists() else {}
-
-    if "mcpServers" not in existing:
+    if "mcpServers" not in existing or not isinstance(existing.get("mcpServers"), dict):
         existing["mcpServers"] = {}
 
     if "hc-enterprise-kg" in existing["mcpServers"]:
-        click.echo("  Already registered. Updating configuration...")
+        click.echo("  Updating existing registration...")
+    else:
+        click.echo("  Registering new MCP server...")
 
     existing["mcpServers"]["hc-enterprise-kg"] = server_entry
+    _write_config(conf_file, existing)
 
-    conf_file.parent.mkdir(parents=True, exist_ok=True)
-    conf_file.write_text(json.dumps(existing, indent=2) + "\n")
-
-    click.echo(f"\n  Registered in {conf_file}")
-    click.echo("\n  Next steps:")
+    click.echo(f"  Written to {conf_file}")
+    click.echo()
+    click.echo("  Next steps:")
     click.echo("    1. Restart Claude Desktop")
     click.echo('    2. Ask Claude: "Load the graph and show me statistics"')
+
+
+# ---------------------------------------------------------------------------
+# doctor
+# ---------------------------------------------------------------------------
 
 
 @install_group.command("doctor")
@@ -281,13 +439,21 @@ def install_doctor() -> None:
     click.echo("  Claude Desktop Doctor")
     click.echo()
 
-    if conf_file is None or not conf_file.exists():
-        click.echo("  Config file not found.")
+    # --- Config file ---
+    if conf_file is None:
+        click.echo("  Could not determine config file location for this OS.")
+        raise SystemExit(1)
+    if not conf_file.exists():
+        click.echo(f"  Config file not found: {conf_file}")
         click.echo("  Run: hckg install claude")
         raise SystemExit(1)
 
-    config = json.loads(conf_file.read_text())
-    servers = config.get("mcpServers", {})
+    config = _read_config(conf_file)
+    servers = config.get("mcpServers")
+    if not isinstance(servers, dict):
+        click.echo("  Config file has no valid 'mcpServers' object.")
+        click.echo("  Run: hckg install claude")
+        raise SystemExit(1)
 
     if "hc-enterprise-kg" not in servers:
         click.echo("  hc-enterprise-kg is not registered.")
@@ -295,59 +461,100 @@ def install_doctor() -> None:
         raise SystemExit(1)
 
     entry = servers["hc-enterprise-kg"]
+    if not isinstance(entry, dict):
+        click.echo("  hc-enterprise-kg entry is not a valid JSON object.")
+        click.echo("  Run: hckg install claude")
+        raise SystemExit(1)
+
     python_path = entry.get("command", "")
+    args = entry.get("args", [])
     cwd = entry.get("cwd", "")
 
     click.echo("  Registered config:")
-    click.echo(f"    Command: {python_path}")
-    click.echo(f"    Args:    {entry.get('args', [])}")
-    click.echo(f"    CWD:     {cwd}")
-    if "env" in entry:
+    click.echo(f"    command: {python_path}")
+    click.echo(f"    args:    {args}")
+    if cwd:
+        click.echo(f"    cwd:     {cwd}")
+    if "env" in entry and isinstance(entry["env"], dict):
         for k, v in entry["env"].items():
-            click.echo(f"    Env:     {k}={v}")
+            click.echo(f"    env:     {k}={v}")
     click.echo()
 
-    # Derive project_root from cwd (cwd = project_root/src)
-    cwd_path = Path(cwd)
-    project_root = cwd_path.parent if cwd_path.name == "src" else cwd_path
+    # --- Run all checks ---
+    checks: list[tuple[str, bool, str]] = []
+
+    # 1. command field present and non-empty
+    if not python_path:
+        checks.append(("Command", False, "no 'command' field in registration"))
+    elif not Path(python_path).exists():
+        checks.append((
+            "Command",
+            False,
+            f"interpreter not found: {python_path}\n"
+            "  The virtualenv may have been deleted. Re-run: hckg install claude",
+        ))
+    else:
+        checks.append(("Command", True, python_path))
+
+    # 2. args format
+    expected_args = ["-m", "mcp_server.server"]
+    if args == expected_args:
+        checks.append(("Args", True, str(args)))
+    else:
+        checks.append((
+            "Args",
+            False,
+            f"unexpected args: {args}\n"
+            f"  Expected: {expected_args}\n"
+            "  Re-run: hckg install claude",
+        ))
+
+    # 3. cwd (if present) exists
+    if cwd:
+        if Path(cwd).is_dir():
+            checks.append(("Working dir", True, cwd))
+        else:
+            checks.append((
+                "Working dir",
+                False,
+                f"directory not found: {cwd}\n"
+                "  The project may have been moved. Re-run: hckg install claude",
+            ))
+
+    # 4. Graph file (if configured)
+    env = entry.get("env", {})
+    if isinstance(env, dict) and "HCKG_DEFAULT_GRAPH" in env:
+        graph = env["HCKG_DEFAULT_GRAPH"]
+        if Path(graph).exists():
+            checks.append(("Graph file", True, graph))
+        else:
+            checks.append((
+                "Graph file",
+                False,
+                f"not found: {graph}\n"
+                "  Re-generate: hckg demo --clean",
+            ))
+
+    # 5-7. Python version, MCP SDK, server module (only if command exists)
+    if python_path and Path(python_path).exists():
+        runtime_checks = _run_preflight(python_path)
+        checks.extend(runtime_checks)
 
     click.echo("  Validation")
-    checks = _run_preflight(python_path, project_root)
-
-    # Extra check: does the registered Python still exist?
-    python_exists = Path(python_path).exists()
-    if not python_exists:
-        checks.insert(
-            0,
-            (
-                "Python exists",
-                False,
-                f"Interpreter not found at: {python_path}\n"
-                "  The virtualenv may have been deleted. Re-run: hckg install claude",
-            ),
-        )
-
-    # Extra check: does the CWD exist?
-    if not cwd_path.exists():
-        checks.insert(
-            0,
-            (
-                "Working directory",
-                False,
-                f"CWD does not exist: {cwd}\n"
-                "  The project may have been moved. Re-run: hckg install claude",
-            ),
-        )
-
     failures = _print_checks(checks)
-
     click.echo()
+
     if failures == 0:
         click.echo("  All checks passed. The MCP server should connect successfully.")
         click.echo("  If issues persist, restart Claude Desktop.")
     else:
         click.echo(f"  {failures} issue(s) found. Resolve them and re-run: hckg install claude")
         raise SystemExit(1)
+
+
+# ---------------------------------------------------------------------------
+# status
+# ---------------------------------------------------------------------------
 
 
 @install_group.command("status")
@@ -358,20 +565,27 @@ def install_status() -> None:
     click.echo("  Claude Desktop:")
     if conf_file is None or not conf_file.exists():
         click.echo("    Not found (config file missing)")
-    else:
-        config = json.loads(conf_file.read_text())
-        servers = config.get("mcpServers", {})
-        if "hc-enterprise-kg" in servers:
-            entry = servers["hc-enterprise-kg"]
-            click.echo("    Registered")
-            click.echo(f"    Command: {entry.get('command', '?')}")
-            if "cwd" in entry:
-                click.echo(f"    CWD:     {entry['cwd']}")
-            if "env" in entry and "HCKG_DEFAULT_GRAPH" in entry["env"]:
-                click.echo(f"    Graph:   {entry['env']['HCKG_DEFAULT_GRAPH']}")
-        else:
-            click.echo("    Not registered")
-            click.echo("    Run: hckg install claude")
+        return
+
+    config = _read_config(conf_file)
+    servers = config.get("mcpServers", {})
+    if not isinstance(servers, dict) or "hc-enterprise-kg" not in servers:
+        click.echo("    Not registered")
+        click.echo("    Run: hckg install claude")
+        return
+
+    entry = servers["hc-enterprise-kg"]
+    click.echo("    Registered")
+    click.echo(f"    Command: {entry.get('command', '?')}")
+    if entry.get("cwd"):
+        click.echo(f"    CWD:     {entry['cwd']}")
+    if isinstance(entry.get("env"), dict) and "HCKG_DEFAULT_GRAPH" in entry["env"]:
+        click.echo(f"    Graph:   {entry['env']['HCKG_DEFAULT_GRAPH']}")
+
+
+# ---------------------------------------------------------------------------
+# remove
+# ---------------------------------------------------------------------------
 
 
 @install_group.command("remove")
@@ -391,17 +605,17 @@ def _remove_claude() -> None:
     """Remove from Claude Desktop config."""
     conf_file = _detect_claude_config_path()
     if conf_file is None or not conf_file.exists():
-        click.echo("Claude Desktop config not found. Nothing to remove.")
+        click.echo("  Claude Desktop config not found. Nothing to remove.")
         return
 
-    config = json.loads(conf_file.read_text())
+    config = _read_config(conf_file)
     servers = config.get("mcpServers", {})
 
-    if "hc-enterprise-kg" not in servers:
-        click.echo("hc-enterprise-kg is not registered. Nothing to remove.")
+    if not isinstance(servers, dict) or "hc-enterprise-kg" not in servers:
+        click.echo("  hc-enterprise-kg is not registered. Nothing to remove.")
         return
 
     del servers["hc-enterprise-kg"]
-    conf_file.write_text(json.dumps(config, indent=2) + "\n")
+    _write_config(conf_file, config)
     click.echo("  Removed from Claude Desktop.")
     click.echo("  Restart Claude Desktop to apply changes.")
