@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.21.4] - 2026-02-21
+
+### Added
+- **Import guide documentation** — `docs/import-guide.md` covering JSON/CSV formats, column mappings, CLI options, validation modes, common workflows, and entity field reference (#238)
+
+## [0.21.3] - 2026-02-21
+
+### Added
+- **Import template files** — `examples/import-templates/organization.json` (all 30 entity types, 31 relationships) and 8 CSV templates (people, departments, systems, vendors, vulnerabilities, risks, controls, incidents); 17 integration tests (#236)
+
+## [0.21.2] - 2026-02-21
+
+### Added
+- **Schema inference for all 30 entity types** — COLUMN_PATTERNS expanded from 11 to 30 types, 9 new RELATIONSHIP_COLUMN_PATTERNS; fixed POLICY/CONTROL/REGULATION pattern ambiguity and SYSTEM port/os word boundary matching; 41 new tests (#234)
+
+## [0.21.1] - 2026-02-21
+
+### Added
+- **Declarative column mappings** — `.mapping.json` files for translating vendor CSV columns to canonical entity fields; `--mapping` CLI option; 3 example mappings (Workday HR, ServiceNow CMDB, Qualys); 21 new tests (#232)
+
+## [0.21.0] - 2026-02-21
+
+### Added
+- **`hckg import` CLI command** — Import real organizational data from JSON or CSV files with pre-ingest validation, dry-run mode, strict mode, merge support, and Claude Desktop config sync; 57 new tests (#230)
+
 ## [0.20.26] - 2026-02-21
 
 ### Fixed
