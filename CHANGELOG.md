@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.20.24] - 2026-02-21
+
+### Fixed
+- **install claude: auto-detect graph.json** — When `--graph` is omitted, the command now checks the project root and cwd for `graph.json` and auto-configures it. Warns clearly when no graph is found. Updates "Next steps" output accordingly; 12 new tests (#217)
+
 ## [0.20.23] - 2026-02-21
 
 ### Fixed
