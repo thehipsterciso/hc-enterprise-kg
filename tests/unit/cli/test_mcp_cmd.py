@@ -356,6 +356,70 @@ class TestBuildServerEntry:
 
 
 # ===================================================================
+# sync_claude_graph_path
+# ===================================================================
+
+
+class TestSyncClaudeGraphPath:
+    def test_updates_registered_config(self, tmp_path: Path):
+        config_path = _make_config(str(tmp_path), _valid_entry())
+        graph = tmp_path / "new_graph.json"
+        graph.write_text("{}")
+        with patch("cli.install_cmd._detect_claude_config_path", return_value=config_path):
+            result = install_cmd.sync_claude_graph_path(graph)
+        assert result is True
+        config = json.loads(config_path.read_text())
+        entry = config["mcpServers"]["hc-enterprise-kg"]
+        assert entry["env"]["HCKG_DEFAULT_GRAPH"] == str(graph.resolve())
+
+    def test_returns_false_when_not_registered(self, tmp_path: Path):
+        config_path = _make_config(str(tmp_path))  # empty servers
+        graph = tmp_path / "graph.json"
+        graph.write_text("{}")
+        with patch("cli.install_cmd._detect_claude_config_path", return_value=config_path):
+            result = install_cmd.sync_claude_graph_path(graph)
+        assert result is False
+
+    def test_returns_false_when_config_missing(self, tmp_path: Path):
+        config_path = tmp_path / "nonexistent.json"
+        with patch("cli.install_cmd._detect_claude_config_path", return_value=config_path):
+            result = install_cmd.sync_claude_graph_path(tmp_path / "graph.json")
+        assert result is False
+
+    def test_returns_false_when_config_path_none(self):
+        with patch("cli.install_cmd._detect_claude_config_path", return_value=None):
+            result = install_cmd.sync_claude_graph_path("/any/graph.json")
+        assert result is False
+
+    def test_updates_existing_env(self, tmp_path: Path):
+        """When env already has HCKG_DEFAULT_GRAPH, it gets replaced."""
+        entry = _valid_entry()
+        entry["env"] = {"HCKG_DEFAULT_GRAPH": "/old/graph.json"}
+        config_path = _make_config(str(tmp_path), entry)
+        new_graph = tmp_path / "updated.json"
+        new_graph.write_text("{}")
+        with patch("cli.install_cmd._detect_claude_config_path", return_value=config_path):
+            result = install_cmd.sync_claude_graph_path(new_graph)
+        assert result is True
+        config = json.loads(config_path.read_text())
+        assert config["mcpServers"]["hc-enterprise-kg"]["env"]["HCKG_DEFAULT_GRAPH"] == str(
+            new_graph.resolve()
+        )
+
+    def test_preserves_other_env_vars(self, tmp_path: Path):
+        """Other env vars in the entry are not disturbed."""
+        entry = _valid_entry()
+        entry["env"] = {"OTHER_VAR": "keep_me", "HCKG_DEFAULT_GRAPH": "/old/path"}
+        config_path = _make_config(str(tmp_path), entry)
+        new_graph = tmp_path / "g.json"
+        new_graph.write_text("{}")
+        with patch("cli.install_cmd._detect_claude_config_path", return_value=config_path):
+            install_cmd.sync_claude_graph_path(new_graph)
+        config = json.loads(config_path.read_text())
+        assert config["mcpServers"]["hc-enterprise-kg"]["env"]["OTHER_VAR"] == "keep_me"
+
+
+# ===================================================================
 # _detect_default_graph
 # ===================================================================
 
