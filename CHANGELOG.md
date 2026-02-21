@@ -4,6 +4,51 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.20.23] - 2026-02-21
+
+### Fixed
+- **Harden charts command** — Wrap scale parsing in try/except ValueError, validate DPI bounds (1–600), create output directory with parents before chart generation; 9 new tests (#215)
+
+## [0.20.22] - 2026-02-21
+
+### Fixed
+- **Harden benchmark command** — Wrap scale parsing in try/except ValueError, validate output directory creation, handle write errors; 6 new tests (#213)
+
+## [0.20.21] - 2026-02-21
+
+### Fixed
+- **Harden auto command** — Add try/finally temp file cleanup in demo mode, wrap pipeline errors, handle UnicodeDecodeError on source files, validate output directory; 7 new tests (#211)
+
+## [0.20.20] - 2026-02-21
+
+### Fixed
+- **Harden visualize command** — Add ingest error checking, output directory validation, `</body>` tag safety check in legend injection; 3 new tests (#209)
+
+## [0.20.19] - 2026-02-21
+
+### Fixed
+- **Harden serve command** — Validate port range (1–65535) with click.BadParameter; 4 new tests (#207)
+
+## [0.20.18] - 2026-02-21
+
+### Fixed
+- **Harden export command** — Add ingest error checking, output directory validation, write error handling; 5 new tests (#205)
+
+## [0.20.17] - 2026-02-21
+
+### Fixed
+- **Harden inspect command** — Add JSON decode, encoding, and generic error handling for graph ingest; 6 new tests (#203)
+
+## [0.20.16] - 2026-02-21
+
+### Fixed
+- **Harden generate command** — Add output directory validation and export error handling; 5 new tests (#201)
+
+## [0.20.15] - 2026-02-21
+
+### Fixed
+- **Harden demo command** — Wrap file deletion in try/except OSError with warning, add output directory validation and export error handling; 9 new tests (#199)
+
 ## [0.20.14] - 2026-02-21
 
 ### Changed
