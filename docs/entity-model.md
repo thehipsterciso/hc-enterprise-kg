@@ -2,7 +2,7 @@
 
 The knowledge graph models an enterprise organization as a network of typed entities connected by typed relationships. Thirty entity types span twelve generation layers, from compliance frameworks and technology infrastructure through people, products, customers, and strategic initiatives. Fifty-two relationship types encode how those entities depend on, govern, contain, and affect each other.
 
-Every entity extends `BaseEntity` (Pydantic v2) and carries a UUID, name, description, tags, metadata, and temporal fields. Every relationship carries a type, source/target IDs, contextual weight, confidence score, and a properties dict. The model is designed for structural analysis: dependency mapping, blast radius computation, centrality scoring, and risk quantification all operate directly on this graph.
+Every entity extends `BaseEntity` (Pydantic v2 with `extra="allow"` — see [ADR-002](adr/002-pydantic-v2-extra-allow.md) for the rationale and trade-offs) and carries a UUID, name, description, tags, metadata, and temporal fields. Every relationship carries a type, source/target IDs, contextual weight, confidence score, and a properties dict. The model is designed for structural analysis: dependency mapping, blast radius computation, centrality scoring, and risk quantification all operate directly on this graph.
 
 ---
 
@@ -56,7 +56,7 @@ These entity types extend the model to cover compliance, data governance, busine
 
 ## Generation Layers (L00-L11)
 
-Entities are generated in layer order to ensure referential integrity. Each layer can reference entities from all previous layers but not from subsequent ones.
+Entities are generated in layer order to ensure referential integrity ([ADR-005](adr/005-layered-generation-order.md)). Each layer can reference entities from all previous layers but not from subsequent ones.
 
 | Layer | Name | Entity Types | Purpose |
 |---|---|---|---|
@@ -233,4 +233,4 @@ All relationships inherit these fields:
 
 ---
 
-For the full architecture, layer pipeline, and engine abstraction details, see [ARCHITECTURE.md](../ARCHITECTURE.md).
+For the full architecture, layer pipeline, and engine abstraction details, see [ARCHITECTURE.md](../ARCHITECTURE.md). For design rationale on the entity model, relationship weaving, and generation pipeline, see [ADR-002](adr/002-pydantic-v2-extra-allow.md), [ADR-008](adr/008-relationship-weaving.md), and [ADR-005](adr/005-layered-generation-order.md).

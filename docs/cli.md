@@ -223,7 +223,7 @@ When running in `--stdio` mode, the server exposes 10 tools to Claude Desktop:
 
 `load_graph`, `get_statistics`, `list_entities`, `get_entity`, `get_neighbors`, `find_shortest_path`, `get_blast_radius`, `compute_centrality`, `find_most_connected`, `search_entities`
 
-The MCP server auto-reloads when the graph file changes (mtime-based detection on every tool call).
+The MCP server auto-reloads when the graph file changes (mtime-based detection on every tool call — see [ADR-009](adr/009-mcp-mtime-auto-reload.md)).
 
 ---
 
@@ -283,7 +283,7 @@ hckg export --source graph.json --format graphml --output graph.graphml
 
 ## Entity Count Overrides
 
-Both `hckg demo` and `hckg generate org` accept individual flags to override specific entity counts. When provided, these bypass the `scaled_range()` scaling formula and produce exactly the specified number of entities.
+Both `hckg demo` and `hckg generate org` accept individual flags to override specific entity counts. When provided, these bypass the `scaled_range()` scaling formula ([ADR-007](adr/007-research-backed-scaling.md)) and produce exactly the specified number of entities.
 
 ```bash
 # Pin systems to 500 and vendors to 100, let everything else scale normally

@@ -138,7 +138,7 @@ These recommendations include headroom for analysis operations after generation.
 
 ## Architecture Guidance
 
-The default **NetworkX backend** is sufficient for most use cases up to 20,000 employees. It runs in-process with no external dependencies, making it ideal for development, testing, CI/CD pipelines, and single-user analysis.
+The default **NetworkX backend** ([ADR-003](adr/003-networkx-multidigraph.md)) is sufficient for most use cases up to 20,000 employees. It runs in-process with no external dependencies, making it ideal for development, testing, CI/CD pipelines, and single-user analysis.
 
 Consider a **Neo4j backend** (via the pluggable engine abstraction) when:
 
@@ -180,4 +180,4 @@ Your results will vary based on hardware. Use `hckg benchmark` to generate resul
 
 ---
 
-For full CLI usage, see [CLI Reference](cli.md). For the Python API, see [Python API Guide](python-api.md).
+For full CLI usage, see [CLI Reference](cli.md). For the Python API, see [Python API Guide](python-api.md). For design rationale on backend choice and search strategy, see [ADR-003](adr/003-networkx-multidigraph.md) and [ADR-011](adr/011-rapidfuzz-search.md).

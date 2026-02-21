@@ -1,6 +1,6 @@
 # Organization Profiles & Scaling
 
-Synthetic generation is driven by organization profiles that define industry characteristics, department structures, and entity density. Three profiles are included out of the box: technology, financial services, and healthcare. Each produces structurally different graphs that reflect real-world industry patterns.
+Synthetic generation is driven by organization profiles that define industry characteristics, department structures, and entity density. Three profiles are included out of the box: technology, financial services, and healthcare. Each produces structurally different graphs that reflect real-world industry patterns. For the design rationale behind the scaling model, including why we use research-backed coefficients and where the approach diverges from conventional practices, see [ADR-007](adr/007-research-backed-scaling.md).
 
 ---
 
@@ -206,4 +206,4 @@ Wire it into the CLI by adding a factory function in `src/synthetic/profiles/` a
 
 ---
 
-For the full entity model reference, see [Entity Model](entity-model.md). For architecture details, see [ARCHITECTURE.md](../ARCHITECTURE.md).
+For the full entity model reference, see [Entity Model](entity-model.md). For architecture details, see [ARCHITECTURE.md](../ARCHITECTURE.md). For design rationale: [ADR-007](adr/007-research-backed-scaling.md) (scaling model), [ADR-006](adr/006-coordinated-template-dicts.md) (template coherence), [ADR-001](adr/001-custom-synthetic-data-pipeline.md) (why we build our own pipeline).
