@@ -1,0 +1,32 @@
+{
+  "entities": [
+    {
+      "id": "jur-001",
+      "entity_type": "jurisdiction",
+      "name": "United States Federal",
+      "description": "US federal regulatory jurisdiction",
+      "jurisdiction_id": "JUR-001",
+      "jurisdiction_type": "Federal",
+      "jurisdiction_code": "US"
+    },
+    {
+      "id": "jur-002",
+      "entity_type": "jurisdiction",
+      "name": "European Union",
+      "description": "EU regulatory jurisdiction",
+      "jurisdiction_id": "JUR-002",
+      "jurisdiction_type": "Supranational",
+      "jurisdiction_code": "EU"
+    },
+    {
+      "id": "jur-003",
+      "entity_type": "jurisdiction",
+      "name": "State of California",
+      "description": "California state jurisdiction",
+      "jurisdiction_id": "JUR-003",
+      "jurisdiction_type": "State",
+      "jurisdiction_code": "US-CA",
+      "parent_jurisdiction": "United States Federal"
+    }
+  ]
+}

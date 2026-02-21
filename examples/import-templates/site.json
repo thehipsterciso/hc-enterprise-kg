@@ -1,0 +1,37 @@
+{
+  "entities": [
+    {
+      "id": "site-001",
+      "entity_type": "site",
+      "name": "New York Headquarters",
+      "description": "Primary corporate office",
+      "site_id": "SITE-001",
+      "site_type": "Headquarters",
+      "site_status": "Active",
+      "ownership_type": "Owned",
+      "strategic_designation": "Strategic"
+    },
+    {
+      "id": "site-002",
+      "entity_type": "site",
+      "name": "London Office",
+      "description": "EMEA regional headquarters",
+      "site_id": "SITE-002",
+      "site_type": "Regional Office",
+      "site_status": "Active",
+      "ownership_type": "Leased",
+      "strategic_designation": "Strategic"
+    },
+    {
+      "id": "site-003",
+      "entity_type": "site",
+      "name": "Ashburn Data Center",
+      "description": "Primary US East data center",
+      "site_id": "SITE-003",
+      "site_type": "Data Center",
+      "site_status": "Active",
+      "ownership_type": "Colocation",
+      "strategic_designation": "Critical"
+    }
+  ]
+}

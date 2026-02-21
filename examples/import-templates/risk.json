@@ -1,0 +1,43 @@
+{
+  "entities": [
+    {
+      "id": "rsk-001",
+      "entity_type": "risk",
+      "name": "Customer Data Breach",
+      "description": "Unauthorized access to customer PII",
+      "risk_id": "RSK-001",
+      "risk_category": "Cybersecurity",
+      "inherent_risk_level": "High",
+      "residual_risk_level": "Medium",
+      "risk_status": "Open",
+      "risk_owner": "CISO",
+      "risk_treatment": "Mitigate"
+    },
+    {
+      "id": "rsk-002",
+      "entity_type": "risk",
+      "name": "Ransomware Attack",
+      "description": "Encryption of critical business systems",
+      "risk_id": "RSK-002",
+      "risk_category": "Cybersecurity",
+      "inherent_risk_level": "Critical",
+      "residual_risk_level": "High",
+      "risk_status": "Open",
+      "risk_owner": "CISO",
+      "risk_treatment": "Mitigate"
+    },
+    {
+      "id": "rsk-003",
+      "entity_type": "risk",
+      "name": "Third-Party Data Leak",
+      "description": "Data exposure through vendor compromise",
+      "risk_id": "RSK-003",
+      "risk_category": "Third Party",
+      "inherent_risk_level": "High",
+      "residual_risk_level": "Medium",
+      "risk_status": "Open",
+      "risk_owner": "Vendor Manager",
+      "risk_treatment": "Transfer"
+    }
+  ]
+}

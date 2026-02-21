@@ -1,6 +1,0 @@
-name,system_type,hostname,ip_address,os,criticality,environment,is_internet_facing,description
-Customer Portal,application,portal-prod-01,10.1.1.100,Linux,high,production,true,Customer-facing web application
-ERP System,application,erp-prod-01,10.1.2.50,Windows Server 2022,critical,production,false,Enterprise resource planning system
-CI/CD Pipeline,infrastructure,cicd-prod-01,10.1.3.10,Linux,high,production,false,Build and deployment automation
-Email Gateway,application,mail-gw-01,172.16.0.10,Linux,high,production,true,Inbound and outbound email filtering
-Data Warehouse,database,dw-prod-01,10.1.4.20,Linux,high,production,false,Central analytics data warehouse

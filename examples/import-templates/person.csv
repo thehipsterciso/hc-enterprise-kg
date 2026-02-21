@@ -1,0 +1,6 @@
+name,first_name,last_name,email,title,employee_id,is_active,hire_date
+Jane Doe,Jane,Doe,jane.doe@example.com,Senior Software Engineer,EMP-001,true,2021-03-15
+John Smith,John,Smith,john.smith@example.com,CISO,EMP-002,true,2019-01-10
+Maria Garcia,Maria,Garcia,maria.garcia@example.com,Product Manager,EMP-003,true,2022-06-01
+David Chen,David,Chen,david.chen@example.com,Security Analyst,EMP-004,true,2023-02-20
+Sarah Johnson,Sarah,Johnson,sarah.johnson@example.com,DevOps Engineer,EMP-005,true,2020-09-12

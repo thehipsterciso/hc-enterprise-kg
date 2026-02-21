@@ -1,0 +1,6 @@
+name,description,integration_id,integration_type,integration_pattern,direction,frequency,operational_status
+CRM to ERP Integration,Customer data sync between CRM and ERP,INT-001,API,Request-Response,Bidirectional,Real-Time,Active
+HRIS to IAM Sync,Employee lifecycle provisioning,INT-002,ETL,Batch,Unidirectional,Daily,Active
+SIEM Log Ingestion,Security log aggregation from all sources,INT-003,Streaming,Publish-Subscribe,Unidirectional,Real-Time,Active
+Payment Gateway,Payment processing integration,INT-004,API,Request-Response,Bidirectional,Real-Time,Active
+Data Warehouse Load,Nightly load from operational systems,INT-005,ETL,Batch,Unidirectional,Daily,Active

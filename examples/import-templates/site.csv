@@ -1,0 +1,6 @@
+name,description,site_id,site_type,site_status,ownership_type,strategic_designation
+New York Headquarters,Primary corporate office,SITE-001,Headquarters,Active,Owned,Strategic
+London Office,EMEA regional headquarters,SITE-002,Regional Office,Active,Leased,Strategic
+Ashburn Data Center,Primary US East data center,SITE-003,Data Center,Active,Colocation,Critical
+Singapore Hub,APAC operations center,SITE-004,Regional Office,Active,Leased,Operational
+Denver DR Site,Disaster recovery facility,SITE-005,DR Facility,Standby,Leased,Critical

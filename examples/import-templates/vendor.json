@@ -1,0 +1,37 @@
+{
+  "entities": [
+    {
+      "id": "vnd-001",
+      "entity_type": "vendor",
+      "name": "CloudProvider Inc",
+      "description": "Primary cloud infrastructure provider",
+      "vendor_id": "VND-001",
+      "vendor_type": "Cloud Services",
+      "risk_tier": "critical",
+      "has_data_access": true,
+      "primary_contact": "vendor-mgmt@cloudprovider.example.com"
+    },
+    {
+      "id": "vnd-002",
+      "entity_type": "vendor",
+      "name": "SecureSoft Ltd",
+      "description": "SIEM and endpoint detection vendor",
+      "vendor_id": "VND-002",
+      "vendor_type": "Security Tools",
+      "risk_tier": "high",
+      "has_data_access": true,
+      "primary_contact": "support@securesoft.example.com"
+    },
+    {
+      "id": "vnd-003",
+      "entity_type": "vendor",
+      "name": "OfficeSupply Co",
+      "description": "Office equipment and supplies",
+      "vendor_id": "VND-003",
+      "vendor_type": "Office Supplies",
+      "risk_tier": "low",
+      "has_data_access": false,
+      "primary_contact": "orders@officesupply.example.com"
+    }
+  ]
+}

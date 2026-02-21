@@ -1,0 +1,6 @@
+name,description,capability_id,tier,capability_type,business_criticality,lifecycle_state
+Customer Relationship Management,End-to-end customer lifecycle management,BC-001,Strategic,Business,Business Critical,Active
+Identity and Access Management,Authentication and authorization services,BC-002,Component,Technology,Mission Critical,Active
+Financial Reporting,Regulatory and management financial reporting,BC-003,Strategic,Business,Business Critical,Active
+Software Development,"Application build, test, and deploy",BC-004,Component,Technology,Business Operational,Active
+Talent Acquisition,Recruiting and onboarding,BC-005,Business,Business,Business Operational,Active

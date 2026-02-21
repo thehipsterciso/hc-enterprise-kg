@@ -1,0 +1,40 @@
+{
+  "entities": [
+    {
+      "id": "int-001",
+      "entity_type": "integration",
+      "name": "CRM to ERP Integration",
+      "description": "Customer data sync between CRM and ERP",
+      "integration_id": "INT-001",
+      "integration_type": "API",
+      "integration_pattern": "Request-Response",
+      "direction": "Bidirectional",
+      "frequency": "Real-Time",
+      "operational_status": "Active"
+    },
+    {
+      "id": "int-002",
+      "entity_type": "integration",
+      "name": "HRIS to IAM Sync",
+      "description": "Employee lifecycle provisioning",
+      "integration_id": "INT-002",
+      "integration_type": "ETL",
+      "integration_pattern": "Batch",
+      "direction": "Unidirectional",
+      "frequency": "Daily",
+      "operational_status": "Active"
+    },
+    {
+      "id": "int-003",
+      "entity_type": "integration",
+      "name": "SIEM Log Ingestion",
+      "description": "Security log aggregation",
+      "integration_id": "INT-003",
+      "integration_type": "Streaming",
+      "integration_pattern": "Publish-Subscribe",
+      "direction": "Unidirectional",
+      "frequency": "Real-Time",
+      "operational_status": "Active"
+    }
+  ]
+}

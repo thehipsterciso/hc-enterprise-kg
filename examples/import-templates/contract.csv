@@ -1,0 +1,6 @@
+name,description,contract_id,contract_type,contract_status,total_contract_value,currency,start_date,end_date
+Cloud Services MSA,Cloud infrastructure master agreement,CTR-001,Master Services Agreement,Active,2500000,USD,2023-01-01,2026-01-01
+Security Tools License,SIEM and EDR annual license,CTR-002,Software License,Active,450000,USD,2024-03-01,2025-03-01
+Consulting Engagement,IT transformation consulting,CTR-003,Statement of Work,Active,800000,USD,2024-06-01,2025-06-01
+Office Lease NYC,Headquarters office lease,CTR-004,Lease,Active,3600000,USD,2020-01-01,2030-01-01
+Data Center Colocation,Ashburn DC colocation agreement,CTR-005,Colocation Agreement,Active,1200000,USD,2022-07-01,2027-07-01

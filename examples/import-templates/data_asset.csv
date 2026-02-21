@@ -1,0 +1,6 @@
+name,description,data_type,classification,format,is_encrypted,retention_days
+Customer Database,Primary customer records,structured,confidential,PostgreSQL,true,2555
+Employee Records,HR personnel data,structured,restricted,Oracle,true,3650
+Transaction Logs,Payment processing logs,semi-structured,confidential,JSON,true,365
+Marketing Analytics,Campaign performance data,structured,internal,Snowflake,false,730
+Audit Trail,System access and change logs,semi-structured,confidential,Elasticsearch,true,2555

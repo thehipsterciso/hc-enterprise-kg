@@ -1,0 +1,37 @@
+{
+  "entities": [
+    {
+      "id": "net-001",
+      "entity_type": "network",
+      "name": "Corporate LAN",
+      "description": "Primary corporate network",
+      "zone": "internal",
+      "cidr": "10.1.0.0/16",
+      "vlan_id": 100,
+      "gateway": "10.1.0.1",
+      "is_monitored": true
+    },
+    {
+      "id": "net-002",
+      "entity_type": "network",
+      "name": "DMZ",
+      "description": "Internet-facing services zone",
+      "zone": "dmz",
+      "cidr": "172.16.0.0/24",
+      "vlan_id": 200,
+      "gateway": "172.16.0.1",
+      "is_monitored": true
+    },
+    {
+      "id": "net-003",
+      "entity_type": "network",
+      "name": "Restricted",
+      "description": "PCI and regulated workloads",
+      "zone": "restricted",
+      "cidr": "10.3.0.0/24",
+      "vlan_id": 500,
+      "gateway": "10.3.0.1",
+      "is_monitored": true
+    }
+  ]
+}

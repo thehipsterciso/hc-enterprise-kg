@@ -1,0 +1,28 @@
+{
+  "entities": [
+    {
+      "id": "geo-001",
+      "entity_type": "geography",
+      "name": "North America",
+      "description": "North American operating region",
+      "geography_id": "GEO-001",
+      "geography_type": "Region"
+    },
+    {
+      "id": "geo-002",
+      "entity_type": "geography",
+      "name": "Europe",
+      "description": "European operating region",
+      "geography_id": "GEO-002",
+      "geography_type": "Region"
+    },
+    {
+      "id": "geo-003",
+      "entity_type": "geography",
+      "name": "Asia Pacific",
+      "description": "APAC operating region",
+      "geography_id": "GEO-003",
+      "geography_type": "Region"
+    }
+  ]
+}

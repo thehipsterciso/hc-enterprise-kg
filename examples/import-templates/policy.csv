@@ -1,0 +1,6 @@
+name,description,policy_id,policy_type,framework,severity,is_enforced
+Access Control Policy,Requirements for system access controls,POL-001,Technical,NIST 800-53,high,true
+Incident Response Policy,Procedures for security incident handling,POL-002,Operational,NIST CSF,high,true
+Data Classification Policy,Rules for classifying and handling data,POL-003,Administrative,ISO 27001,medium,true
+Acceptable Use Policy,Guidelines for acceptable technology use,POL-004,Administrative,Internal,low,true
+Vendor Risk Management Policy,Third-party risk assessment requirements,POL-005,Administrative,NIST 800-53,medium,true

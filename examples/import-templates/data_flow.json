@@ -1,0 +1,40 @@
+{
+  "entities": [
+    {
+      "id": "df-001",
+      "entity_type": "data_flow",
+      "name": "CRM to Data Warehouse",
+      "description": "Nightly customer data ETL",
+      "flow_id": "DF-001",
+      "flow_type": "ETL",
+      "data_classification_in_flow": "Confidential",
+      "frequency": "Daily",
+      "operational_status": "Active",
+      "monitoring_status": "Monitored"
+    },
+    {
+      "id": "df-002",
+      "entity_type": "data_flow",
+      "name": "HRIS to IAM",
+      "description": "Employee provisioning feed",
+      "flow_id": "DF-002",
+      "flow_type": "Event-Driven",
+      "data_classification_in_flow": "Restricted",
+      "frequency": "Real-Time",
+      "operational_status": "Active",
+      "monitoring_status": "Monitored"
+    },
+    {
+      "id": "df-003",
+      "entity_type": "data_flow",
+      "name": "Payment Processing",
+      "description": "Transaction data to payment gateway",
+      "flow_id": "DF-003",
+      "flow_type": "API",
+      "data_classification_in_flow": "Restricted",
+      "frequency": "Real-Time",
+      "operational_status": "Active",
+      "monitoring_status": "Monitored"
+    }
+  ]
+}

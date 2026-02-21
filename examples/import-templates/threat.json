@@ -1,0 +1,37 @@
+{
+  "entities": [
+    {
+      "id": "thr-001",
+      "entity_type": "threat",
+      "name": "Ransomware",
+      "description": "Ransomware targeting enterprise systems",
+      "threat_id": "THR-001",
+      "threat_category": "Cyber",
+      "threat_source_type": "External",
+      "relevance_to_enterprise": "High",
+      "threat_trend": "Increasing"
+    },
+    {
+      "id": "thr-002",
+      "entity_type": "threat",
+      "name": "Supply Chain Compromise",
+      "description": "Software supply chain attacks",
+      "threat_id": "THR-002",
+      "threat_category": "Cyber",
+      "threat_source_type": "External",
+      "relevance_to_enterprise": "High",
+      "threat_trend": "Increasing"
+    },
+    {
+      "id": "thr-003",
+      "entity_type": "threat",
+      "name": "Insider Threat",
+      "description": "Malicious or negligent insider activity",
+      "threat_id": "THR-003",
+      "threat_category": "Insider",
+      "threat_source_type": "Internal",
+      "relevance_to_enterprise": "Medium",
+      "threat_trend": "Stable"
+    }
+  ]
+}

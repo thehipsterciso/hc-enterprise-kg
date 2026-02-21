@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from domain.base import EntityType
 from ingest.validator import ValidationResult, validate_csv_import, validate_json_import
 
@@ -44,7 +42,10 @@ class TestValidateJsonImport:
     def test_valid_data_with_relationships(self) -> None:
         data = {
             "entities": [
-                {"entity_type": "person", "id": "p1", "name": "Alice", "first_name": "Alice", "last_name": "Smith", "email": "a@b.com"},
+                {
+                    "entity_type": "person", "id": "p1", "name": "Alice",
+                    "first_name": "Alice", "last_name": "Smith", "email": "a@b.com",
+                },
                 {"entity_type": "department", "id": "d1", "name": "Eng"},
             ],
             "relationships": [

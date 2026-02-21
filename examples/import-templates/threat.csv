@@ -1,0 +1,6 @@
+name,description,threat_id,threat_category,threat_source_type,relevance_to_enterprise,threat_trend
+Ransomware,Ransomware targeting enterprise systems,THR-001,Cyber,External,High,Increasing
+Supply Chain Compromise,Software supply chain attacks,THR-002,Cyber,External,High,Increasing
+Insider Threat,Malicious or negligent insider activity,THR-003,Insider,Internal,Medium,Stable
+Cloud Misconfiguration,Exploitation of cloud misconfigurations,THR-004,Cyber,External,High,Increasing
+Social Engineering,Targeted phishing and pretexting,THR-005,Cyber,External,Medium,Stable

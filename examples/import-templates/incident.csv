@@ -1,0 +1,6 @@
+name,description,incident_type,severity,status,detection_method,occurred_at,detected_at,resolved_at
+Phishing Campaign Detected,Targeted phishing emails to finance dept,phishing,high,resolved,email gateway,2024-11-15T08:30:00Z,2024-11-15T09:15:00Z,2024-11-15T14:00:00Z
+Unauthorized Access Attempt,Brute force login attempts on VPN,unauthorized_access,medium,resolved,SIEM,2024-10-22T03:00:00Z,2024-10-22T03:12:00Z,2024-10-22T06:00:00Z
+Malware Detection,Trojan on developer workstation,malware,high,resolved,EDR,2024-09-10T14:20:00Z,2024-09-10T14:22:00Z,2024-09-11T10:00:00Z
+Data Exposure,Cloud storage bucket publicly accessible,data_exposure,critical,resolved,external report,2024-08-05T00:00:00Z,2024-08-06T09:00:00Z,2024-08-06T15:00:00Z
+DDoS Attack,Volumetric attack on customer portal,ddos,medium,resolved,WAF,2024-07-18T11:00:00Z,2024-07-18T11:05:00Z,2024-07-18T13:30:00Z

@@ -1,0 +1,6 @@
+name,description,role_id,role_type,access_level,is_privileged
+Software Engineer,Designs and develops software systems,ROLE-001,Technical,standard,false
+CISO,Executive responsible for information security,ROLE-002,Executive,privileged,true
+Security Analyst,Monitors and responds to security events,ROLE-003,Technical,elevated,true
+Product Manager,Defines product roadmap and requirements,ROLE-004,Management,standard,false
+DevOps Engineer,Manages CI/CD and infrastructure automation,ROLE-005,Technical,privileged,true
