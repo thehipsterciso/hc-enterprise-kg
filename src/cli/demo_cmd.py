@@ -90,14 +90,22 @@ def demo(
 
     # Export
     output_path = Path(output)
-    if fmt == "graphml":
-        from export.graphml_export import GraphMLExporter
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        if fmt == "graphml":
+            from export.graphml_export import GraphMLExporter
 
-        GraphMLExporter().export(kg.engine, output_path)
-    else:
-        from export.json_export import JSONExporter
+            GraphMLExporter().export(kg.engine, output_path)
+        else:
+            from export.json_export import JSONExporter
 
-        JSONExporter().export(kg.engine, output_path)
+            JSONExporter().export(kg.engine, output_path)
+    except PermissionError:
+        click.echo(f"Error: permission denied writing to {output_path}", err=True)
+        raise SystemExit(1) from None
+    except OSError as exc:
+        click.echo(f"Error writing output file: {exc}", err=True)
+        raise SystemExit(1) from None
 
     # Print summary
     stats = kg.statistics
@@ -131,8 +139,11 @@ def _clean_outputs() -> None:
         for match in glob.glob(str(cwd / pattern)):
             p = Path(match)
             if p.is_file():
-                p.unlink()
-                removed.append(p.name)
+                try:
+                    p.unlink()
+                    removed.append(p.name)
+                except OSError as exc:
+                    click.echo(f"Warning: could not remove {p.name}: {exc}", err=True)
 
     if removed:
         click.echo(f"Cleaned: {', '.join(removed)}")
