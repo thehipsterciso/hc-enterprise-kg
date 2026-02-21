@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import click
 
 
@@ -102,7 +104,13 @@ def charts(
         scale_list = [100, 500, 1000, 5000, 10000, 20000]
     else:
         profile_list = [p.strip() for p in profiles.split(",")]
-        scale_list = [int(s.strip()) for s in scales.split(",")]
+        try:
+            scale_list = [int(s.strip()) for s in scales.split(",")]
+        except ValueError:
+            raise click.BadParameter(
+                f"Invalid scale values '{scales}'. Must be comma-separated integers.",
+                param_hint="--scales",
+            ) from None
 
     valid_profiles = {"tech", "financial", "healthcare"}
     for p in profile_list:
@@ -111,6 +119,19 @@ def charts(
                 f"Unknown profile '{p}'. Valid: {', '.join(sorted(valid_profiles))}",
                 param_hint="--profiles",
             )
+
+    if not (1 <= dpi <= 600):
+        raise click.BadParameter(
+            f"DPI must be between 1 and 600, got {dpi}.",
+            param_hint="--dpi",
+        )
+
+    output_path = Path(output)
+    try:
+        output_path.mkdir(parents=True, exist_ok=True)
+    except (PermissionError, OSError) as exc:
+        click.echo(f"Error creating output directory '{output}': {exc}", err=True)
+        raise SystemExit(1) from None
 
     config = ChartConfig(
         output_dir=output,
