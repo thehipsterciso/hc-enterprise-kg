@@ -25,20 +25,39 @@ def export_cmd(fmt: str, output: str, source: str) -> None:
 
     # Load from source
     ingestor = JSONIngestor()
-    result = ingestor.ingest(Path(source))
+    try:
+        result = ingestor.ingest(Path(source))
+    except Exception as exc:
+        click.echo(f"Error reading {source}: {exc}", err=True)
+        raise SystemExit(1) from None
+
+    if not result.entities and result.errors:
+        click.echo(f"Error: could not load {source}", err=True)
+        for err in result.errors[:5]:
+            click.echo(f"  {err}", err=True)
+        raise SystemExit(1)
+
     kg.add_entities_bulk(result.entities)
     kg.add_relationships_bulk(result.relationships)
 
     click.echo(f"Loaded {len(result.entities)} entities, {len(result.relationships)} relationships")
 
     output_path = Path(output)
-    if fmt == "json":
-        from export.json_export import JSONExporter
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        if fmt == "json":
+            from export.json_export import JSONExporter
 
-        JSONExporter().export(kg.engine, output_path)
-    elif fmt == "graphml":
-        from export.graphml_export import GraphMLExporter
+            JSONExporter().export(kg.engine, output_path)
+        elif fmt == "graphml":
+            from export.graphml_export import GraphMLExporter
 
-        GraphMLExporter().export(kg.engine, output_path)
+            GraphMLExporter().export(kg.engine, output_path)
+    except PermissionError:
+        click.echo(f"Error: permission denied writing to {output_path}", err=True)
+        raise SystemExit(1) from None
+    except OSError as exc:
+        click.echo(f"Error writing output file: {exc}", err=True)
+        raise SystemExit(1) from None
 
     click.echo(f"Exported to {output_path} ({fmt})")
