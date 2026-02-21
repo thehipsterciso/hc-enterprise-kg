@@ -13,7 +13,7 @@ poetry install --extras dev
 ## Running Tests
 
 ```bash
-make test          # Run all tests (~740)
+make test          # Run all tests (~756)
 make test-cov      # Run with coverage report
 make lint          # Lint with ruff
 make typecheck     # Type check with mypy

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.20.11] - 2026-02-21
+
+### Added
+- **Install pre-flight validation** — `hckg install claude` now runs 3 checks before writing config: Python version, server module existence, MCP SDK importability. Fails with actionable fix commands instead of silently writing a broken config (#191)
+- **`hckg install doctor`** — new subcommand that diagnoses an existing Claude Desktop registration without modifying anything
+- **`--skip-checks` flag** — bypass pre-flight validation for advanced users
+- 16 new tests for install validation (756 total)
+
 ## [0.20.10] - 2026-02-21
 
 ### Added

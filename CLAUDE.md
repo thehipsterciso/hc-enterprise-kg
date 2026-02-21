@@ -7,7 +7,7 @@
 ## Quick Commands
 
 ```bash
-poetry run pytest tests/ -v          # Run all tests (~740)
+poetry run pytest tests/ -v          # Run all tests (~756)
 poetry run pytest tests/performance/ -v  # Performance regression tests
 poetry run ruff check src/ tests/    # Lint
 poetry run hckg demo --clean         # Generate fresh graph.json
