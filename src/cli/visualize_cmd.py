@@ -170,7 +170,18 @@ def visualize_cmd(
     click.echo(f"Loading {source}...")
     kg = KnowledgeGraph()
     ingestor = JSONIngestor()
-    result = ingestor.ingest(Path(source))
+    try:
+        result = ingestor.ingest(Path(source))
+    except Exception as exc:
+        click.echo(f"Error reading {source}: {exc}", err=True)
+        raise SystemExit(1) from None
+
+    if not result.entities and result.errors:
+        click.echo(f"Error: could not load {source}", err=True)
+        for err in result.errors[:5]:
+            click.echo(f"  {err}", err=True)
+        raise SystemExit(1)
+
     kg.add_entities_bulk(result.entities)
     kg.add_relationships_bulk(result.relationships)
 
@@ -303,6 +314,7 @@ def visualize_cmd(
         output_path = Path(output)
 
     # Write HTML
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     net.write_html(str(output_path))
 
     # Inject a legend into the HTML
@@ -358,5 +370,8 @@ def _inject_legend(html_path: Path, stats: dict) -> None:
     )
 
     content = html_path.read_text()
+    if "</body>" not in content:
+        click.echo("  Warning: could not inject legend (no </body> tag found)", err=True)
+        return
     content = content.replace("</body>", f"{legend_html}\n{title_html}\n</body>")
     html_path.write_text(content)

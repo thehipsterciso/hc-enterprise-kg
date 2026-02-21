@@ -99,6 +99,20 @@ class TestInjectLegend:
             assert "Department (3)" in content
             assert "10 entities" in content
 
+    def test_missing_body_tag_warns(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            html_path = Path(tmpdir) / "test.html"
+            html_path.write_text("<html><div>no body tag</div></html>")
+            stats = {
+                "entity_count": 5,
+                "relationship_count": 2,
+                "entity_types": {"person": 5},
+            }
+            _inject_legend(html_path, stats)
+            content = html_path.read_text()
+            # Legend should NOT be injected — original content unchanged
+            assert "kg-legend" not in content
+
     def test_only_shows_present_types(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             html_path = Path(tmpdir) / "test.html"
@@ -155,6 +169,23 @@ class TestVisualizeCLI:
             assert result.exit_code == 0, result.output
             content = out.read_text()
             assert "<html>" in content.lower()
+
+    def test_visualize_malformed_json(self, tmp_path):
+        bad = tmp_path / "bad.json"
+        bad.write_text("not json {{{")
+        runner = CliRunner()
+        result = runner.invoke(cli, ["visualize", str(bad), "--no-open"])
+        assert result.exit_code != 0
+
+    def test_visualize_output_creates_dirs(self, sample_graph_json, tmp_path):
+        nested = tmp_path / "a" / "b" / "viz.html"
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["visualize", sample_graph_json, "--output", str(nested), "--no-open"],
+        )
+        assert result.exit_code == 0, result.output
+        assert nested.exists()
 
     def test_visualize_nonexistent_file(self):
         runner = CliRunner()
