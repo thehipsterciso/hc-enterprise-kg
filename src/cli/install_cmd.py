@@ -59,9 +59,7 @@ def _write_config(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = json.dumps(data, indent=2) + "\n"
     try:
-        fd, tmp = tempfile.mkstemp(
-            dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp"
-        )
+        fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=f".{path.name}.", suffix=".tmp")
         try:
             os.write(fd, payload.encode("utf-8"))
         finally:
@@ -160,7 +158,7 @@ def _check_python_version(python_path: str) -> tuple[bool, str]:
     except subprocess.TimeoutExpired:
         return False, f"timed out checking: {python_path}"
 
-    version_str = (result.stdout.strip() or result.stderr.strip())
+    version_str = result.stdout.strip() or result.stderr.strip()
     match = re.search(r"(\d+)\.(\d+)", version_str)
     if not match:
         return False, f"could not parse version from: {version_str}"
@@ -324,20 +322,26 @@ def install_group() -> None:
 
 @install_group.command("claude")
 @click.option(
-    "--config", "config_path", type=click.Path(), default=None,
+    "--config",
+    "config_path",
+    type=click.Path(),
+    default=None,
     help="Path to claude_desktop_config.json. Auto-detected if omitted.",
 )
 @click.option(
-    "--graph", "graph_path", type=click.Path(), default=None,
+    "--graph",
+    "graph_path",
+    type=click.Path(),
+    default=None,
     help="Default graph file to auto-load on startup.",
 )
 @click.option(
-    "--skip-checks", is_flag=True, default=False,
+    "--skip-checks",
+    is_flag=True,
+    default=False,
     help="Skip pre-flight validation checks.",
 )
-def install_claude(
-    config_path: str | None, graph_path: str | None, skip_checks: bool
-) -> None:
+def install_claude(config_path: str | None, graph_path: str | None, skip_checks: bool) -> None:
     """Register hc-enterprise-kg with Claude Desktop.
 
     Runs pre-flight validation to ensure the MCP server will start
@@ -487,12 +491,14 @@ def install_doctor() -> None:
     if not python_path:
         checks.append(("Command", False, "no 'command' field in registration"))
     elif not Path(python_path).exists():
-        checks.append((
-            "Command",
-            False,
-            f"interpreter not found: {python_path}\n"
-            "  The virtualenv may have been deleted. Re-run: hckg install claude",
-        ))
+        checks.append(
+            (
+                "Command",
+                False,
+                f"interpreter not found: {python_path}\n"
+                "  The virtualenv may have been deleted. Re-run: hckg install claude",
+            )
+        )
     else:
         checks.append(("Command", True, python_path))
 
@@ -501,25 +507,29 @@ def install_doctor() -> None:
     if args == expected_args:
         checks.append(("Args", True, str(args)))
     else:
-        checks.append((
-            "Args",
-            False,
-            f"unexpected args: {args}\n"
-            f"  Expected: {expected_args}\n"
-            "  Re-run: hckg install claude",
-        ))
+        checks.append(
+            (
+                "Args",
+                False,
+                f"unexpected args: {args}\n"
+                f"  Expected: {expected_args}\n"
+                "  Re-run: hckg install claude",
+            )
+        )
 
     # 3. cwd (if present) exists
     if cwd:
         if Path(cwd).is_dir():
             checks.append(("Working dir", True, cwd))
         else:
-            checks.append((
-                "Working dir",
-                False,
-                f"directory not found: {cwd}\n"
-                "  The project may have been moved. Re-run: hckg install claude",
-            ))
+            checks.append(
+                (
+                    "Working dir",
+                    False,
+                    f"directory not found: {cwd}\n"
+                    "  The project may have been moved. Re-run: hckg install claude",
+                )
+            )
 
     # 4. Graph file (if configured)
     env = entry.get("env", {})
@@ -528,12 +538,13 @@ def install_doctor() -> None:
         if Path(graph).exists():
             checks.append(("Graph file", True, graph))
         else:
-            checks.append((
-                "Graph file",
-                False,
-                f"not found: {graph}\n"
-                "  Re-generate: hckg demo --clean",
-            ))
+            checks.append(
+                (
+                    "Graph file",
+                    False,
+                    f"not found: {graph}\n  Re-generate: hckg demo --clean",
+                )
+            )
 
     # 5-7. Python version, MCP SDK, server module (only if command exists)
     if python_path and Path(python_path).exists():

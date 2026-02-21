@@ -187,7 +187,10 @@ class TestCheckPythonVersion:
 
     def test_old_python_fails(self):
         fake = subprocess.CompletedProcess(
-            args=[], returncode=0, stdout="Python 3.9.7\n", stderr="",
+            args=[],
+            returncode=0,
+            stdout="Python 3.9.7\n",
+            stderr="",
         )
         with patch("cli.install_cmd.subprocess.run", return_value=fake):
             ok, detail = install_cmd._check_python_version(sys.executable)
@@ -221,7 +224,9 @@ class TestCheckMcpImportable:
 
     def test_missing_module_shows_fix(self):
         fake = subprocess.CompletedProcess(
-            args=[], returncode=1, stdout="",
+            args=[],
+            returncode=1,
+            stdout="",
             stderr="ModuleNotFoundError: No module named 'mcp'",
         )
         with patch("cli.install_cmd.subprocess.run", return_value=fake):
@@ -232,7 +237,9 @@ class TestCheckMcpImportable:
 
     def test_other_import_error(self):
         fake = subprocess.CompletedProcess(
-            args=[], returncode=1, stdout="",
+            args=[],
+            returncode=1,
+            stdout="",
             stderr="ImportError: cannot import name 'Foo'",
         )
         with patch("cli.install_cmd.subprocess.run", return_value=fake):
@@ -259,7 +266,9 @@ class TestCheckServerImportable:
 
     def test_missing_mcp_server_shows_fix(self):
         fake = subprocess.CompletedProcess(
-            args=[], returncode=1, stdout="",
+            args=[],
+            returncode=1,
+            stdout="",
             stderr="ModuleNotFoundError: No module named 'mcp_server'",
         )
         with patch("cli.install_cmd.subprocess.run", return_value=fake):
@@ -270,7 +279,9 @@ class TestCheckServerImportable:
 
     def test_missing_mcp_dependency_shows_fix(self):
         fake = subprocess.CompletedProcess(
-            args=[], returncode=1, stdout="",
+            args=[],
+            returncode=1,
+            stdout="",
             stderr="ModuleNotFoundError: No module named 'mcp'",
         )
         with patch("cli.install_cmd.subprocess.run", return_value=fake):
@@ -363,9 +374,9 @@ class TestInstallClaude:
 
     def test_preserves_existing_servers(self, tmp_path: Path):
         config_path = tmp_path / "config.json"
-        config_path.write_text(json.dumps({
-            "mcpServers": {"other": {"command": "node", "args": ["s.js"]}}
-        }))
+        config_path.write_text(
+            json.dumps({"mcpServers": {"other": {"command": "node", "args": ["s.js"]}}})
+        )
         result = CliRunner().invoke(cli, ["install", "claude", "--config", str(config_path)])
         assert result.exit_code == 0, result.output
         config = json.loads(config_path.read_text())
@@ -390,7 +401,9 @@ class TestInstallClaude:
     def test_fails_on_preflight_failure(self, tmp_path: Path):
         config_path = tmp_path / "config.json"
         fake = subprocess.CompletedProcess(
-            args=[], returncode=1, stdout="",
+            args=[],
+            returncode=1,
+            stdout="",
             stderr="ModuleNotFoundError: No module named 'mcp'",
         )
         with patch("cli.install_cmd.subprocess.run", return_value=fake):
@@ -409,8 +422,15 @@ class TestInstallClaude:
     def test_graph_warning_on_missing_file(self, tmp_path: Path):
         config_path = tmp_path / "config.json"
         result = CliRunner().invoke(
-            cli, ["install", "claude", "--config", str(config_path),
-                  "--graph", "/nonexistent/graph.json"]
+            cli,
+            [
+                "install",
+                "claude",
+                "--config",
+                str(config_path),
+                "--graph",
+                "/nonexistent/graph.json",
+            ],
         )
         assert result.exit_code == 0, result.output
         assert "Warning" in result.output
@@ -510,9 +530,7 @@ class TestInstallDoctor:
 
     def test_invalid_entry_type(self, tmp_path: Path):
         config_path = tmp_path / "config.json"
-        config_path.write_text(json.dumps({
-            "mcpServers": {"hc-enterprise-kg": "not-a-dict"}
-        }))
+        config_path.write_text(json.dumps({"mcpServers": {"hc-enterprise-kg": "not-a-dict"}}))
         result = self._run_doctor(config_path)
         assert result.exit_code != 0
         assert "not a valid" in result.output
@@ -612,15 +630,19 @@ class TestInstallRemove:
 
     def test_remove_preserves_other_servers(self, tmp_path: Path):
         config_path = tmp_path / "config.json"
-        config_path.write_text(json.dumps({
-            "mcpServers": {
-                "other": {"command": "node"},
-                "hc-enterprise-kg": {
-                    "command": sys.executable,
-                    "args": ["-m", "mcp_server.server"],
-                },
-            }
-        }))
+        config_path.write_text(
+            json.dumps(
+                {
+                    "mcpServers": {
+                        "other": {"command": "node"},
+                        "hc-enterprise-kg": {
+                            "command": sys.executable,
+                            "args": ["-m", "mcp_server.server"],
+                        },
+                    }
+                }
+            )
+        )
         original = install_cmd._detect_claude_config_path
         try:
             install_cmd._detect_claude_config_path = lambda: config_path
