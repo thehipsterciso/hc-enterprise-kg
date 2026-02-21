@@ -1,0 +1,18 @@
+{
+  "name": "ServiceNow CMDB CI Export",
+  "description": "Maps a ServiceNow Configuration Item (CI) export CSV to System entities. Adjust column names to match your ServiceNow instance.",
+  "entity_type": "system",
+  "name_field": "Name",
+  "columns": {
+    "CI_Class": "system_type",
+    "IP_Address": "ip_address",
+    "DNS_Host_Name": "hostname",
+    "Operating_System": "os",
+    "Environment": "environment",
+    "Business_Criticality": "criticality",
+    "Operational_Status": "system_status",
+    "Managed_By": "system_owner",
+    "Department": "department_id",
+    "Vendor": "vendor_id"
+  }
+}

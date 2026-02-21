@@ -43,6 +43,13 @@ import click
     default=False,
     help="Treat warnings as errors.",
 )
+@click.option(
+    "--mapping",
+    "mapping_path",
+    type=click.Path(exists=True),
+    default=None,
+    help="Column mapping file for CSV import (.mapping.json).",
+)
 @click.pass_context
 def import_cmd(
     ctx: click.Context,
@@ -52,17 +59,20 @@ def import_cmd(
     merge_path: str | None,
     dry_run: bool,
     strict: bool,
+    mapping_path: str | None,
 ) -> None:
     """Import JSON or CSV data into the knowledge graph.
 
     Validates data before importing and reports any issues.
-    Supports merging into an existing graph.
+    Supports merging into an existing graph and column mappings for
+    vendor exports.
 
     \b
     Examples:
         hckg import org-data.json -o graph.json
         hckg import employees.csv -t person -o graph.json
         hckg import systems.csv -t system -m existing.json -o combined.json
+        hckg import export.csv --mapping workday-hr.mapping.json -o graph.json
         hckg import data.json --dry-run --strict
     """
     from pathlib import Path
@@ -70,11 +80,26 @@ def import_cmd(
     source_path = Path(source)
     ext = source_path.suffix.lower()
 
+    # Validate mutual exclusion: --mapping and --entity-type
+    if mapping_path and entity_type_str:
+        click.echo(
+            "Error: --mapping and --entity-type are mutually exclusive.",
+            err=True,
+        )
+        raise SystemExit(1) from None
+
     if ext == ".json":
+        if mapping_path:
+            click.echo(
+                "Error: --mapping is only supported for CSV files.",
+                err=True,
+            )
+            raise SystemExit(1) from None
         _import_json(ctx, source_path, output, merge_path, dry_run, strict)
     elif ext == ".csv":
         _import_csv(
-            ctx, source_path, output, entity_type_str, merge_path, dry_run, strict
+            ctx, source_path, output, entity_type_str, merge_path, dry_run, strict,
+            mapping_path=mapping_path,
         )
     else:
         click.echo(
@@ -169,6 +194,8 @@ def _import_csv(
     merge_path: str | None,
     dry_run: bool,
     strict: bool,
+    *,
+    mapping_path: str | None = None,
 ) -> None:
     """Handle CSV import path."""
     import csv
@@ -180,6 +207,33 @@ def _import_csv(
 
     click.echo(f"Importing {source_path.name}...")
     click.echo()
+
+    # Load column mapping if provided
+    schema_mapping = None
+    if mapping_path:
+        from ingest.mapping_loader import load_column_mapping, to_schema_mapping
+
+        load_result = load_column_mapping(Path(mapping_path))
+        if not load_result.is_valid:
+            click.echo("Error: invalid mapping file:", err=True)
+            for err in load_result.errors:
+                click.echo(f"  {err}", err=True)
+            raise SystemExit(1) from None
+        if load_result.warnings:
+            for warn in load_result.warnings:
+                click.echo(f"  Warning: {warn}", err=True)
+            if strict:
+                click.echo(
+                    "Import aborted: --strict mode and mapping warnings present.",
+                    err=True,
+                )
+                raise SystemExit(1) from None
+
+        col_mapping = load_result.mapping
+        entity_type = col_mapping.entity_type  # type: ignore[union-attr]
+        schema_mapping = to_schema_mapping(col_mapping)  # type: ignore[arg-type]
+        click.echo(f"  Using mapping: {col_mapping.name}")  # type: ignore[union-attr]
+        click.echo(f"  Entity type: {entity_type.value}")
 
     # Read headers
     try:
@@ -197,44 +251,53 @@ def _import_csv(
         )
         raise SystemExit(1) from None
 
-    # Determine entity type
-    if entity_type_str:
-        try:
-            entity_type = EntityType(entity_type_str)
-        except ValueError:
-            valid = sorted(e.value for e in EntityType)
+    # Determine entity type (if not already set by mapping)
+    if not mapping_path:
+        if entity_type_str:
+            try:
+                entity_type = EntityType(entity_type_str)
+            except ValueError:
+                valid = sorted(e.value for e in EntityType)
+                click.echo(
+                    f"Error: unknown entity type '{entity_type_str}'.\n"
+                    f"Valid types: {', '.join(valid)}",
+                    err=True,
+                )
+                raise SystemExit(1) from None
+        else:
+            from auto.schema_inference import infer_entity_type
+
+            entity_type = infer_entity_type(headers)
+            if entity_type is None:
+                valid = sorted(e.value for e in EntityType)
+                click.echo(
+                    f"Error: could not auto-detect entity type from CSV columns.\n"
+                    f"Use --entity-type to specify. Valid types: {', '.join(valid)}",
+                    err=True,
+                )
+                raise SystemExit(1) from None
+            click.echo(f"  Auto-detected entity type: {entity_type.value}")
+
+    # Validate columns (skip if using mapping — mapping handles translation)
+    from ingest.validator import validate_csv_import
+
+    if not mapping_path:
+        vr = validate_csv_import(headers, entity_type)
+        _display_validation(vr)
+
+        if not vr.is_valid:
+            click.echo("Import aborted due to validation errors.", err=True)
+            raise SystemExit(1) from None
+        if strict and vr.warnings:
             click.echo(
-                f"Error: unknown entity type '{entity_type_str}'.\n"
-                f"Valid types: {', '.join(valid)}",
-                err=True,
+                "Import aborted: --strict mode and warnings present.", err=True
             )
             raise SystemExit(1) from None
     else:
-        from auto.schema_inference import infer_entity_type
+        from ingest.validator import ValidationResult
 
-        entity_type = infer_entity_type(headers)
-        if entity_type is None:
-            valid = sorted(e.value for e in EntityType)
-            click.echo(
-                f"Error: could not auto-detect entity type from CSV columns.\n"
-                f"Use --entity-type to specify. Valid types: {', '.join(valid)}",
-                err=True,
-            )
-            raise SystemExit(1) from None
-        click.echo(f"  Auto-detected entity type: {entity_type.value}")
+        vr = ValidationResult()
 
-    # Validate columns
-    from ingest.validator import validate_csv_import
-
-    vr = validate_csv_import(headers, entity_type)
-    _display_validation(vr)
-
-    if not vr.is_valid:
-        click.echo("Import aborted due to validation errors.", err=True)
-        raise SystemExit(1) from None
-    if strict and vr.warnings:
-        click.echo("Import aborted: --strict mode and warnings present.", err=True)
-        raise SystemExit(1) from None
     if dry_run:
         click.echo("Dry run complete. No output written.")
         return
@@ -250,7 +313,10 @@ def _import_csv(
         _merge_existing(kg, merge_path)
 
     ingestor = CSVIngestor()
-    result = ingestor.ingest(source_path, entity_type=entity_type)
+    if schema_mapping:
+        result = ingestor.ingest(source_path, mapping=schema_mapping)
+    else:
+        result = ingestor.ingest(source_path, entity_type=entity_type)
     if not result.entities and result.errors:
         click.echo(f"Error: could not ingest {source_path.name}", err=True)
         for err in result.errors[:5]:

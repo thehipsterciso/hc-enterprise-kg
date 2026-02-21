@@ -1,0 +1,17 @@
+{
+  "name": "Qualys Vulnerability Export",
+  "description": "Maps a Qualys vulnerability scan export CSV to Vulnerability entities. Adjust column names to match your Qualys report format.",
+  "entity_type": "vulnerability",
+  "name_field": "Title",
+  "columns": {
+    "CVE_ID": "cve_id",
+    "CVSS_Score": "cvss_score",
+    "CVSS_Vector": "cvss_vector",
+    "Severity_Level": "severity",
+    "Vuln_Status": "status",
+    "Affected_Software": "affected_component",
+    "First_Detected": "discovery_date",
+    "Exploit_Available": "exploit_available",
+    "Patch_Available": "patch_available"
+  }
+}

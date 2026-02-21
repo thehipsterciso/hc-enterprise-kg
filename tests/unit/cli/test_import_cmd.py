@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
-import pytest
 from click.testing import CliRunner
 
 from cli.main import cli
+
+if TYPE_CHECKING:
+    import pytest
 
 SAMPLE_ENTITIES_JSON = Path(__file__).parent.parent.parent / "fixtures" / "sample_entities.json"
 SAMPLE_ORG_CSV = Path(__file__).parent.parent.parent / "fixtures" / "sample_org.csv"
@@ -103,7 +106,8 @@ class TestImportJsonErrors:
         runner = CliRunner()
         result = runner.invoke(cli, ["import", str(bad)])
         assert result.exit_code != 0
-        assert "invalid JSON" in result.output.lower() or "invalid json" in (result.output + str(result.exception or "")).lower()
+        combined = result.output + str(result.exception or "")
+        assert "invalid json" in combined.lower()
 
     def test_missing_entities_key(self, tmp_path: Path) -> None:
         src = tmp_path / "no_entities.json"
@@ -276,6 +280,86 @@ class TestImportClaudeSync:
             result = runner.invoke(cli, ["import", str(src), "-o", str(out)])
             assert result.exit_code == 0
             mock_sync.assert_called_once()
+
+
+class TestImportMapping:
+    def _make_mapping(self, tmp_path: Path) -> Path:
+        mapping = {
+            "entity_type": "person",
+            "name_field": "Full_Name",
+            "columns": {
+                "First": "first_name",
+                "Last": "last_name",
+                "Mail": "email",
+            },
+        }
+        path = tmp_path / "test.mapping.json"
+        path.write_text(json.dumps(mapping))
+        return path
+
+    def _make_mapped_csv(self, tmp_path: Path) -> Path:
+        path = tmp_path / "hr_export.csv"
+        path.write_text(
+            "Full_Name,First,Last,Mail\n"
+            "Alice Smith,Alice,Smith,alice@acme.com\n"
+            "Bob Jones,Bob,Jones,bob@acme.com\n"
+        )
+        return path
+
+    def test_mapping_with_csv(self, tmp_path: Path) -> None:
+        csv_path = self._make_mapped_csv(tmp_path)
+        mapping_path = self._make_mapping(tmp_path)
+        out = tmp_path / "result.json"
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["import", str(csv_path), "--mapping", str(mapping_path), "-o", str(out)],
+        )
+        assert result.exit_code == 0
+        assert out.exists()
+        assert "Using mapping" in result.output
+
+        with open(out) as f:
+            data = json.load(f)
+        assert len(data["entities"]) == 2
+
+    def test_mapping_mutual_exclusion_with_entity_type(self, tmp_path: Path) -> None:
+        csv_path = self._make_mapped_csv(tmp_path)
+        mapping_path = self._make_mapping(tmp_path)
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["import", str(csv_path), "--mapping", str(mapping_path), "-t", "person"],
+        )
+        assert result.exit_code != 0
+        assert "mutually exclusive" in result.output.lower()
+
+    def test_mapping_not_supported_for_json(self, tmp_path: Path) -> None:
+        src = _minimal_json(tmp_path)
+        mapping_path = self._make_mapping(tmp_path)
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["import", str(src), "--mapping", str(mapping_path)],
+        )
+        assert result.exit_code != 0
+        assert "csv" in result.output.lower()
+
+    def test_mapping_invalid_format(self, tmp_path: Path) -> None:
+        csv_path = self._make_mapped_csv(tmp_path)
+        bad_mapping = tmp_path / "bad.mapping.json"
+        bad_mapping.write_text('{"entity_type": "bogus"}')
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            ["import", str(csv_path), "--mapping", str(bad_mapping)],
+        )
+        assert result.exit_code != 0
+
+    def test_help_shows_mapping_option(self) -> None:
+        runner = CliRunner()
+        result = runner.invoke(cli, ["import", "--help"])
+        assert "--mapping" in result.output
 
 
 class TestImportEdgeCases:

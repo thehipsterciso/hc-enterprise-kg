@@ -1,0 +1,18 @@
+{
+  "name": "Workday HR Export",
+  "description": "Maps a typical Workday People report CSV to Person entities. Adjust column names to match your specific Workday report configuration.",
+  "entity_type": "person",
+  "name_field": "Legal_Name",
+  "columns": {
+    "Worker_ID": "employee_id",
+    "Legal_First_Name": "first_name",
+    "Legal_Last_Name": "last_name",
+    "Email_Primary_Work": "email",
+    "Job_Title": "title",
+    "Hire_Date": "hire_date",
+    "Worker_Type": "employment_type",
+    "Location": "location_primary",
+    "Cost_Center": "cost_center",
+    "Manager_Name": "mentored_by"
+  }
+}
