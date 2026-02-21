@@ -360,6 +360,25 @@ class TestBuildServerEntry:
 # ===================================================================
 
 
+class TestGenerateDefaultGraph:
+    def test_generates_to_project_root(self, tmp_path: Path):
+        result = install_cmd._generate_default_graph(tmp_path)
+        graph_path = Path(result)
+        assert graph_path.exists()
+        assert graph_path.parent == tmp_path
+        assert Path(graph_path).name == "graph.json"
+        data = json.loads(graph_path.read_text())
+        assert "entities" in data
+        assert len(data["entities"]) > 0
+
+    def test_generates_to_cwd_when_no_root(self, tmp_path: Path):
+        with patch("cli.install_cmd.Path.cwd", return_value=tmp_path):
+            result = install_cmd._generate_default_graph(None)
+        graph_path = Path(result)
+        assert graph_path.exists()
+        assert graph_path.parent.resolve() == tmp_path.resolve()
+
+
 class TestDetectDefaultGraph:
     def test_finds_graph_in_project_root(self, tmp_path: Path):
         graph = tmp_path / "graph.json"
@@ -530,25 +549,52 @@ class TestInstallClaude:
         assert "HCKG_DEFAULT_GRAPH" in entry.get("env", {})
         assert entry["env"]["HCKG_DEFAULT_GRAPH"] == str(graph.resolve())
 
-    def test_warns_when_no_graph_found(self, tmp_path: Path):
-        """When --graph omitted and no graph.json exists, warns the user."""
+    def test_generates_graph_when_none_exists(self, tmp_path: Path):
+        """When no graph exists anywhere, install generates a default one."""
         config_path = tmp_path / "config.json"
+        project_root = tmp_path / "project"
+        project_root.mkdir()
+        (project_root / "src").mkdir()
         with (
             patch("cli.install_cmd._detect_default_graph", return_value=None),
+            patch("cli.install_cmd._detect_project_root", return_value=project_root),
         ):
             result = CliRunner().invoke(
                 cli, ["install", "claude", "--config", str(config_path)]
             )
         assert result.exit_code == 0, result.output
-        assert "no graph file found" in result.output
-        assert "hckg demo --clean" in result.output
-        # Config should still be written (server works, just no pre-loaded graph)
+        assert "generated" in result.output.lower()
+        assert "Generating default graph" in result.output
+        # Config must have HCKG_DEFAULT_GRAPH set
         config = json.loads(config_path.read_text())
         entry = config["mcpServers"]["hc-enterprise-kg"]
-        assert "env" not in entry
+        assert "HCKG_DEFAULT_GRAPH" in entry.get("env", {})
+        # The generated graph file must exist
+        graph_file = Path(entry["env"]["HCKG_DEFAULT_GRAPH"])
+        assert graph_file.exists()
+        assert graph_file.stat().st_size > 0
 
-    def test_next_steps_with_graph(self, tmp_path: Path):
-        """Next steps should say 'Show me graph statistics' when graph configured."""
+    def test_generated_graph_is_valid_json(self, tmp_path: Path):
+        """Auto-generated graph is valid JSON with entities and relationships."""
+        config_path = tmp_path / "config.json"
+        project_root = tmp_path / "project"
+        project_root.mkdir()
+        (project_root / "src").mkdir()
+        with (
+            patch("cli.install_cmd._detect_default_graph", return_value=None),
+            patch("cli.install_cmd._detect_project_root", return_value=project_root),
+        ):
+            CliRunner().invoke(cli, ["install", "claude", "--config", str(config_path)])
+        config = json.loads(config_path.read_text())
+        graph_file = Path(config["mcpServers"]["hc-enterprise-kg"]["env"]["HCKG_DEFAULT_GRAPH"])
+        data = json.loads(graph_file.read_text())
+        assert "entities" in data
+        assert "relationships" in data
+        assert len(data["entities"]) > 0
+        assert len(data["relationships"]) > 0
+
+    def test_always_has_graph_in_next_steps(self, tmp_path: Path):
+        """Next steps always shows 'Show me graph statistics' since graph is guaranteed."""
         config_path = tmp_path / "config.json"
         graph = tmp_path / "graph.json"
         graph.write_text("{}")
@@ -558,19 +604,6 @@ class TestInstallClaude:
         )
         assert result.exit_code == 0, result.output
         assert "Show me graph statistics" in result.output
-        # Should NOT show the multi-step "generate then re-run" instructions
-        assert "Re-run" not in result.output
-
-    def test_next_steps_without_graph(self, tmp_path: Path):
-        """Next steps should guide user to generate + re-install when no graph."""
-        config_path = tmp_path / "config.json"
-        with patch("cli.install_cmd._detect_default_graph", return_value=None):
-            result = CliRunner().invoke(
-                cli, ["install", "claude", "--config", str(config_path)]
-            )
-        assert result.exit_code == 0, result.output
-        assert "hckg demo --clean" in result.output
-        assert "hckg install claude" in result.output
 
 
 # ===================================================================
