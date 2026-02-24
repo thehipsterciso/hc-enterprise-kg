@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.21.6] - 2026-02-24
+
+### Changed
+- **Widen RELATIONSHIP_SCHEMA constraints** — 7 relationship types (subject_to, managed_by, depends_on, serves, buys, contains, supports) now accept broader entity combinations needed for OSINT-derived knowledge graphs; 33 new tests (#243)
+
 ## [0.21.5] - 2026-02-21
 
 ### Changed
