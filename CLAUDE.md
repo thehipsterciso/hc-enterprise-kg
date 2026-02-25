@@ -88,11 +88,13 @@ The charts module (`src/analysis/charts/`) auto-generates 8 chart types from syn
 
 ## MCP Server
 
-The MCP server (`src/mcp_server/`) provides 10 tools for Claude Desktop:
-- `load_graph`, `get_statistics`, `list_entities`, `get_entity`, `get_neighbors`
-- `find_shortest_path`, `get_blast_radius`, `compute_centrality`, `find_most_connected`, `search_entities`
+The MCP server (`src/mcp_server/`) provides 11 tools for Claude Desktop:
+- **Read:** `load_graph`, `get_statistics`, `list_entities`, `get_entity`, `get_neighbors`, `find_shortest_path`, `get_blast_radius`, `compute_centrality`, `find_most_connected`, `search_entities`
+- **Write:** `add_relationship_tool` — validated relationship creation with schema enforcement and auto-persist
 
 **Auto-reload** ([ADR-009](docs/adr/009-mcp-mtime-auto-reload.md))**:** The server detects graph file changes via mtime checking on every tool call. After `hckg demo --clean`, Claude Desktop tools automatically pick up the new graph.
+
+**Write tool validation** (`src/mcp_server/validation.py`)**:** All write tools validate inputs (enum membership, entity existence, domain/range schema) before mutation. `persist_graph()` in `state.py` auto-saves to disk and syncs mtime to prevent reload races.
 
 ## Architecture Decision Records
 
@@ -143,3 +145,5 @@ All major design choices are formally documented in `docs/adr/`. Before proposin
 - Import CLI tests in `tests/unit/cli/test_import_cmd.py`
 - Import template integration tests in `tests/integration/test_import_templates.py`
 - Schema inference tests in `tests/unit/auto/test_schema_inference.py`
+- MCP validation tests in `tests/unit/mcp_server/test_mcp_validation.py`
+- MCP write tool tests in `tests/unit/mcp_server/test_write_tools.py`
