@@ -125,9 +125,7 @@ class TestImportJsonErrors:
 
     def test_invalid_entity_type(self, tmp_path: Path) -> None:
         src = tmp_path / "bad_type.json"
-        src.write_text(json.dumps({
-            "entities": [{"entity_type": "bogus", "name": "Test"}]
-        }))
+        src.write_text(json.dumps({"entities": [{"entity_type": "bogus", "name": "Test"}]}))
         runner = CliRunner()
         result = runner.invoke(cli, ["import", str(src)])
         assert result.exit_code != 0
@@ -147,9 +145,7 @@ class TestImportCsvValid:
         src = _minimal_csv(tmp_path)
         out = tmp_path / "result.json"
         runner = CliRunner()
-        result = runner.invoke(
-            cli, ["import", str(src), "-t", "system", "-o", str(out)]
-        )
+        result = runner.invoke(cli, ["import", str(src), "-t", "system", "-o", str(out)])
         assert result.exit_code == 0
         assert out.exists()
 
@@ -183,9 +179,7 @@ class TestImportDryRun:
         src = _minimal_json(tmp_path)
         out = tmp_path / "should_not_exist.json"
         runner = CliRunner()
-        result = runner.invoke(
-            cli, ["import", str(src), "-o", str(out), "--dry-run"]
-        )
+        result = runner.invoke(cli, ["import", str(src), "-o", str(out), "--dry-run"])
         assert result.exit_code == 0
         assert not out.exists()
         assert "Dry run complete" in result.output
@@ -193,9 +187,7 @@ class TestImportDryRun:
     def test_dry_run_csv(self, tmp_path: Path) -> None:
         out = tmp_path / "nope.json"
         runner = CliRunner()
-        result = runner.invoke(
-            cli, ["import", str(SAMPLE_ORG_CSV), "-o", str(out), "--dry-run"]
-        )
+        result = runner.invoke(cli, ["import", str(SAMPLE_ORG_CSV), "-o", str(out), "--dry-run"])
         assert result.exit_code == 0
         assert not out.exists()
 
@@ -203,15 +195,19 @@ class TestImportDryRun:
 class TestImportStrict:
     def test_strict_fails_on_warnings(self, tmp_path: Path) -> None:
         src = tmp_path / "with_typo.json"
-        src.write_text(json.dumps({
-            "entities": [
+        src.write_text(
+            json.dumps(
                 {
-                    "entity_type": "department",
-                    "name": "Eng",
-                    "typo_field": "oops",
+                    "entities": [
+                        {
+                            "entity_type": "department",
+                            "name": "Eng",
+                            "typo_field": "oops",
+                        }
+                    ]
                 }
-            ]
-        }))
+            )
+        )
         runner = CliRunner()
         result = runner.invoke(cli, ["import", str(src), "--strict"])
         assert result.exit_code != 0
@@ -221,9 +217,7 @@ class TestImportStrict:
         src = _minimal_json(tmp_path)
         out = tmp_path / "result.json"
         runner = CliRunner()
-        result = runner.invoke(
-            cli, ["import", str(src), "-o", str(out), "--strict"]
-        )
+        result = runner.invoke(cli, ["import", str(src), "-o", str(out), "--strict"])
         assert result.exit_code == 0
         assert out.exists()
 
@@ -264,9 +258,7 @@ class TestImportOutput:
             side_effect=PermissionError("denied"),
         ):
             runner = CliRunner()
-            result = runner.invoke(
-                cli, ["import", str(src), "-o", str(tmp_path / "out.json")]
-            )
+            result = runner.invoke(cli, ["import", str(src), "-o", str(tmp_path / "out.json")])
             assert result.exit_code != 0
             assert "permission denied" in result.output.lower()
 

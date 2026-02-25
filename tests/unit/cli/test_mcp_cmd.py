@@ -603,9 +603,7 @@ class TestInstallClaude:
         graph = project_root / "graph.json"
         graph.write_text('{"entities": [], "relationships": []}')
         with patch("cli.install_cmd._detect_project_root", return_value=project_root):
-            result = CliRunner().invoke(
-                cli, ["install", "claude", "--config", str(config_path)]
-            )
+            result = CliRunner().invoke(cli, ["install", "claude", "--config", str(config_path)])
         assert result.exit_code == 0, result.output
         assert "auto-detected" in result.output
         config = json.loads(config_path.read_text())
@@ -623,9 +621,7 @@ class TestInstallClaude:
             patch("cli.install_cmd._detect_default_graph", return_value=None),
             patch("cli.install_cmd._detect_project_root", return_value=project_root),
         ):
-            result = CliRunner().invoke(
-                cli, ["install", "claude", "--config", str(config_path)]
-            )
+            result = CliRunner().invoke(cli, ["install", "claude", "--config", str(config_path)])
         assert result.exit_code == 0, result.output
         assert "generated" in result.output.lower()
         assert "Generating default graph" in result.output

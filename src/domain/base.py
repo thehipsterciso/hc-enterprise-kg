@@ -150,6 +150,11 @@ class RelationshipType(StrEnum):
     DRIVES = "drives"
     FUNDED_BY = "funded_by"
 
+    # --- L00: Geography ---
+    LOCATED_IN = "located_in"
+    ISOLATED_FROM = "isolated_from"
+    ACQUIRED_FROM = "acquired_from"
+
 
 class TemporalMixin(BaseModel):
     """Mixin that adds temporal tracking to any entity or relationship."""

@@ -193,6 +193,14 @@ Every relationship has a defined source type and target type (see schema below).
 | `drives` | Initiative | Product, Business Capability, Control | Initiative driver |
 | `funded_by` | Initiative | Department, Organizational Unit | Funding source |
 
+### Geography (L00)
+
+| Type | Source | Target | Description |
+|---|---|---|---|
+| `located_in` | Geography, Site | Geography | Physical containment within a geographic region |
+| `isolated_from` | Geography | Geography | Sovereignty or regulatory isolation boundary |
+| `acquired_from` | Geography, Site | Geography | M&A lineage — asset acquired via acquisition |
+
 ---
 
 ## Base Model Fields
