@@ -84,6 +84,33 @@ def require_graph() -> KnowledgeGraph:
     return _kg
 
 
+def persist_graph() -> dict | None:
+    """Export the current in-memory graph to the loaded file path.
+
+    Updates ``_loaded_mtime`` after writing so the auto-reload check
+    does not immediately re-read the file we just wrote.
+
+    Returns ``None`` on success or an error dict on failure.
+    """
+    global _loaded_mtime  # noqa: PLW0603
+
+    if _kg is None:
+        return {"error": "No graph loaded — nothing to persist."}
+    if _loaded_path is None:
+        return {"error": "No graph file path set — cannot persist."}
+
+    try:
+        from export.json_export import JSONExporter
+
+        JSONExporter().export(_kg.engine, Path(_loaded_path))
+        _loaded_mtime = os.path.getmtime(_loaded_path)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("Failed to persist graph to %s", _loaded_path)
+        return {"error": f"Failed to persist graph: {exc}"}
+
+    return None
+
+
 def auto_load_default_graph() -> None:
     """Load the graph from HCKG_DEFAULT_GRAPH env var if set."""
     path = os.environ.get("HCKG_DEFAULT_GRAPH")
