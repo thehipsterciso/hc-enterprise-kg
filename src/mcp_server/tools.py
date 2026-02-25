@@ -11,9 +11,10 @@ from typing import Any
 from rapidfuzz import fuzz, process
 
 from domain.base import BaseEntity, BaseRelationship, EntityType, RelationshipType
+from domain.registry import EntityRegistry
 from mcp_server.helpers import compact_entity, compact_relationship
 from mcp_server.state import NoGraphError, load_graph, persist_graph, require_graph
-from mcp_server.validation import validate_relationship_input
+from mcp_server.validation import validate_entity_input, validate_relationship_input
 
 
 def register_tools(mcp):  # noqa: ANN001
@@ -528,6 +529,149 @@ def register_tools(mcp):  # noqa: ANN001
         success = kg.remove_relationship(relationship_id)
         if not success:
             return {"error": f"Failed to remove relationship '{relationship_id}'."}
+
+        err = persist_graph()
+        if err:
+            return err
+
+        return {"status": "ok", "removed": info}
+
+    # ------------------------------------------------------------------ #
+    #  Entity CRUD tools                                                  #
+    # ------------------------------------------------------------------ #
+
+    @mcp.tool()
+    def add_entity_tool(
+        entity_type: str,
+        name: str,
+        description: str = "",
+        properties: dict | None = None,
+    ) -> dict:
+        """Add a new entity to the knowledge graph.
+
+        Creates a concrete Pydantic entity of the given type using the
+        EntityRegistry.  An ID is auto-generated (UUID).
+
+        Args:
+            entity_type: One of the 30 valid entity types
+                (e.g. "system", "person", "vendor").
+            name: Display name for the entity.
+            description: Optional description.
+            properties: Optional dict of type-specific fields
+                (e.g. {"status": "active"} for a System).
+
+        Returns:
+            The created entity summary, or an error dict.
+        """
+        try:
+            kg = require_graph()
+        except NoGraphError:
+            return {"error": "No graph loaded. Call load_graph first."}
+
+        ok, reason = validate_entity_input(entity_type, name, description)
+        if not ok:
+            return {"error": reason}
+
+        et = EntityType(entity_type)
+        try:
+            entity_cls = EntityRegistry.get(et)
+        except KeyError:
+            return {"error": f"No entity class registered for '{entity_type}'."}
+
+        # Build kwargs — name + description + any extra properties
+        kwargs: dict[str, Any] = {"name": name}
+        if description:
+            kwargs["description"] = description
+        if properties:
+            kwargs.update(properties)
+
+        try:
+            entity = entity_cls(**kwargs)
+        except Exception as exc:
+            return {"error": f"Failed to create entity: {exc}"}
+
+        entity_id = kg.add_entity(entity)
+
+        err = persist_graph()
+        if err:
+            return err
+
+        return {
+            "status": "ok",
+            "entity_id": entity_id,
+            "entity": compact_entity(entity),
+        }
+
+    @mcp.tool()
+    def update_entity_tool(
+        entity_id: str,
+        updates: dict,
+    ) -> dict:
+        """Update fields on an existing entity.
+
+        Applies the given key-value updates to the entity. The engine
+        validates the result via copy-validate-write.
+
+        Args:
+            entity_id: ID of the entity to update.
+            updates: Dict of field names to new values.
+
+        Returns:
+            The updated entity summary, or an error dict.
+        """
+        try:
+            kg = require_graph()
+        except NoGraphError:
+            return {"error": "No graph loaded. Call load_graph first."}
+
+        if not updates:
+            return {"error": "No updates provided."}
+
+        existing = kg.get_entity(entity_id)
+        if existing is None:
+            return {"error": f"Entity '{entity_id}' not found."}
+
+        try:
+            updated = kg.update_entity(entity_id, **updates)
+        except (KeyError, ValueError, TypeError) as exc:
+            return {"error": f"Update failed: {exc}"}
+
+        err = persist_graph()
+        if err:
+            return err
+
+        return {
+            "status": "ok",
+            "entity_id": entity_id,
+            "entity": compact_entity(updated),
+        }
+
+    @mcp.tool()
+    def remove_entity_tool(entity_id: str) -> dict:
+        """Remove an entity and all its relationships from the graph.
+
+        The engine automatically removes all edges connected to the
+        entity.  The graph is persisted to disk after removal.
+
+        Args:
+            entity_id: ID of the entity to remove.
+
+        Returns:
+            The removed entity summary, or an error dict.
+        """
+        try:
+            kg = require_graph()
+        except NoGraphError:
+            return {"error": "No graph loaded. Call load_graph first."}
+
+        entity = kg.get_entity(entity_id)
+        if entity is None:
+            return {"error": f"Entity '{entity_id}' not found."}
+
+        info = compact_entity(entity)
+        success = kg.remove_entity(entity_id)
+        if not success:
+            return {"error": f"Failed to remove entity '{entity_id}'."}
 
         err = persist_graph()
         if err:

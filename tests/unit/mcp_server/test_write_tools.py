@@ -1,4 +1,4 @@
-"""Tests for MCP write tools (add_relationship, batch, remove)."""
+"""Tests for MCP write tools (relationships + entities)."""
 
 from __future__ import annotations
 
@@ -19,12 +19,12 @@ from mcp_server.server import mcp  # noqa: E402
 EntityRegistry.auto_discover()
 
 
-def _call_tool(name: str, **kwargs):
+def _call_tool(tool_name: str, **kwargs):
     """Call an MCP tool by name via the FastMCP registry."""
     for tool in mcp._tool_manager._tools.values():
-        if tool.name == name:
+        if tool.name == tool_name:
             return tool.fn(**kwargs)
-    raise ValueError(f"Tool '{name}' not found")
+    raise ValueError(f"Tool '{tool_name}' not found")
 
 
 def _build_test_kg(tmp_path: Path) -> str:
@@ -408,5 +408,212 @@ class TestRemoveRelationshipTool:
 
     def test_remove_no_graph_loaded(self):
         result = _call_tool("remove_relationship_tool", relationship_id="some-id")
+        assert "error" in result
+        assert "No graph loaded" in result["error"]
+
+
+# -- add_entity_tool --
+
+class TestAddEntityTool:
+    def test_add_system(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "add_entity_tool",
+            entity_type="system",
+            name="New API Gateway",
+            description="Edge proxy for all services",
+        )
+        assert result["status"] == "ok"
+        assert "entity_id" in result
+        assert result["entity"]["name"] == "New API Gateway"
+        assert result["entity"]["entity_type"] == "system"
+
+    def test_add_person(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "add_entity_tool",
+            entity_type="person",
+            name="Bob Jones",
+            properties={
+                "first_name": "Bob",
+                "last_name": "Jones",
+                "email": "bob@test.com",
+            },
+        )
+        assert result["status"] == "ok"
+        assert result["entity"]["name"] == "Bob Jones"
+
+    def test_add_department(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "add_entity_tool",
+            entity_type="department",
+            name="Security Operations",
+        )
+        assert result["status"] == "ok"
+        assert result["entity"]["entity_type"] == "department"
+
+    def test_invalid_entity_type(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "add_entity_tool",
+            entity_type="spaceship",
+            name="USS Enterprise",
+        )
+        assert "error" in result
+        assert "Unknown entity_type" in result["error"]
+
+    def test_empty_name(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "add_entity_tool",
+            entity_type="system",
+            name="",
+        )
+        assert "error" in result
+        assert "name" in result["error"].lower()
+
+    def test_entity_count_increases(self, tmp_path):
+        _build_test_kg(tmp_path)
+        before = state._kg.statistics["entity_count"]
+        _call_tool(
+            "add_entity_tool",
+            entity_type="system",
+            name="Test System",
+        )
+        after = state._kg.statistics["entity_count"]
+        assert after == before + 1
+
+    def test_persists_to_disk(self, tmp_path):
+        json_path = _build_test_kg(tmp_path)
+        _call_tool(
+            "add_entity_tool",
+            entity_type="system",
+            name="Persisted System",
+        )
+        data = json.loads(Path(json_path).read_text())
+        names = [e["name"] for e in data["entities"]]
+        assert "Persisted System" in names
+
+    def test_no_graph_loaded(self):
+        result = _call_tool(
+            "add_entity_tool",
+            entity_type="system",
+            name="Ghost",
+        )
+        assert "error" in result
+        assert "No graph loaded" in result["error"]
+
+
+# -- update_entity_tool --
+
+class TestUpdateEntityTool:
+    def test_update_name(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "update_entity_tool",
+            entity_id="sys-001",
+            updates={"name": "Auth Service v2"},
+        )
+        assert result["status"] == "ok"
+        assert result["entity"]["name"] == "Auth Service v2"
+
+    def test_update_description(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "update_entity_tool",
+            entity_id="dept-001",
+            updates={"description": "Software Engineering"},
+        )
+        assert result["status"] == "ok"
+
+    def test_update_not_found(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "update_entity_tool",
+            entity_id="nonexistent-id",
+            updates={"name": "Foo"},
+        )
+        assert "error" in result
+        assert "not found" in result["error"].lower()
+
+    def test_empty_updates(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "update_entity_tool",
+            entity_id="sys-001",
+            updates={},
+        )
+        assert "error" in result
+        assert "No updates" in result["error"]
+
+    def test_persists_to_disk(self, tmp_path):
+        json_path = _build_test_kg(tmp_path)
+        _call_tool(
+            "update_entity_tool",
+            entity_id="sys-001",
+            updates={"name": "Updated Auth"},
+        )
+        data = json.loads(Path(json_path).read_text())
+        names = [e["name"] for e in data["entities"]]
+        assert "Updated Auth" in names
+
+    def test_no_graph_loaded(self):
+        result = _call_tool(
+            "update_entity_tool",
+            entity_id="sys-001",
+            updates={"name": "X"},
+        )
+        assert "error" in result
+        assert "No graph loaded" in result["error"]
+
+
+# -- remove_entity_tool --
+
+class TestRemoveEntityTool:
+    def test_remove_valid(self, tmp_path):
+        _build_test_kg(tmp_path)
+        before = state._kg.statistics["entity_count"]
+        result = _call_tool(
+            "remove_entity_tool", entity_id="sys-002",
+        )
+        assert result["status"] == "ok"
+        assert result["removed"]["name"] == "DB Service"
+        assert state._kg.statistics["entity_count"] == before - 1
+
+    def test_remove_not_found(self, tmp_path):
+        _build_test_kg(tmp_path)
+        result = _call_tool(
+            "remove_entity_tool", entity_id="nonexistent",
+        )
+        assert "error" in result
+        assert "not found" in result["error"].lower()
+
+    def test_remove_cascades_relationships(self, tmp_path):
+        _build_test_kg(tmp_path)
+        # Add a relationship to sys-002
+        _call_tool(
+            "add_relationship_tool",
+            relationship_type="depends_on",
+            source_id="sys-001",
+            target_id="sys-002",
+        )
+        rel_count_before = state._kg.statistics["relationship_count"]
+        # Remove sys-002 — should also remove the relationship
+        _call_tool("remove_entity_tool", entity_id="sys-002")
+        rel_count_after = state._kg.statistics["relationship_count"]
+        assert rel_count_after < rel_count_before
+
+    def test_remove_persists_to_disk(self, tmp_path):
+        json_path = _build_test_kg(tmp_path)
+        _call_tool("remove_entity_tool", entity_id="sys-002")
+        data = json.loads(Path(json_path).read_text())
+        ids = [e["id"] for e in data["entities"]]
+        assert "sys-002" not in ids
+
+    def test_no_graph_loaded(self):
+        result = _call_tool(
+            "remove_entity_tool", entity_id="sys-001",
+        )
         assert "error" in result
         assert "No graph loaded" in result["error"]
