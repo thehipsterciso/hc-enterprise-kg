@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**hc-enterprise-kg** is an open-source enterprise knowledge graph platform. It generates structurally accurate organizational models ("digital twins") with 30 entity types and 50 relationship types, enabling scenario analysis, risk modeling, and dependency mapping. Every major design choice is documented as an [Architecture Decision Record](docs/adr/).
+**hc-enterprise-kg** is an open-source enterprise knowledge graph platform. It generates structurally accurate organizational models ("digital twins") with 30 entity types and 58 relationship types, enabling scenario analysis, risk modeling, and dependency mapping. Every major design choice is documented as an [Architecture Decision Record](docs/adr/).
 
 ## Quick Commands
 
@@ -148,3 +148,4 @@ All major design choices are formally documented in `docs/adr/`. Before proposin
 - Schema inference tests in `tests/unit/auto/test_schema_inference.py`
 - MCP validation tests in `tests/unit/mcp_server/test_mcp_validation.py`
 - MCP write tool tests in `tests/unit/mcp_server/test_write_tools.py`
+- Global conftest fixture `_no_claude_sync` redirects HOME during tests to prevent overwriting the real Claude Desktop config. Tests that exercise sync should mock `_detect_claude_config_path` to a temp-dir config.
