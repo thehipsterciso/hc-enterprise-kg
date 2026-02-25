@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.21.7] - 2026-02-25
+
+### Fixed
+- **CI: ruff format** — Applied formatting to 10 unformatted files failing `ruff format --check` (#245)
+- **CI: mypy variable shadowing** — Renamed loop variable `err` to `error_msg` in CLI commands to avoid shadowing `click.echo(err=True)` kwarg (Python 3.12+ mypy error) (#245)
+- **CI: missing RelationshipType enum values** — Added `LOCATED_IN`, `ISOLATED_FROM`, `ACQUIRED_FROM` to enum; referenced by relationship_schema.py (PR #244) but never committed (#245)
+
+### Changed
+- Updated `docs/entity-model.md` with geography relationship documentation (#245)
+
 ## [0.21.6] - 2026-02-24
 
 ### Changed
