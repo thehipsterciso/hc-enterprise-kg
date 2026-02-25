@@ -53,7 +53,7 @@ class NetworkXGraphEngine(AbstractGraphEngine):
         candidate = dict(self._graph.nodes[entity_id])
         candidate.update(updates)
         candidate["updated_at"] = datetime.now(UTC)
-        candidate["version"] = candidate.get("version", 1) + 1
+        candidate["version"] = str(int(candidate.get("version") or 1) + 1)
 
         entity = self._deserialize_entity(dict(candidate))
         if entity is None:
