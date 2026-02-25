@@ -426,3 +426,111 @@ def register_tools(mcp):  # noqa: ANN001
             "relationship_id": rel_id,
             "relationship": compact_relationship(rel),
         }
+
+    @mcp.tool()
+    def add_relationships_batch(relationships: list[dict]) -> dict:
+        """Add multiple validated relationships in one call.
+
+        Validates ALL inputs before committing ANY — if any item fails
+        validation, nothing is written.  A single persist happens at the end.
+
+        Each dict in the list must contain:
+            relationship_type (str), source_id (str), target_id (str)
+        Optional per-item keys:
+            weight (float, default 1.0), confidence (float, default 1.0),
+            properties (dict)
+
+        Args:
+            relationships: List of relationship dicts to create.
+
+        Returns:
+            Summary with created count and relationship IDs, or
+            per-item validation errors.
+        """
+        try:
+            kg = require_graph()
+        except NoGraphError:
+            return {"error": "No graph loaded. Call load_graph first."}
+
+        if not relationships:
+            return {"error": "Empty relationships list."}
+
+        if len(relationships) > 500:
+            count = len(relationships)
+            return {"error": f"Too many relationships ({count}). Maximum is 500 per batch."}
+
+        # Phase 1: validate all
+        errors: list[dict] = []
+        for i, item in enumerate(relationships):
+            rel_type = item.get("relationship_type", "")
+            src = item.get("source_id", "")
+            tgt = item.get("target_id", "")
+
+            if not rel_type or not src or not tgt:
+                errors.append({
+                    "index": i,
+                    "error": "Missing required field (relationship_type, source_id, or target_id).",
+                })
+                continue
+
+            ok, reason = validate_relationship_input(kg, rel_type, src, tgt)
+            if not ok:
+                errors.append({"index": i, "error": reason})
+
+        if errors:
+            return {"status": "error", "errors": errors, "committed": 0}
+
+        # Phase 2: commit all
+        created: list[dict] = []
+        for item in relationships:
+            weight = max(0.0, min(1.0, float(item.get("weight", 1.0))))
+            confidence = max(0.0, min(1.0, float(item.get("confidence", 1.0))))
+            rel = BaseRelationship(
+                relationship_type=RelationshipType(item["relationship_type"]),
+                source_id=item["source_id"],
+                target_id=item["target_id"],
+                weight=weight,
+                confidence=confidence,
+                properties=item.get("properties") or {},
+            )
+            rel_id = kg.add_relationship(rel)
+            created.append({"relationship_id": rel_id, "relationship": compact_relationship(rel)})
+
+        # Phase 3: single persist
+        err = persist_graph()
+        if err:
+            return err
+
+        return {"status": "ok", "committed": len(created), "relationships": created}
+
+    @mcp.tool()
+    def remove_relationship_tool(relationship_id: str) -> dict:
+        """Remove a relationship by its ID.
+
+        The graph is automatically persisted to disk after removal.
+
+        Args:
+            relationship_id: The ID of the relationship to remove.
+
+        Returns:
+            The removed relationship info, or an error dict.
+        """
+        try:
+            kg = require_graph()
+        except NoGraphError:
+            return {"error": "No graph loaded. Call load_graph first."}
+
+        rel = kg.get_relationship(relationship_id)
+        if rel is None:
+            return {"error": f"Relationship '{relationship_id}' not found."}
+
+        info = compact_relationship(rel)
+        success = kg.remove_relationship(relationship_id)
+        if not success:
+            return {"error": f"Failed to remove relationship '{relationship_id}'."}
+
+        err = persist_graph()
+        if err:
+            return err
+
+        return {"status": "ok", "removed": info}
