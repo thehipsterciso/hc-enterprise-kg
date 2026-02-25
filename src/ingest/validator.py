@@ -49,8 +49,7 @@ def _check_entity_required_fields(
         for req in ("first_name", "last_name", "email"):
             if req not in raw or not raw[req]:
                 errors.append(
-                    f"Entity {index} ({raw.get('name', '?')}): "
-                    f"missing required field '{req}'"
+                    f"Entity {index} ({raw.get('name', '?')}): missing required field '{req}'"
                 )
 
 
@@ -94,8 +93,7 @@ def validate_json_import(data: dict[str, Any]) -> ValidationResult:
             continue
         if et_str not in valid_et_values:
             result.errors.append(
-                f"Entity {i} ({raw.get('name', '?')}): "
-                f"invalid entity_type '{et_str}'"
+                f"Entity {i} ({raw.get('name', '?')}): invalid entity_type '{et_str}'"
             )
             continue
 
@@ -131,9 +129,7 @@ def validate_json_import(data: dict[str, Any]) -> ValidationResult:
 
     for i, raw in enumerate(relationships_raw):
         if not isinstance(raw, dict):
-            result.errors.append(
-                f"Relationship {i}: must be a dict, got {type(raw).__name__}"
-            )
+            result.errors.append(f"Relationship {i}: must be a dict, got {type(raw).__name__}")
             continue
 
         rt_str = raw.get("relationship_type")
@@ -141,9 +137,7 @@ def validate_json_import(data: dict[str, Any]) -> ValidationResult:
             result.errors.append(f"Relationship {i}: missing 'relationship_type'")
             continue
         if rt_str not in valid_rt_values:
-            result.errors.append(
-                f"Relationship {i}: invalid relationship_type '{rt_str}'"
-            )
+            result.errors.append(f"Relationship {i}: invalid relationship_type '{rt_str}'")
             continue
 
         source_id = raw.get("source_id")
@@ -156,19 +150,15 @@ def validate_json_import(data: dict[str, Any]) -> ValidationResult:
         # Referential integrity (warnings, not errors — merge target may have them)
         if source_id and entity_ids and source_id not in entity_ids:
             result.warnings.append(
-                f"Relationship {i}: source_id '{source_id}' "
-                f"not found in imported entities"
+                f"Relationship {i}: source_id '{source_id}' not found in imported entities"
             )
         if target_id and entity_ids and target_id not in entity_ids:
             result.warnings.append(
-                f"Relationship {i}: target_id '{target_id}' "
-                f"not found in imported entities"
+                f"Relationship {i}: target_id '{target_id}' not found in imported entities"
             )
 
         # Count by type
-        result.relationship_type_counts[rt_str] = (
-            result.relationship_type_counts.get(rt_str, 0) + 1
-        )
+        result.relationship_type_counts[rt_str] = result.relationship_type_counts.get(rt_str, 0) + 1
         result.relationship_count += 1
 
     return result
@@ -204,9 +194,7 @@ def validate_csv_import(
     if entity_type.value == "person":
         for req in ("first_name", "last_name", "email"):
             if req not in header_set:
-                result.errors.append(
-                    f"CSV missing required column '{req}' for person import"
-                )
+                result.errors.append(f"CSV missing required column '{req}' for person import")
 
     # Summary
     result.entity_count = 0  # Can't know row count from headers alone

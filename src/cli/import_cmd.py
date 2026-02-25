@@ -98,7 +98,13 @@ def import_cmd(
         _import_json(ctx, source_path, output, merge_path, dry_run, strict)
     elif ext == ".csv":
         _import_csv(
-            ctx, source_path, output, entity_type_str, merge_path, dry_run, strict,
+            ctx,
+            source_path,
+            output,
+            entity_type_str,
+            merge_path,
+            dry_run,
+            strict,
             mapping_path=mapping_path,
         )
     else:
@@ -289,9 +295,7 @@ def _import_csv(
             click.echo("Import aborted due to validation errors.", err=True)
             raise SystemExit(1) from None
         if strict and vr.warnings:
-            click.echo(
-                "Import aborted: --strict mode and warnings present.", err=True
-            )
+            click.echo("Import aborted: --strict mode and warnings present.", err=True)
             raise SystemExit(1) from None
     else:
         from ingest.validator import ValidationResult

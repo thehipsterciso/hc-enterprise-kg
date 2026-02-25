@@ -43,8 +43,12 @@ class TestValidateJsonImport:
         data = {
             "entities": [
                 {
-                    "entity_type": "person", "id": "p1", "name": "Alice",
-                    "first_name": "Alice", "last_name": "Smith", "email": "a@b.com",
+                    "entity_type": "person",
+                    "id": "p1",
+                    "name": "Alice",
+                    "first_name": "Alice",
+                    "last_name": "Smith",
+                    "email": "a@b.com",
                 },
                 {"entity_type": "department", "id": "d1", "name": "Eng"},
             ],
@@ -113,9 +117,7 @@ class TestValidateJsonImport:
         assert "missing or empty 'name'" in vr.errors[0]
 
     def test_person_missing_required_fields(self) -> None:
-        data = {
-            "entities": [{"entity_type": "person", "name": "Alice"}]
-        }
+        data = {"entities": [{"entity_type": "person", "name": "Alice"}]}
         vr = validate_json_import(data)
         assert not vr.is_valid
         assert any("first_name" in e for e in vr.errors)
@@ -169,9 +171,7 @@ class TestValidateJsonImport:
     def test_relationship_missing_source_id(self) -> None:
         data = {
             "entities": [],
-            "relationships": [
-                {"relationship_type": "works_in", "target_id": "d1"}
-            ],
+            "relationships": [{"relationship_type": "works_in", "target_id": "d1"}],
         }
         vr = validate_json_import(data)
         assert not vr.is_valid
@@ -180,9 +180,7 @@ class TestValidateJsonImport:
     def test_relationship_missing_target_id(self) -> None:
         data = {
             "entities": [],
-            "relationships": [
-                {"relationship_type": "works_in", "source_id": "p1"}
-            ],
+            "relationships": [{"relationship_type": "works_in", "source_id": "p1"}],
         }
         vr = validate_json_import(data)
         assert not vr.is_valid
@@ -191,9 +189,7 @@ class TestValidateJsonImport:
     def test_relationship_missing_type(self) -> None:
         data = {
             "entities": [],
-            "relationships": [
-                {"source_id": "p1", "target_id": "d1"}
-            ],
+            "relationships": [{"source_id": "p1", "target_id": "d1"}],
         }
         vr = validate_json_import(data)
         assert not vr.is_valid
@@ -201,9 +197,7 @@ class TestValidateJsonImport:
 
     def test_dangling_reference_warning(self) -> None:
         data = {
-            "entities": [
-                {"entity_type": "department", "id": "d1", "name": "Eng"}
-            ],
+            "entities": [{"entity_type": "department", "id": "d1", "name": "Eng"}],
             "relationships": [
                 {
                     "relationship_type": "works_in",

@@ -75,9 +75,7 @@ def load_column_mapping(path: Path) -> MappingLoadResult:
         entity_type = EntityType(et_str)
     except ValueError:
         valid = sorted(e.value for e in EntityType)
-        result.errors.append(
-            f"Invalid entity_type '{et_str}'. Valid types: {', '.join(valid)}"
-        )
+        result.errors.append(f"Invalid entity_type '{et_str}'. Valid types: {', '.join(valid)}")
         return result
 
     name_field = data.get("name_field")

@@ -45,12 +45,8 @@ class TestOrganizationJson:
         data = json.loads((TEMPLATES_DIR / "organization.json").read_text())
         entity_ids = {e["id"] for e in data["entities"]}
         for rel in data["relationships"]:
-            assert rel["source_id"] in entity_ids, (
-                f"Unknown source: {rel['source_id']}"
-            )
-            assert rel["target_id"] in entity_ids, (
-                f"Unknown target: {rel['target_id']}"
-            )
+            assert rel["source_id"] in entity_ids, f"Unknown source: {rel['source_id']}"
+            assert rel["target_id"] in entity_ids, f"Unknown target: {rel['target_id']}"
 
     def test_dry_run_strict(self) -> None:
         runner = CliRunner()
@@ -99,20 +95,14 @@ class TestPerTypeJsonTemplates:
     def test_json_template_dry_run_strict(self, entity_type: str) -> None:
         path = TEMPLATES_DIR / f"{entity_type}.json"
         runner = CliRunner()
-        result = runner.invoke(
-            cli, ["import", str(path), "--dry-run", "--strict"]
-        )
-        assert result.exit_code == 0, (
-            f"{entity_type}.json failed: {result.output}"
-        )
+        result = runner.invoke(cli, ["import", str(path), "--dry-run", "--strict"])
+        assert result.exit_code == 0, f"{entity_type}.json failed: {result.output}"
 
     @pytest.mark.parametrize("entity_type", ALL_ENTITY_TYPES)
     def test_json_template_has_entities(self, entity_type: str) -> None:
         data = json.loads((TEMPLATES_DIR / f"{entity_type}.json").read_text())
         assert "entities" in data
-        assert len(data["entities"]) >= 3, (
-            f"{entity_type}.json has < 3 entities"
-        )
+        assert len(data["entities"]) >= 3, f"{entity_type}.json has < 3 entities"
         for e in data["entities"]:
             assert e["entity_type"] == entity_type
 
@@ -139,12 +129,12 @@ class TestPerTypeCsvTemplates:
             [
                 "import",
                 str(TEMPLATES_DIR / f"{entity_type}.csv"),
-                "-t", entity_type,
-                "-o", str(output),
+                "-t",
+                entity_type,
+                "-o",
+                str(output),
             ],
         )
-        assert result.exit_code == 0, (
-            f"{entity_type}.csv import failed: {result.output}"
-        )
+        assert result.exit_code == 0, f"{entity_type}.csv import failed: {result.output}"
         data = json.loads(output.read_text())
         assert len(data["entities"]) == 5

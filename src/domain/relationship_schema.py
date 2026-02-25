@@ -39,8 +39,10 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     ),
     RelationshipType.DEPENDS_ON: (
         {
-            EntityType.SYSTEM, EntityType.BUSINESS_CAPABILITY,
-            EntityType.INTEGRATION, EntityType.ROLE,
+            EntityType.SYSTEM,
+            EntityType.BUSINESS_CAPABILITY,
+            EntityType.INTEGRATION,
+            EntityType.ROLE,
         },
         {EntityType.SYSTEM, EntityType.INTEGRATION, EntityType.BUSINESS_CAPABILITY},
     ),
@@ -93,7 +95,9 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     # --- L00: Geography ---
     RelationshipType.LOCATED_IN: (
         {
-            EntityType.GEOGRAPHY, EntityType.SITE, EntityType.LOCATION,
+            EntityType.GEOGRAPHY,
+            EntityType.SITE,
+            EntityType.LOCATION,
             EntityType.NETWORK,
         },
         {EntityType.GEOGRAPHY},
@@ -109,12 +113,16 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     # --- Cross-layer (L00 edge templates) ---
     RelationshipType.SUPPORTS: (
         {
-            EntityType.SYSTEM, EntityType.BUSINESS_CAPABILITY,
-            EntityType.DEPARTMENT, EntityType.INTEGRATION,
+            EntityType.SYSTEM,
+            EntityType.BUSINESS_CAPABILITY,
+            EntityType.DEPARTMENT,
+            EntityType.INTEGRATION,
         },
         {
-            EntityType.BUSINESS_CAPABILITY, EntityType.PRODUCT,
-            EntityType.INITIATIVE, EntityType.PRODUCT_PORTFOLIO,
+            EntityType.BUSINESS_CAPABILITY,
+            EntityType.PRODUCT,
+            EntityType.INITIATIVE,
+            EntityType.PRODUCT_PORTFOLIO,
         },
     ),
     RelationshipType.BELONGS_TO: (
@@ -139,23 +147,32 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     ),
     RelationshipType.SERVES: (
         {
-            EntityType.PRODUCT, EntityType.SYSTEM,
-            EntityType.DEPARTMENT, EntityType.ORGANIZATIONAL_UNIT,
+            EntityType.PRODUCT,
+            EntityType.SYSTEM,
+            EntityType.DEPARTMENT,
+            EntityType.ORGANIZATIONAL_UNIT,
         },
         {EntityType.CUSTOMER, EntityType.MARKET_SEGMENT},
     ),
     RelationshipType.MANAGED_BY: (
         {
-            EntityType.SYSTEM, EntityType.PRODUCT, EntityType.CONTRACT,
-            EntityType.INTEGRATION, EntityType.DATA_ASSET, EntityType.NETWORK,
+            EntityType.SYSTEM,
+            EntityType.PRODUCT,
+            EntityType.CONTRACT,
+            EntityType.INTEGRATION,
+            EntityType.DATA_ASSET,
+            EntityType.NETWORK,
             EntityType.DATA_DOMAIN,
         },
         {EntityType.PERSON, EntityType.DEPARTMENT},
     ),
     RelationshipType.GOVERNED_BY: (
         {
-            EntityType.SYSTEM, EntityType.DATA_ASSET, EntityType.PRODUCT,
-            EntityType.NETWORK, EntityType.INTEGRATION,
+            EntityType.SYSTEM,
+            EntityType.DATA_ASSET,
+            EntityType.PRODUCT,
+            EntityType.NETWORK,
+            EntityType.INTEGRATION,
         },
         {EntityType.POLICY, EntityType.REGULATION, EntityType.CONTROL},
     ),
@@ -167,8 +184,11 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     RelationshipType.REGULATES: (
         {EntityType.REGULATION, EntityType.JURISDICTION},
         {
-            EntityType.SYSTEM, EntityType.DATA_ASSET, EntityType.PRODUCT,
-            EntityType.VENDOR, EntityType.GEOGRAPHY,
+            EntityType.SYSTEM,
+            EntityType.DATA_ASSET,
+            EntityType.PRODUCT,
+            EntityType.VENDOR,
+            EntityType.GEOGRAPHY,
         },
     ),
     RelationshipType.IMPLEMENTS: (
@@ -193,11 +213,19 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     ),
     RelationshipType.SUBJECT_TO: (
         {
-            EntityType.SYSTEM, EntityType.VENDOR, EntityType.DATA_ASSET,
-            EntityType.PRODUCT, EntityType.JURISDICTION, EntityType.SITE,
-            EntityType.REGULATION, EntityType.POLICY,
-            EntityType.NETWORK, EntityType.INTEGRATION,
-            EntityType.DATA_DOMAIN, EntityType.CUSTOMER, EntityType.DEPARTMENT,
+            EntityType.SYSTEM,
+            EntityType.VENDOR,
+            EntityType.DATA_ASSET,
+            EntityType.PRODUCT,
+            EntityType.JURISDICTION,
+            EntityType.SITE,
+            EntityType.REGULATION,
+            EntityType.POLICY,
+            EntityType.NETWORK,
+            EntityType.INTEGRATION,
+            EntityType.DATA_DOMAIN,
+            EntityType.CUSTOMER,
+            EntityType.DEPARTMENT,
         },
         {EntityType.REGULATION, EntityType.JURISDICTION, EntityType.POLICY, EntityType.CONTROL},
     ),
@@ -217,8 +245,10 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     # --- L03: Data Assets ---
     RelationshipType.CONTAINS: (
         {
-            EntityType.DATA_DOMAIN, EntityType.SYSTEM,
-            EntityType.MARKET_SEGMENT, EntityType.PRODUCT_PORTFOLIO,
+            EntityType.DATA_DOMAIN,
+            EntityType.SYSTEM,
+            EntityType.MARKET_SEGMENT,
+            EntityType.PRODUCT_PORTFOLIO,
         },
         {EntityType.DATA_ASSET, EntityType.DATA_FLOW, EntityType.CUSTOMER, EntityType.PRODUCT},
     ),

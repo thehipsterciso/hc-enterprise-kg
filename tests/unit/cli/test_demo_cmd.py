@@ -126,9 +126,7 @@ class TestDemoClaudeSync:
         )
         output = tmp_path / "graph.json"
         with patch("cli.install_cmd._detect_claude_config_path", return_value=config_path):
-            result = CliRunner().invoke(
-                cli, ["demo", "--employees", "10", "--output", str(output)]
-            )
+            result = CliRunner().invoke(cli, ["demo", "--employees", "10", "--output", str(output)])
         assert result.exit_code == 0, result.output
         assert "Claude Desktop config updated" in result.output
         config = json.loads(config_path.read_text())
@@ -142,8 +140,6 @@ class TestDemoClaudeSync:
         config_path.write_text(json.dumps({"mcpServers": {}}))
         output = tmp_path / "graph.json"
         with patch("cli.install_cmd._detect_claude_config_path", return_value=config_path):
-            result = CliRunner().invoke(
-                cli, ["demo", "--employees", "10", "--output", str(output)]
-            )
+            result = CliRunner().invoke(cli, ["demo", "--employees", "10", "--output", str(output)])
         assert result.exit_code == 0, result.output
         assert "Claude Desktop config updated" not in result.output
