@@ -181,8 +181,8 @@ def _import_json(
     result = ingestor.ingest(source_path)
     if not result.entities and result.errors:
         click.echo(f"Error: could not ingest {source_path.name}", err=True)
-        for err in result.errors[:5]:
-            click.echo(f"  {err}", err=True)
+        for error_msg in result.errors[:5]:
+            click.echo(f"  {error_msg}", err=True)
         raise SystemExit(1) from None
 
     kg.add_entities_bulk(result.entities)
@@ -222,8 +222,8 @@ def _import_csv(
         load_result = load_column_mapping(Path(mapping_path))
         if not load_result.is_valid:
             click.echo("Error: invalid mapping file:", err=True)
-            for err in load_result.errors:
-                click.echo(f"  {err}", err=True)
+            for error_msg in load_result.errors:
+                click.echo(f"  {error_msg}", err=True)
             raise SystemExit(1) from None
         if load_result.warnings:
             for warn in load_result.warnings:
@@ -323,8 +323,8 @@ def _import_csv(
         result = ingestor.ingest(source_path, entity_type=entity_type)
     if not result.entities and result.errors:
         click.echo(f"Error: could not ingest {source_path.name}", err=True)
-        for err in result.errors[:5]:
-            click.echo(f"  {err}", err=True)
+        for error_msg in result.errors[:5]:
+            click.echo(f"  {error_msg}", err=True)
         raise SystemExit(1) from None
 
     kg.add_entities_bulk(result.entities)
@@ -350,8 +350,8 @@ def _merge_existing(kg: object, merge_path: str) -> None:
     result = ingestor.ingest(Path(merge_path))
     if not result.entities and result.errors:
         click.echo(f"Error: could not load merge file {merge_path}", err=True)
-        for err in result.errors[:5]:
-            click.echo(f"  {err}", err=True)
+        for error_msg in result.errors[:5]:
+            click.echo(f"  {error_msg}", err=True)
         raise SystemExit(1) from None
 
     kg.add_entities_bulk(result.entities)  # type: ignore[attr-defined]

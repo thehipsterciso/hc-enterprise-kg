@@ -178,8 +178,8 @@ def visualize_cmd(
 
     if not result.entities and result.errors:
         click.echo(f"Error: could not load {source}", err=True)
-        for err in result.errors[:5]:
-            click.echo(f"  {err}", err=True)
+        for error_msg in result.errors[:5]:
+            click.echo(f"  {error_msg}", err=True)
         raise SystemExit(1)
 
     kg.add_entities_bulk(result.entities)
