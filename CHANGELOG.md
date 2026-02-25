@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.30.2] - 2026-02-25
+
+### Added
+- **MCP entity CRUD tools** — Three new tools for full entity lifecycle management (#251):
+  - `add_entity_tool`: Create entities of any of the 30 types via EntityRegistry, auto-generates UUID
+  - `update_entity_tool`: Modify entity fields with engine copy-validate-write pattern
+  - `remove_entity_tool`: Delete entities with cascading relationship removal
+- **19 new tests** — 8 add entity + 6 update entity + 5 remove entity tests (#251)
+
+### Fixed
+- **Engine `update_entity` version increment bug** — Version field is `str` in Pydantic models but was being incremented as `int`, causing `ValidationError`. Now casts to int, increments, casts back to str. (#251)
+
 ## [0.30.1] - 2026-02-25
 
 ### Added
