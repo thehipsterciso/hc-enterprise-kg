@@ -34,10 +34,15 @@ def _build_test_kg(tmp_path: Path) -> str:
     system_cls = EntityRegistry.get(EntityType.SYSTEM)
 
     kg = KnowledgeGraph()
-    kg.add_entity(person_cls(
-        id="per-001", name="Alice", first_name="Alice",
-        last_name="Smith", email="alice@test.com",
-    ))
+    kg.add_entity(
+        person_cls(
+            id="per-001",
+            name="Alice",
+            first_name="Alice",
+            last_name="Smith",
+            email="alice@test.com",
+        )
+    )
     kg.add_entity(dept_cls(id="dept-001", name="Engineering"))
     kg.add_entity(system_cls(id="sys-001", name="Auth Service"))
     kg.add_entity(system_cls(id="sys-002", name="DB Service"))
@@ -63,6 +68,7 @@ def _reset_state():
 
 
 # -- add_relationship_tool --
+
 
 class TestAddRelationshipTool:
     def test_valid_relationship(self, tmp_path):
@@ -221,6 +227,7 @@ class TestAddRelationshipTool:
 
 # -- add_relationships_batch --
 
+
 class TestAddRelationshipsBatch:
     def test_valid_batch(self, tmp_path):
         _build_test_kg(tmp_path)
@@ -363,6 +370,7 @@ class TestAddRelationshipsBatch:
 
 # -- remove_relationship_tool --
 
+
 class TestRemoveRelationshipTool:
     def test_remove_valid(self, tmp_path):
         _build_test_kg(tmp_path)
@@ -413,6 +421,7 @@ class TestRemoveRelationshipTool:
 
 
 # -- add_entity_tool --
+
 
 class TestAddEntityTool:
     def test_add_system(self, tmp_path):
@@ -507,6 +516,7 @@ class TestAddEntityTool:
 
 # -- update_entity_tool --
 
+
 class TestUpdateEntityTool:
     def test_update_name(self, tmp_path):
         _build_test_kg(tmp_path)
@@ -570,12 +580,14 @@ class TestUpdateEntityTool:
 
 # -- remove_entity_tool --
 
+
 class TestRemoveEntityTool:
     def test_remove_valid(self, tmp_path):
         _build_test_kg(tmp_path)
         before = state._kg.statistics["entity_count"]
         result = _call_tool(
-            "remove_entity_tool", entity_id="sys-002",
+            "remove_entity_tool",
+            entity_id="sys-002",
         )
         assert result["status"] == "ok"
         assert result["removed"]["name"] == "DB Service"
@@ -584,7 +596,8 @@ class TestRemoveEntityTool:
     def test_remove_not_found(self, tmp_path):
         _build_test_kg(tmp_path)
         result = _call_tool(
-            "remove_entity_tool", entity_id="nonexistent",
+            "remove_entity_tool",
+            entity_id="nonexistent",
         )
         assert "error" in result
         assert "not found" in result["error"].lower()
@@ -613,7 +626,8 @@ class TestRemoveEntityTool:
 
     def test_no_graph_loaded(self):
         result = _call_tool(
-            "remove_entity_tool", entity_id="sys-001",
+            "remove_entity_tool",
+            entity_id="sys-001",
         )
         assert "error" in result
         assert "No graph loaded" in result["error"]

@@ -397,7 +397,10 @@ def register_tools(mcp):  # noqa: ANN001
 
         # Validate inputs
         ok, reason = validate_relationship_input(
-            kg, relationship_type, source_id, target_id,
+            kg,
+            relationship_type,
+            source_id,
+            target_id,
         )
         if not ok:
             return {"error": reason}
@@ -468,10 +471,13 @@ def register_tools(mcp):  # noqa: ANN001
             tgt = item.get("target_id", "")
 
             if not rel_type or not src or not tgt:
-                errors.append({
-                    "index": i,
-                    "error": "Missing required field (relationship_type, source_id, or target_id).",
-                })
+                errors.append(
+                    {
+                        "index": i,
+                        "error": "Missing required field"
+                        " (relationship_type, source_id, or target_id).",
+                    }
+                )
                 continue
 
             ok, reason = validate_relationship_input(kg, rel_type, src, tgt)

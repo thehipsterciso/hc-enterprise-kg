@@ -24,21 +24,28 @@ EntityRegistry.auto_discover()
 
 # -- helpers --
 
+
 def _kg_with_person_and_dept() -> KnowledgeGraph:
     """Build a minimal KG with one Person and one Department."""
     person_cls = EntityRegistry.get(EntityType.PERSON)
     dept_cls = EntityRegistry.get(EntityType.DEPARTMENT)
 
     kg = KnowledgeGraph()
-    kg.add_entity(person_cls(
-        id="per-001", name="Alice", first_name="Alice",
-        last_name="Smith", email="alice@test.com",
-    ))
+    kg.add_entity(
+        person_cls(
+            id="per-001",
+            name="Alice",
+            first_name="Alice",
+            last_name="Smith",
+            email="alice@test.com",
+        )
+    )
     kg.add_entity(dept_cls(id="dept-001", name="Engineering"))
     return kg
 
 
 # -- validate_id_format --
+
 
 class TestValidateIdFormat:
     def test_valid_ids(self):
@@ -63,6 +70,7 @@ class TestValidateIdFormat:
 
 # -- validate_relationship_type --
 
+
 class TestValidateRelationshipType:
     def test_valid(self):
         ok, _ = validate_relationship_type("depends_on")
@@ -80,6 +88,7 @@ class TestValidateRelationshipType:
 
 # -- validate_entity_type --
 
+
 class TestValidateEntityType:
     def test_valid(self):
         ok, _ = validate_entity_type("system")
@@ -92,6 +101,7 @@ class TestValidateEntityType:
 
 
 # -- validate_relationship_input --
+
 
 class TestValidateRelationshipInput:
     def test_valid(self):
@@ -128,6 +138,7 @@ class TestValidateRelationshipInput:
 
 # -- validate_entity_input --
 
+
 class TestValidateEntityInput:
     def test_valid(self):
         ok, _ = validate_entity_input("system", "My System", "A test system")
@@ -155,7 +166,9 @@ class TestValidateEntityInput:
 
     def test_description_too_long(self):
         ok, reason = validate_entity_input(
-            "system", "Ok Name", "x" * (MAX_DESCRIPTION_LENGTH + 1),
+            "system",
+            "Ok Name",
+            "x" * (MAX_DESCRIPTION_LENGTH + 1),
         )
         assert not ok
         assert str(MAX_DESCRIPTION_LENGTH) in reason

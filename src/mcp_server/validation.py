@@ -114,10 +114,7 @@ def validate_entity_input(
         return False, "Entity name must not be empty."
 
     if len(name) > MAX_NAME_LENGTH:
-        return False, (
-            f"Entity name exceeds {MAX_NAME_LENGTH} characters "
-            f"({len(name)} given)."
-        )
+        return False, (f"Entity name exceeds {MAX_NAME_LENGTH} characters ({len(name)} given).")
 
     if len(description) > MAX_DESCRIPTION_LENGTH:
         return False, (
