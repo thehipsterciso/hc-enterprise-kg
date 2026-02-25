@@ -133,6 +133,7 @@ class RelationshipType(StrEnum):
     FLOWS_TO = "flows_to"
     ORIGINATES_FROM = "originates_from"
     CLASSIFIED_AS = "classified_as"
+    SUBJECT_OF = "subject_of"
 
     # --- L04-L05: Organization & People ---
     APPLIES_TO = "applies_to"
