@@ -148,6 +148,7 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     RelationshipType.SERVES: (
         {
             EntityType.PRODUCT,
+            EntityType.PRODUCT_PORTFOLIO,
             EntityType.SYSTEM,
             EntityType.DEPARTMENT,
             EntityType.ORGANIZATIONAL_UNIT,
@@ -264,6 +265,10 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
         {EntityType.DATA_ASSET},
         {EntityType.DATA_DOMAIN},
     ),
+    RelationshipType.SUBJECT_OF: (
+        {EntityType.CUSTOMER, EntityType.PERSON},
+        {EntityType.DATA_ASSET},
+    ),
     # --- L04-L05: Organization & People ---
     RelationshipType.APPLIES_TO: (
         {EntityType.CONTROL, EntityType.POLICY, EntityType.REGULATION},
@@ -297,7 +302,7 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     ),
     RelationshipType.SUPPLIES: (
         {EntityType.VENDOR},
-        {EntityType.SYSTEM, EntityType.PRODUCT},
+        {EntityType.SYSTEM, EntityType.PRODUCT, EntityType.PRODUCT_PORTFOLIO},
     ),
     # --- L11: Strategic Initiatives ---
     RelationshipType.IMPACTS: (

@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 from domain.base import BaseRelationship, RelationshipType
 from domain.entities.department import Department
@@ -19,6 +24,20 @@ def _auto_discover() -> None:
     """Auto-discover entity types and engine backends before each test."""
     EntityRegistry.auto_discover()
     GraphEngineFactory.auto_discover()
+
+
+@pytest.fixture(autouse=True)
+def _no_claude_sync(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Redirect HOME so CLI commands can't find the real Claude Desktop config.
+
+    ``sync_claude_graph_path`` calls ``_detect_claude_config_path`` which
+    resolves ``~/Library/Application Support/Claude/...``.  With HOME set
+    to a temp dir the file won't exist and sync returns False.
+
+    Tests that exercise sync explicitly should mock
+    ``_detect_claude_config_path`` to return a temp-dir config path.
+    """
+    monkeypatch.setenv("HOME", str(tmp_path))
 
 
 @pytest.fixture
