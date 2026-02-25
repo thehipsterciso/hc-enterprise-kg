@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.30.1] - 2026-02-25
+
+### Added
+- **MCP write tool: `add_relationships_batch`** — Batch relationship creation with validate-all-before-commit semantics. Single persist at end. Max 500 per call. (#249)
+- **MCP write tool: `remove_relationship_tool`** — Remove relationships by ID with auto-persist. Returns removed relationship info. (#249)
+- **14 new tests** — 10 batch tests (valid, single-item, atomic rejection, missing fields, empty list, limit, persistence, properties, no-graph, multi-error) + 4 remove tests (#249)
+
 ## [0.30.0] - 2026-02-25
 
 ### Added
