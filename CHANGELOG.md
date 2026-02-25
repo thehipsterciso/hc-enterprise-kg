@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.30.0] - 2026-02-25
+
+### Added
+- **MCP write tool: `add_relationship`** — First mutation tool for the MCP server. Validates relationship type enum, entity existence, and domain/range schema constraints before creating edges. Auto-persists to `graph.json` after each write. (#247)
+- **MCP input validation module** (`src/mcp_server/validation.py`) — Reusable validators for ID format, relationship types, entity types, and full relationship input with schema enforcement (#247)
+- **`persist_graph()` helper** in `state.py` — Exports in-memory graph to disk and syncs mtime to prevent auto-reload race (#247)
+- **33 new tests** — 20 validation tests + 13 write tool tests covering happy paths, error cases, schema violations, persistence, and edge clamping (#247)
+
 ## [0.21.7] - 2026-02-25
 
 ### Fixed
