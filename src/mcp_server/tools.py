@@ -10,9 +10,10 @@ from typing import Any
 
 from rapidfuzz import fuzz, process
 
-from domain.base import BaseEntity, EntityType, RelationshipType
+from domain.base import BaseEntity, BaseRelationship, EntityType, RelationshipType
 from mcp_server.helpers import compact_entity, compact_relationship
-from mcp_server.state import NoGraphError, load_graph, require_graph
+from mcp_server.state import NoGraphError, load_graph, persist_graph, require_graph
+from mcp_server.validation import validate_relationship_input
 
 
 def register_tools(mcp):  # noqa: ANN001
@@ -356,3 +357,72 @@ def register_tools(mcp):  # noqa: ANN001
 
         results.sort(key=lambda x: x["match_score"], reverse=True)
         return results[:limit]
+
+    # ------------------------------------------------------------------ #
+    #  Write tools                                                        #
+    # ------------------------------------------------------------------ #
+
+    @mcp.tool()
+    def add_relationship_tool(
+        relationship_type: str,
+        source_id: str,
+        target_id: str,
+        weight: float = 1.0,
+        confidence: float = 1.0,
+        properties: dict | None = None,
+    ) -> dict:
+        """Add a validated relationship between two existing entities.
+
+        Enforces the RELATIONSHIP_SCHEMA domain/range constraints so only
+        semantically valid edges can be created.  The graph is automatically
+        persisted to disk after a successful write.
+
+        Args:
+            relationship_type: One of the 55 valid relationship types
+                (e.g. "depends_on", "supports", "subject_to").
+            source_id: ID of the source entity (must already exist).
+            target_id: ID of the target entity (must already exist).
+            weight: Edge weight 0.0-1.0 (default 1.0).
+            confidence: Confidence score 0.0-1.0 (default 1.0).
+            properties: Optional dict of additional properties.
+
+        Returns:
+            The created relationship summary, or an error dict.
+        """
+        try:
+            kg = require_graph()
+        except NoGraphError:
+            return {"error": "No graph loaded. Call load_graph first."}
+
+        # Validate inputs
+        ok, reason = validate_relationship_input(
+            kg, relationship_type, source_id, target_id,
+        )
+        if not ok:
+            return {"error": reason}
+
+        # Clamp weight/confidence to valid range
+        weight = max(0.0, min(1.0, weight))
+        confidence = max(0.0, min(1.0, confidence))
+
+        # Create and add
+        rel = BaseRelationship(
+            relationship_type=RelationshipType(relationship_type),
+            source_id=source_id,
+            target_id=target_id,
+            weight=weight,
+            confidence=confidence,
+            properties=properties or {},
+        )
+        rel_id = kg.add_relationship(rel)
+
+        # Persist to disk
+        err = persist_graph()
+        if err:
+            return err
+
+        return {
+            "status": "ok",
+            "relationship_id": rel_id,
+            "relationship": compact_relationship(rel),
+        }
