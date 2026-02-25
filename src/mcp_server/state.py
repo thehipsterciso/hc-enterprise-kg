@@ -35,7 +35,7 @@ def load_graph(path: str) -> dict:
     ingestor = JSONIngestor()
     result = ingestor.ingest(path)
 
-    if result.errors:
+    if not result.entities and result.errors:
         return {"error": f"Failed to load graph: {'; '.join(result.errors)}"}
 
     kg = KnowledgeGraph()
@@ -53,13 +53,16 @@ def load_graph(path: str) -> dict:
         _loaded_mtime = 0.0
 
     stats = kg.statistics
-    return {
+    response: dict = {
         "status": "ok",
         "entity_count": stats["entity_count"],
         "relationship_count": stats["relationship_count"],
         "entity_types": stats.get("entity_types", {}),
         "relationship_types": stats.get("relationship_types", {}),
     }
+    if result.errors:
+        response["warnings"] = f"{len(result.errors)} item(s) skipped during load"
+    return response
 
 
 def _maybe_reload() -> None:

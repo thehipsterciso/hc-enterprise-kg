@@ -77,7 +77,7 @@ class TestValidateRelationshipType:
         assert ok
 
     def test_invalid(self):
-        ok, reason = validate_relationship_type("applies_to")
+        ok, reason = validate_relationship_type("not_a_real_type")
         assert not ok
         assert "Unknown relationship_type" in reason
 
@@ -111,7 +111,7 @@ class TestValidateRelationshipInput:
 
     def test_bad_enum(self):
         kg = _kg_with_person_and_dept()
-        ok, reason = validate_relationship_input(kg, "applies_to", "per-001", "dept-001")
+        ok, reason = validate_relationship_input(kg, "not_a_real_type", "per-001", "dept-001")
         assert not ok
         assert "Unknown relationship_type" in reason
 

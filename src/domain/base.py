@@ -134,6 +134,9 @@ class RelationshipType(StrEnum):
     ORIGINATES_FROM = "originates_from"
     CLASSIFIED_AS = "classified_as"
 
+    # --- L04-L05: Organization & People ---
+    APPLIES_TO = "applies_to"
+
     # --- L06: Business Capabilities ---
     ENABLES = "enables"
     REALIZED_BY = "realized_by"

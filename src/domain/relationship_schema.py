@@ -264,6 +264,11 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
         {EntityType.DATA_ASSET},
         {EntityType.DATA_DOMAIN},
     ),
+    # --- L04-L05: Organization & People ---
+    RelationshipType.APPLIES_TO: (
+        {EntityType.CONTROL, EntityType.POLICY, EntityType.REGULATION},
+        {EntityType.SYSTEM, EntityType.DATA_ASSET, EntityType.DEPARTMENT, EntityType.VENDOR},
+    ),
     # --- L06: Business Capabilities ---
     RelationshipType.ENABLES: (
         {EntityType.SYSTEM, EntityType.PRODUCT},

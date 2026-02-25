@@ -99,7 +99,7 @@ class TestAddRelationshipTool:
         _build_test_kg(tmp_path)
         result = _call_tool(
             "add_relationship_tool",
-            relationship_type="applies_to",
+            relationship_type="not_a_real_type",
             source_id="per-001",
             target_id="dept-001",
         )
@@ -262,7 +262,7 @@ class TestAddRelationshipsBatch:
             relationships=[
                 {"relationship_type": "works_in", "source_id": "per-001", "target_id": "dept-001"},
                 {
-                    "relationship_type": "applies_to",
+                    "relationship_type": "not_a_real_type",
                     "source_id": "per-001",
                     "target_id": "dept-001",
                 },
@@ -352,7 +352,7 @@ class TestAddRelationshipsBatch:
             "add_relationships_batch",
             relationships=[
                 {
-                    "relationship_type": "applies_to",
+                    "relationship_type": "not_a_real_type",
                     "source_id": "per-001",
                     "target_id": "dept-001",
                 },
