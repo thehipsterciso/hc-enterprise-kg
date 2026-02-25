@@ -88,9 +88,10 @@ The charts module (`src/analysis/charts/`) auto-generates 8 chart types from syn
 
 ## MCP Server
 
-The MCP server (`src/mcp_server/`) provides 13 tools for Claude Desktop:
+The MCP server (`src/mcp_server/`) provides 16 tools for Claude Desktop:
 - **Read:** `load_graph`, `get_statistics`, `list_entities`, `get_entity`, `get_neighbors`, `find_shortest_path`, `get_blast_radius`, `compute_centrality`, `find_most_connected`, `search_entities`
-- **Write:** `add_relationship_tool`, `add_relationships_batch` (atomic, max 500), `remove_relationship_tool`
+- **Write (relationships):** `add_relationship_tool`, `add_relationships_batch` (atomic, max 500), `remove_relationship_tool`
+- **Write (entities):** `add_entity_tool`, `update_entity_tool`, `remove_entity_tool`
 
 **Auto-reload** ([ADR-009](docs/adr/009-mcp-mtime-auto-reload.md))**:** The server detects graph file changes via mtime checking on every tool call. After `hckg demo --clean`, Claude Desktop tools automatically pick up the new graph.
 
