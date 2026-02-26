@@ -7,7 +7,7 @@
 ## Quick Commands
 
 ```bash
-poetry run pytest tests/ -v          # Run all tests (~1012)
+poetry run pytest tests/ -v          # Run all tests (~1013)
 poetry run pytest tests/performance/ -v  # Performance regression tests
 poetry run ruff check src/ tests/    # Lint
 poetry run hckg demo --clean         # Generate fresh graph.json
@@ -96,6 +96,8 @@ The MCP server (`src/mcp_server/`) provides 16 tools for Claude Desktop:
 **Auto-reload** ([ADR-009](docs/adr/009-mcp-mtime-auto-reload.md))**:** The server detects graph file changes via mtime checking on every tool call. After `hckg demo --clean`, Claude Desktop tools automatically pick up the new graph.
 
 **Write tool validation** (`src/mcp_server/validation.py`)**:** All write tools validate inputs (enum membership, entity existence, domain/range schema) before mutation. `persist_graph()` in `state.py` auto-saves to disk and syncs mtime to prevent reload races.
+
+**Install reliability (v0.31.0):** `hckg install claude --auto-install` installs missing MCP extras automatically. `hckg install doctor` now exits 0 (not an error) when not yet registered. Apple CLT Python is detected in the pre-flight with a targeted `brew install poetry` fix message.
 
 ## Architecture Decision Records
 

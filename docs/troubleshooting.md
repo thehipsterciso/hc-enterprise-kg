@@ -27,11 +27,34 @@ echo 'alias hckg="poetry run hckg"' >> ~/.bashrc && source ~/.bashrc
 Install Poetry:
 
 ```bash
-# macOS
+# macOS (recommended)
 brew install poetry
 
 # Any platform
 pipx install poetry
+```
+
+### Poetry curl installer fails: "This build of python cannot create venvs without using symlinks"
+
+You are using Apple's Command Line Tools Python (`/Library/Developer/CommandLineTools/`), which is intentionally restricted and cannot create virtualenvs without symlinks. The `curl | python3 -` installer path does not work with this Python.
+
+**Fix — use Homebrew instead:**
+
+```bash
+brew install poetry
+```
+
+Homebrew's poetry brings a compatible Python (3.14+) and sets up the virtualenv correctly. After installation, add poetry to your PATH if prompted:
+
+```bash
+export PATH="/opt/homebrew/bin:$PATH"
+```
+
+Then proceed with:
+
+```bash
+poetry install
+poetry run hckg demo
 ```
 
 ### `poetry shell` doesn't work

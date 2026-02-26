@@ -21,6 +21,20 @@ This is the tool you reach for *before* a full-scale engagement, to validate hyp
 
 ## Quick Start
 
+**Prerequisites — install Poetry first:**
+
+```bash
+# macOS (recommended)
+brew install poetry
+
+# Any platform
+pipx install poetry
+```
+
+> **macOS note:** The `curl | python3 -` Poetry installer fails on Apple's Command Line Tools Python. Use `brew install poetry` instead. See [Troubleshooting](docs/troubleshooting.md) for details.
+
+**Clone and install:**
+
 ```bash
 git clone https://github.com/thehipsterciso/hc-enterprise-kg.git
 cd hc-enterprise-kg
@@ -34,7 +48,28 @@ That generates a complete enterprise knowledge graph with ~277 entities and ~543
 poetry run hckg inspect graph.json
 ```
 
-Customize the organization:
+**Optional: set a shell alias** so you can type `hckg` directly instead of `poetry run hckg`:
+
+```bash
+# zsh (default on macOS)
+echo 'alias hckg="poetry run hckg"' >> ~/.zshrc && source ~/.zshrc
+
+# bash
+echo 'alias hckg="poetry run hckg"' >> ~/.bashrc && source ~/.bashrc
+```
+
+**Claude Desktop integration:**
+
+```bash
+poetry install --extras mcp      # install MCP server dependencies
+poetry run hckg install claude   # register with Claude Desktop
+# — or in one step —
+poetry run hckg install claude --auto-install
+```
+
+Restart Claude Desktop, then ask: *"Show me graph statistics"*
+
+**Customize the organization:**
 
 ```bash
 # Healthcare org with 500 employees
@@ -131,20 +166,6 @@ tests/          740+ tests (unit, integration, stress, performance)
 | [Architecture Decision Records](docs/adr/) | Design rationale for all major architectural choices (12 ADRs) |
 | [Contributing](CONTRIBUTING.md) | Development setup, code style, adding entity types |
 | [Changelog](CHANGELOG.md) | Release history |
-
----
-
-## Shell Alias
-
-To avoid typing `poetry run` every time:
-
-```bash
-# zsh (default on macOS)
-echo 'alias hckg="poetry run hckg"' >> ~/.zshrc && source ~/.zshrc
-
-# bash
-echo 'alias hckg="poetry run hckg"' >> ~/.bashrc && source ~/.bashrc
-```
 
 ---
 

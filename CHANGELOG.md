@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.31.0] - 2026-02-26
+
+### Added
+- **`hckg install claude --auto-install`** — New flag that automatically runs `poetry install --extras mcp` (or pip fallback) when the MCP pre-flight detects a missing `mcp` package, then re-runs checks. Eliminates a manual step for new users (#262)
+- **Apple CLT Python detection** — Pre-flight check now recognises Python from `/Library/Developer/CommandLineTools/` (macOS system Python ≤3.9) and emits a targeted fix message: `brew install poetry` rather than the generic re-install hint (#261)
+- **macOS Quick Start prerequisites** in README — Homebrew-first install note, shell alias snippet, and Claude Desktop integration block all promoted to the top-level Quick Start section so users have the full path in one place (#264)
+- **Apple CLT Python symlink error** documented in `docs/troubleshooting.md` with root cause explanation and `brew install poetry` fix (#261, #264)
+
+### Fixed
+- **`hckg install doctor` neutral-state language** — Pre-registration state (no `mcpServers` key in config) now exits 0 and prints `Not yet registered with Claude Desktop.` instead of the alarming `Config file has no valid 'mcpServers' object.` error message (#263)
+
 ## [0.30.2] - 2026-02-25
 
 ### Added
