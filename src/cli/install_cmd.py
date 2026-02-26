@@ -255,8 +255,7 @@ def _check_python_version(python_path: str) -> tuple[bool, str]:
     major, minor = int(match.group(1)), int(match.group(2))
     if (major, minor) < _MIN_PYTHON:
         fix_hint = (
-            f"install Python {_MIN_PYTHON[0]}.{_MIN_PYTHON[1]}+"
-            " and re-create your virtualenv"
+            f"install Python {_MIN_PYTHON[0]}.{_MIN_PYTHON[1]}+ and re-create your virtualenv"
         )
         # On macOS, Apple CLT Python (≤3.9) cannot create venvs without
         # symlinks, causing the Poetry curl installer to fail silently.
