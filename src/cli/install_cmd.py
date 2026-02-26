@@ -254,10 +254,22 @@ def _check_python_version(python_path: str) -> tuple[bool, str]:
         return False, f"could not parse version from: {version_str}"
     major, minor = int(match.group(1)), int(match.group(2))
     if (major, minor) < _MIN_PYTHON:
+        fix_hint = (
+            f"install Python {_MIN_PYTHON[0]}.{_MIN_PYTHON[1]}+"
+            " and re-create your virtualenv"
+        )
+        # On macOS, Apple CLT Python (≤3.9) cannot create venvs without
+        # symlinks, causing the Poetry curl installer to fail silently.
+        # Give a targeted fix rather than the generic hint.
+        if platform.system() == "Darwin" and "/CommandLineTools/" in python_path:
+            fix_hint = (
+                "this is Apple's Command Line Tools Python — it cannot create\n"
+                "  virtualenvs without symlinks and is too old for hc-enterprise-kg.\n"
+                "  Fix: brew install poetry   (Homebrew brings a compatible Python)"
+            )
         return False, (
             f"{version_str} — requires Python >={_MIN_PYTHON[0]}.{_MIN_PYTHON[1]}\n"
-            f"  Fix: install Python {_MIN_PYTHON[0]}.{_MIN_PYTHON[1]}+"
-            " and re-create your virtualenv"
+            f"  Fix: {fix_hint}"
         )
     return True, version_str
 
@@ -364,6 +376,43 @@ def _print_checks(checks: list[tuple[str, bool, str]]) -> int:
 
 
 # ---------------------------------------------------------------------------
+# Auto-install helpers
+# ---------------------------------------------------------------------------
+
+
+def _find_poetry_executable() -> str | None:
+    """Return the path to the poetry executable on PATH, or None."""
+    import shutil
+
+    return shutil.which("poetry")
+
+
+def _auto_install_mcp_extras(python_path: str) -> bool:
+    """Run poetry install --extras mcp (or pip fallback) in the current env.
+
+    Returns True on success, False on failure.
+    """
+    poetry = _find_poetry_executable()
+    if poetry:
+        click.echo("  Auto-installing: poetry install --extras mcp ...")
+        result = subprocess.run(  # noqa: S603
+            [poetry, "install", "--extras", "mcp"],
+            capture_output=False,
+            text=True,
+        )
+        return result.returncode == 0
+
+    # Fallback: pip install directly into the active interpreter's env
+    click.echo("  Auto-installing: pip install hc-enterprise-kg[mcp] ...")
+    result = subprocess.run(  # noqa: S603
+        [python_path, "-m", "pip", "install", "hc-enterprise-kg[mcp]"],
+        capture_output=False,
+        text=True,
+    )
+    return result.returncode == 0
+
+
+# ---------------------------------------------------------------------------
 # Config entry builder
 # ---------------------------------------------------------------------------
 
@@ -431,15 +480,28 @@ def install_group() -> None:
     default=False,
     help="Skip pre-flight validation checks.",
 )
-def install_claude(config_path: str | None, graph_path: str | None, skip_checks: bool) -> None:
+@click.option(
+    "--auto-install",
+    is_flag=True,
+    default=False,
+    help="Automatically install missing MCP extras via poetry (or pip) if the pre-flight fails.",
+)
+def install_claude(
+    config_path: str | None,
+    graph_path: str | None,
+    skip_checks: bool,
+    auto_install: bool,
+) -> None:
     """Register hc-enterprise-kg with Claude Desktop.
 
     Runs pre-flight validation to ensure the MCP server will start
-    correctly. Use --skip-checks to bypass validation.
+    correctly. Use --skip-checks to bypass validation, or --auto-install
+    to have missing MCP extras installed automatically.
 
     \b
     Examples:
       hckg install claude
+      hckg install claude --auto-install
       hckg install claude --graph graph.json
       hckg install claude --skip-checks
     """
@@ -489,6 +551,23 @@ def install_claude(config_path: str | None, graph_path: str | None, skip_checks:
         click.echo("  Pre-flight checks")
         checks = _run_preflight(python_path)
         failures = _print_checks(checks)
+
+        # Auto-install: if the only failures are missing MCP extras, try to
+        # install them and re-run the checks once.
+        if failures > 0 and auto_install:
+            mcp_failure_names = {"MCP SDK", "Server module"}
+            failed_names = {name for name, ok, _ in checks if not ok}
+            if failed_names <= mcp_failure_names:
+                click.echo()
+                installed = _auto_install_mcp_extras(python_path)
+                if installed:
+                    click.echo()
+                    click.echo("  Re-running pre-flight checks...")
+                    checks = _run_preflight(python_path)
+                    failures = _print_checks(checks)
+                else:
+                    click.echo("  Auto-install failed. Resolve manually and re-run.")
+
         if failures > 0:
             click.echo()
             click.echo(
@@ -554,14 +633,15 @@ def install_doctor() -> None:
     config = _read_config(conf_file)
     servers = config.get("mcpServers")
     if not isinstance(servers, dict):
-        click.echo("  Config file has no valid 'mcpServers' object.")
+        # Normal pre-registration state — not an error.
+        click.echo("  Not yet registered with Claude Desktop.")
         click.echo("  Run: hckg install claude")
-        raise SystemExit(1)
+        raise SystemExit(0)
 
     if "hc-enterprise-kg" not in servers:
-        click.echo("  hc-enterprise-kg is not registered.")
+        click.echo("  Not yet registered with Claude Desktop.")
         click.echo("  Run: hckg install claude")
-        raise SystemExit(1)
+        raise SystemExit(0)
 
     entry = servers["hc-enterprise-kg"]
     if not isinstance(entry, dict):

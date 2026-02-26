@@ -715,10 +715,12 @@ class TestInstallDoctor:
         assert result.exit_code == 0, result.output
 
     def test_not_registered(self, tmp_path: Path):
+        # Not-yet-registered is a normal pre-install state, not an error —
+        # doctor should exit 0 and print a friendly message.
         config_path = _make_config(str(tmp_path))  # empty servers
         result = self._run_doctor(config_path)
-        assert result.exit_code != 0
-        assert "not registered" in result.output
+        assert result.exit_code == 0
+        assert "not yet registered" in result.output.lower()
 
     def test_config_file_missing(self, tmp_path: Path):
         config_path = tmp_path / "nope.json"
