@@ -174,7 +174,7 @@ Each file is a JSON array of objects of that type.
 \`graph.json\` is **gitignored** and assembled locally.  To rebuild it:
 
 \`\`\`bash
-python3 ~/hc-enterprise-kg/scripts/lib/kg-build.py ~/hc-cdaio-kg ~/hc-cdaio-kg/graph.json
+python3 ~/hc-cdaio-kg/scripts/lib/kg-build.py ~/hc-cdaio-kg ~/hc-cdaio-kg/graph.json
 \`\`\`
 EOF
 

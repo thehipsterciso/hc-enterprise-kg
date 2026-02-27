@@ -1,83 +1,48 @@
-# CMU CDAIO Install Scripts
+# scripts/ — Admin Tools (hc-enterprise-kg)
 
-Zero-touch setup for CMU CDAIO team members. One command installs everything
-and wires up Claude Desktop.
+> **CMU CDAIO team member?**  The installer and workflow scripts now live in the
+> **[hc-cdaio-kg](https://github.com/thehipsterciso/hc-cdaio-kg)** data repo.
+> Set up your environment with just two commands:
+>
+> ```bash
+> git clone https://github.com/thehipsterciso/hc-cdaio-kg
+> bash hc-cdaio-kg/scripts/install.sh
+> ```
 
-## macOS / Linux
+---
 
-```bash
-bash cmu-cdaio-install.sh /path/to/graph.json
-# or a directory of JSON source files:
-bash cmu-cdaio-install.sh /path/to/rackspace-jsons/
-```
+This folder contains **admin-only tools** for maintaining the hc-cdaio-kg
+GitHub repository.  You only need these if you are the org admin.
 
-## Windows (PowerShell)
+## Admin tools
 
-Right-click PowerShell → "Run as Administrator" (first time only, to set execution policy):
+### `kg-setup-repo.sh` — Initial repo scaffold
 
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
-
-Then run:
-
-```powershell
-.\cmu-cdaio-install.ps1 C:\path\to\graph.json
-# or a directory:
-.\cmu-cdaio-install.ps1 C:\path\to\rackspace-jsons\
-```
-
-## What the scripts do
-
-| Step | macOS/Linux | Windows |
-|------|-------------|---------|
-| Prereqs | brew / apt / dnf | winget |
-| Python ≥ 3.11 | auto-install if missing | auto-install if missing |
-| Git | auto-install if missing | auto-install if missing |
-| Repo | `git clone` or `git pull` | `git clone` or `git pull` |
-| Dependencies | `poetry install --extras mcp` | `poetry install --extras mcp` |
-| Graph (single file) | validates JSON, copies to repo root | validates JSON, copies to repo root |
-| Graph (directory) | `hckg import` each `.json` in order | `hckg import` each `.json` in order |
-| Claude Desktop | `hckg install claude --auto-install` | `hckg install claude --auto-install` |
-| Verify | prints registered config + loading chain | prints registered config + loading chain |
-
-## How the graph is loaded
-
-```
-graph.json on disk
-  └─ path registered as HCKG_DEFAULT_GRAPH in claude_desktop_config.json
-       └─ Claude Desktop restart spawns MCP server with that env var
-            └─ auto_load_default_graph() → JSONIngestor.ingest(path) → in memory
-                 └─ every tool call: mtime check → auto-reload if file changed
-```
-
-**Updating the graph** (no Claude restart required):
+Run once to create the hc-cdaio-kg GitHub repo, default labels, branch
+protections, and initial per-type file structure.
 
 ```bash
-# macOS/Linux
-cp /new/graph.json ~/hc-enterprise-kg/graph.json
-
-# Windows
-Copy-Item C:\new\graph.json $HOME\hc-enterprise-kg\graph.json
+bash scripts/kg-setup-repo.sh [<seed-graph.json>]
 ```
 
-The server detects the changed mtime on the next tool call and reloads automatically.
+### `kg-add-member.sh` — Grant collaborator access
 
-## Environment variable overrides
-
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `HCKG_INSTALL_DIR` | `~/hc-enterprise-kg` | Override clone location (bash) |
-| `HCKG_SKIP_PULL` | `0` | Set to `1` to skip git pull |
-| `-InstallDir` | `$HOME\hc-enterprise-kg` | Override clone location (PowerShell) |
-| `-SkipPull` | (off) | Skip git pull (PowerShell) |
-
-## Troubleshooting
+Run when a team member files a collaborator-request GitHub issue.
 
 ```bash
-# macOS/Linux
-cd ~/hc-enterprise-kg && poetry run hckg install doctor
-
-# Windows
-cd $HOME\hc-enterprise-kg; poetry run hckg install doctor
+bash scripts/kg-add-member.sh <github-username>
 ```
+
+## `lib/` — Python helpers (used by admin tools)
+
+| File | Purpose |
+|------|---------|
+| `kg-build.py` | Assemble per-type JSON files → `graph.json` |
+| `kg-split.py` | Split `graph.json` → per-type entity/relationship files |
+| `kg-merge.py` | Merge helper used during PR review |
+
+## Workflow scripts
+
+The day-to-day workflow scripts (`kg-sync.sh`, `kg-eod.sh`, `kg-morning.sh`)
+and the team member installer (`install.sh`) now live in
+**hc-cdaio-kg/scripts/**.  Do not add them back here.
