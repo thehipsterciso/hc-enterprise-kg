@@ -213,6 +213,14 @@ fi
 printf "\n${GRN}${BLD}Setup complete!${RST}\n"
 printf "  Repo  : https://github.com/${REPO_FULL}\n"
 printf "  Local : %s\n" "${DATA_DIR}"
+# Ensure the collaborator-request label exists on hc-enterprise-kg
+# (used by cmu-cdaio-install.sh when team members need access)
+gh label create "collaborator-request" \
+  --repo "${REPO_OWNER}/hc-enterprise-kg" \
+  --description "New team member requesting hc-cdaio-kg access" \
+  --color "0075ca" \
+  &>/dev/null || true  # idempotent — silently skips if already exists
+
 printf "\nNext steps:\n"
 printf "  Add team members : bash %s/kg-add-member.sh <github-username>\n" "$(dirname "$0")"
 printf "  Team member install : bash %s/cmu-cdaio-install.sh <graph-source>\n" "$(dirname "$0")"
