@@ -10,14 +10,15 @@
 # Windows:  Use scripts/cmu-cdaio-install.ps1 instead (native PowerShell)
 #
 # What this does (all idempotent — safe to re-run):
-#   [1/8] OS detection
-#   [2/8] Python ≥3.11
-#   [3/8] Git
-#   [4/8] Repository clone / pull
-#   [5/8] Poetry
-#   [6/8] Python dependencies (mcp extras)
-#   [7/8] Knowledge graph load
-#   [8/8] Claude Desktop MCP registration
+#   [1/9] OS detection
+#   [2/9] Python ≥3.11
+#   [3/9] Git
+#   [4/9] Repository clone / pull
+#   [5/9] Poetry
+#   [6/9] Python dependencies (mcp extras)
+#   [7/9] Knowledge graph load
+#   [8/9] Claude Desktop MCP registration
+#   [9/9] GitHub data repo (hc-cdaio-kg) + sync daemons
 #   [+]   Claude Desktop restart (with your approval, if it's running)
 # =============================================================================
 
@@ -32,7 +33,7 @@ readonly REPO_NAME="hc-enterprise-kg"
 readonly DEFAULT_INSTALL_DIR="${HOME}/${REPO_NAME}"
 readonly MIN_PYTHON_MAJOR=3
 readonly MIN_PYTHON_MINOR=11
-readonly TOTAL_STEPS=8
+readonly TOTAL_STEPS=9
 
 # ---------------------------------------------------------------------------
 # Colors — suppressed when stdout is not a TTY
@@ -542,6 +543,326 @@ fi
 ok "MCP server registered"
 
 # ---------------------------------------------------------------------------
+# [9/9] GitHub data repo (hc-cdaio-kg) + sync daemons
+# ---------------------------------------------------------------------------
+# This step is optional — if gh is not installed or the data repo hasn't been
+# created by the admin yet, we warn and skip cleanly.
+# ---------------------------------------------------------------------------
+step "GitHub data repo + sync daemons"
+
+_DATA_REPO_NAME="hc-cdaio-kg"
+_DATA_REPO_OWNER="thehipsterciso"
+_DATA_REPO_FULL="${_DATA_REPO_OWNER}/${_DATA_REPO_NAME}"
+_DATA_DIR="${HOME}/${_DATA_REPO_NAME}"
+_SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
+_SYNC_GRAPH="${_DATA_DIR}/graph.json"
+
+_skip_step9() {
+  warn "$*"
+  warn "Skipping GitHub data repo setup — you can re-run this step later."
+  warn "Run: bash ${_SCRIPTS_DIR}/kg-setup-repo.sh <graph> (admin) then re-run installer."
+}
+
+# ── 9a. GitHub CLI check ─────────────────────────────────────────────────
+if ! command -v gh &>/dev/null; then
+  _skip_step9 "gh CLI not found — install from https://cli.github.com"
+elif ! gh auth status &>/dev/null; then
+  _skip_step9 "gh CLI not authenticated — run: gh auth login"
+elif ! gh repo view "${_DATA_REPO_FULL}" &>/dev/null 2>&1; then
+  _skip_step9 "Repo ${_DATA_REPO_FULL} not found — admin must run kg-setup-repo.sh first"
+else
+
+  # ── 9b. Get GitHub username ─────────────────────────────────────────────
+  _GH_USER="$(gh api user --jq .login 2>/dev/null)" || _GH_USER="$(whoami)"
+  _MEMBER_BRANCH="${_GH_USER}/data"
+  info "GitHub user  : ${_GH_USER}"
+  info "Data branch  : ${_MEMBER_BRANCH}"
+  info "Data repo    : ${_DATA_DIR}"
+
+  # ── 9c. Clone or pull data repo ─────────────────────────────────────────
+  if [[ -d "${_DATA_DIR}/.git" ]]; then
+    info "Data repo already cloned — pulling latest main..."
+    git -C "${_DATA_DIR}" fetch origin --quiet 2>/dev/null || true
+    git -C "${_DATA_DIR}" checkout main --quiet 2>/dev/null || true
+    git -C "${_DATA_DIR}" merge --ff-only origin/main --quiet 2>/dev/null \
+      || warn "Could not fast-forward data repo main"
+  else
+    _start_spinner "Cloning ${_DATA_REPO_FULL}..."
+    gh repo clone "${_DATA_REPO_FULL}" "${_DATA_DIR}" -- --quiet
+    _stop_spinner
+    ok "Cloned data repo to ${_DATA_DIR}"
+  fi
+
+  # ── 9d. Create member branch if not yet present ─────────────────────────
+  if git -C "${_DATA_DIR}" ls-remote --exit-code --heads origin "${_MEMBER_BRANCH}" &>/dev/null; then
+    info "Branch ${_MEMBER_BRANCH} found — checking out"
+    git -C "${_DATA_DIR}" checkout "${_MEMBER_BRANCH}" --quiet 2>/dev/null \
+      || git -C "${_DATA_DIR}" checkout -b "${_MEMBER_BRANCH}" "origin/${_MEMBER_BRANCH}" --quiet
+  else
+    warn "Branch ${_MEMBER_BRANCH} not yet on remote"
+    warn "Ask admin to run: bash ${_SCRIPTS_DIR}/kg-add-member.sh ${_GH_USER}"
+    info "Creating local branch and pushing — admin will also need to add collaborator access"
+    git -C "${_DATA_DIR}" checkout -b "${_MEMBER_BRANCH}" origin/main --quiet 2>/dev/null \
+      || git -C "${_DATA_DIR}" checkout -b "${_MEMBER_BRANCH}" --quiet
+    git -C "${_DATA_DIR}" push origin "${_MEMBER_BRANCH}" --quiet 2>/dev/null \
+      || warn "Push failed — will retry on first kg-sync.sh run"
+  fi
+
+  # ── 9e. Split seed graph into per-type files ─────────────────────────────
+  _SPLIT_PY="${_SCRIPTS_DIR}/lib/kg-split.py"
+  _BUILD_PY="${_SCRIPTS_DIR}/lib/kg-build.py"
+  if [[ -f "${_SPLIT_PY}" && -f "${_BUILD_PY}" ]]; then
+    info "Splitting ${GRAPH_DEST} into per-type files..."
+    "$PYTHON_CMD" "${_SPLIT_PY}" "${GRAPH_DEST}" "${_DATA_DIR}"
+
+    info "Building ${_SYNC_GRAPH} from per-type files..."
+    "$PYTHON_CMD" "${_BUILD_PY}" "${_DATA_DIR}" "${_SYNC_GRAPH}"
+
+    # Commit initial split to member branch if there are changes
+    git -C "${_DATA_DIR}" add entities/ relationships/ 2>/dev/null || true
+    if ! git -C "${_DATA_DIR}" diff --cached --quiet; then
+      git -C "${_DATA_DIR}" commit -m "feat: initial graph split from installer" --quiet
+      git -C "${_DATA_DIR}" push origin "${_MEMBER_BRANCH}" --quiet 2>/dev/null \
+        || warn "Push failed — will retry on first kg-sync.sh run"
+      ok "Initial graph split committed and pushed"
+    else
+      info "No new entities to commit — branch already up to date"
+    fi
+  else
+    warn "kg-split.py / kg-build.py not found in ${_SCRIPTS_DIR}/lib — skipping split"
+    cp "${GRAPH_DEST}" "${_SYNC_GRAPH}" 2>/dev/null \
+      || warn "Could not copy graph.json to data repo"
+  fi
+
+  # ── 9f. Re-register MCP to use data repo graph.json ─────────────────────
+  info "Updating HCKG_DEFAULT_GRAPH → ${_SYNC_GRAPH}"
+  "$POETRY_CMD" run hckg install claude \
+    --auto-install \
+    --graph "${_SYNC_GRAPH}" \
+    2>&1 | sed 's/^/    /'
+  ok "MCP now loading from ${_SYNC_GRAPH}"
+
+  # ── 9g. Install LaunchAgent (macOS) or systemd timer (Linux) ─────────────
+  _HCKG_DATA_DIR_ENV="HCKG_DATA_DIR=${_DATA_DIR}"
+  _HCKG_GRAPH_SRC_ENV="HCKG_GRAPH_SRC=${GRAPH_DEST}"  # live working graph
+  _HCKG_GRAPH_OUT_ENV="HCKG_GRAPH_OUT=${_SYNC_GRAPH}"
+
+  if [[ "$PLATFORM" == "macos" ]]; then
+    _LA_DIR="${HOME}/Library/LaunchAgents"
+    mkdir -p "${_LA_DIR}"
+
+    # ── kg-sync every 30 minutes ──────────────────────────────────────────
+    _SYNC_PLIST="${_LA_DIR}/com.hccdaio.kg-sync.plist"
+    cat > "${_SYNC_PLIST}" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>              <string>com.hccdaio.kg-sync</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>${_SCRIPTS_DIR}/kg-sync.sh</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HCKG_DATA_DIR</key>   <string>${_DATA_DIR}</string>
+        <key>HCKG_GRAPH_SRC</key>  <string>${GRAPH_DEST}</string>
+        <key>HCKG_BRANCH</key>     <string>${_MEMBER_BRANCH}</string>
+        <key>HOME</key>            <string>${HOME}</string>
+        <key>PATH</key>            <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+    </dict>
+    <key>StartInterval</key>      <integer>1800</integer>
+    <key>RunAtLoad</key>          <false/>
+    <key>StandardOutPath</key>    <string>${_DATA_DIR}/.kg-sync-launchd.log</string>
+    <key>StandardErrorPath</key>  <string>${_DATA_DIR}/.kg-sync-launchd.log</string>
+</dict>
+</plist>
+PLIST
+
+    # ── EOD PR at 17:00 daily ─────────────────────────────────────────────
+    _EOD_PLIST="${_LA_DIR}/com.hccdaio.kg-eod.plist"
+    cat > "${_EOD_PLIST}" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>              <string>com.hccdaio.kg-eod</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>${_SCRIPTS_DIR}/kg-eod.sh</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HCKG_DATA_DIR</key>   <string>${_DATA_DIR}</string>
+        <key>HCKG_GRAPH_SRC</key>  <string>${GRAPH_DEST}</string>
+        <key>HCKG_BRANCH</key>     <string>${_MEMBER_BRANCH}</string>
+        <key>HOME</key>            <string>${HOME}</string>
+        <key>PATH</key>            <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+    </dict>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>    <integer>17</integer>
+        <key>Minute</key>  <integer>0</integer>
+    </dict>
+    <key>StandardOutPath</key>    <string>${_DATA_DIR}/.kg-eod-launchd.log</string>
+    <key>StandardErrorPath</key>  <string>${_DATA_DIR}/.kg-eod-launchd.log</string>
+</dict>
+</plist>
+PLIST
+
+    # ── Morning pull at 08:00 daily ───────────────────────────────────────
+    _MORNING_PLIST="${_LA_DIR}/com.hccdaio.kg-morning.plist"
+    cat > "${_MORNING_PLIST}" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>              <string>com.hccdaio.kg-morning</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>${_SCRIPTS_DIR}/kg-morning.sh</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HCKG_DATA_DIR</key>  <string>${_DATA_DIR}</string>
+        <key>HCKG_GRAPH_OUT</key> <string>${_SYNC_GRAPH}</string>
+        <key>HOME</key>           <string>${HOME}</string>
+        <key>PATH</key>           <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+    </dict>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>    <integer>8</integer>
+        <key>Minute</key>  <integer>0</integer>
+    </dict>
+    <key>StandardOutPath</key>    <string>${_DATA_DIR}/.kg-morning-launchd.log</string>
+    <key>StandardErrorPath</key>  <string>${_DATA_DIR}/.kg-morning-launchd.log</string>
+</dict>
+</plist>
+PLIST
+
+    # Load/reload all three agents
+    for _plist in "${_SYNC_PLIST}" "${_EOD_PLIST}" "${_MORNING_PLIST}"; do
+      _label="$(basename "${_plist}" .plist)"
+      launchctl unload "${_plist}" 2>/dev/null || true
+      launchctl load "${_plist}" 2>/dev/null \
+        && info "  LaunchAgent loaded: ${_label}" \
+        || warn "  Could not load ${_label} — check ${_plist}"
+    done
+    ok "LaunchAgents installed (sync every 30 min, EOD at 5pm, morning pull at 8am)"
+
+  elif [[ "$PLATFORM" == "linux" ]]; then
+    _SYSTEMD_DIR="${HOME}/.config/systemd/user"
+    mkdir -p "${_SYSTEMD_DIR}"
+
+    # ── kg-sync.service ────────────────────────────────────────────────────
+    cat > "${_SYSTEMD_DIR}/kg-sync.service" <<UNIT
+[Unit]
+Description=hc-cdaio-kg sync — split graph.json and push to branch
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash ${_SCRIPTS_DIR}/kg-sync.sh
+Environment=HCKG_DATA_DIR=${_DATA_DIR}
+Environment=HCKG_GRAPH_SRC=${GRAPH_DEST}
+Environment=HCKG_BRANCH=${_MEMBER_BRANCH}
+StandardOutput=append:${_DATA_DIR}/.kg-sync-systemd.log
+StandardError=append:${_DATA_DIR}/.kg-sync-systemd.log
+UNIT
+
+    cat > "${_SYSTEMD_DIR}/kg-sync.timer" <<UNIT
+[Unit]
+Description=hc-cdaio-kg sync every 30 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+
+    # ── kg-eod.service ─────────────────────────────────────────────────────
+    cat > "${_SYSTEMD_DIR}/kg-eod.service" <<UNIT
+[Unit]
+Description=hc-cdaio-kg EOD — final sync + PR to main
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash ${_SCRIPTS_DIR}/kg-eod.sh
+Environment=HCKG_DATA_DIR=${_DATA_DIR}
+Environment=HCKG_GRAPH_SRC=${GRAPH_DEST}
+Environment=HCKG_BRANCH=${_MEMBER_BRANCH}
+StandardOutput=append:${_DATA_DIR}/.kg-eod-systemd.log
+StandardError=append:${_DATA_DIR}/.kg-eod-systemd.log
+UNIT
+
+    cat > "${_SYSTEMD_DIR}/kg-eod.timer" <<UNIT
+[Unit]
+Description=hc-cdaio-kg EOD at 17:00 daily
+
+[Timer]
+OnCalendar=*-*-* 17:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+
+    # ── kg-morning.service ─────────────────────────────────────────────────
+    cat > "${_SYSTEMD_DIR}/kg-morning.service" <<UNIT
+[Unit]
+Description=hc-cdaio-kg morning pull — rebuild graph.json from main
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash ${_SCRIPTS_DIR}/kg-morning.sh
+Environment=HCKG_DATA_DIR=${_DATA_DIR}
+Environment=HCKG_GRAPH_OUT=${_SYNC_GRAPH}
+StandardOutput=append:${_DATA_DIR}/.kg-morning-systemd.log
+StandardError=append:${_DATA_DIR}/.kg-morning-systemd.log
+UNIT
+
+    cat > "${_SYSTEMD_DIR}/kg-morning.timer" <<UNIT
+[Unit]
+Description=hc-cdaio-kg morning pull at 08:00
+
+[Timer]
+OnCalendar=*-*-* 08:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+UNIT
+
+    # Reload and enable
+    systemctl --user daemon-reload 2>/dev/null \
+      || warn "systemctl daemon-reload failed — may need: loginctl enable-linger ${USER}"
+    for _svc in kg-sync kg-eod kg-morning; do
+      systemctl --user enable --now "${_svc}.timer" 2>/dev/null \
+        && info "  systemd timer enabled: ${_svc}.timer" \
+        || warn "  Could not enable ${_svc}.timer — check ~/.config/systemd/user/"
+    done
+    ok "systemd timers installed (sync every 30 min, EOD at 5pm, morning pull at 8am)"
+  fi
+
+  # ── Summary of data workflow ──────────────────────────────────────────────
+  echo ""
+  info "Data repo workflow:"
+  info "  8 am  : kg-morning.sh pulls main → rebuilds graph.json"
+  info "  every 30 min : kg-sync.sh commits + pushes your changes"
+  info "  5 pm  : kg-eod.sh opens a PR to main"
+  info "  Logs  : ${_DATA_DIR}/.kg-*.log"
+
+fi  # end gh/repo check
+
+# ---------------------------------------------------------------------------
 # [+] Claude Desktop process management (with user approval)
 # ---------------------------------------------------------------------------
 echo ""
@@ -660,5 +981,8 @@ echo -e "${BOLD}Useful commands:${RESET}"
 echo "  Diagnose:      cd ${INSTALL_DIR} && poetry run hckg install doctor"
 echo "  Update graph:  cp /new/graph.json ${GRAPH_DEST}"
 echo "                 (server auto-reloads on next tool call — no restart needed)"
+echo "  Manual sync:   bash ${_SCRIPTS_DIR:-$(dirname "$0")}/kg-sync.sh"
+echo "  Manual EOD:    bash ${_SCRIPTS_DIR:-$(dirname "$0")}/kg-eod.sh"
+echo "  Morning pull:  bash ${_SCRIPTS_DIR:-$(dirname "$0")}/kg-morning.sh"
 echo "  Fresh demo:    cd ${INSTALL_DIR} && poetry run hckg demo --clean"
 echo ""
