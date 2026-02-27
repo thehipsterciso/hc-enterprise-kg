@@ -55,10 +55,10 @@ if gh repo view "${REPO_FULL}" &>/dev/null; then
   warn "Repo ${REPO_FULL} already exists — skipping creation"
 else
   gh repo create "${REPO_FULL}" \
-    --private \
+    --public \
     --description "hc-enterprise-kg data — CMU CDAIO team graph (per-type JSON)" \
     --clone=false
-  ok "Created ${REPO_FULL} (private)"
+  ok "Created ${REPO_FULL} (public)"
 fi
 
 # ── Step 3 — Clone ──────────────────────────────────────────────────────────
@@ -209,16 +209,14 @@ else
   warn "You can set it manually: https://github.com/${REPO_FULL}/settings/branches"
 fi
 
-# ── Ensure collaborator-request label exists on hc-enterprise-kg ─────────────
-# Team member installers file issues there when requesting hc-cdaio-kg access
-# (hc-enterprise-kg is public so any GitHub user can post; hc-cdaio-kg is
-#  private so non-collaborators cannot).
+# ── Ensure collaborator-request label exists on hc-cdaio-kg ──────────────────
+# Team member installers file issues here when requesting access.
 gh label create "collaborator-request" \
-  --repo "${REPO_OWNER}/hc-enterprise-kg" \
+  --repo "${REPO_FULL}" \
   --description "New team member requesting hc-cdaio-kg access" \
   --color "0075ca" \
   &>/dev/null || true  # idempotent
-ok "collaborator-request label ready on ${REPO_OWNER}/hc-enterprise-kg"
+ok "collaborator-request label ready on ${REPO_FULL}"
 
 # ── Done ────────────────────────────────────────────────────────────────────
 printf "\n${GRN}${BLD}Setup complete!${RST}\n"

@@ -591,22 +591,8 @@ else
     _CLONE_OK=1
   else
     _stop_spinner
-    # Repo is private — try gh if already authenticated
-    if command -v gh &>/dev/null && gh auth status &>/dev/null 2>&1; then
-      _start_spinner "Retrying with gh auth (private repo)..."
-      if gh repo clone "${_DATA_REPO_FULL}" "${_DATA_DIR}" -- --quiet 2>/dev/null; then
-        _stop_spinner
-        ok "Cloned ${_DATA_REPO_FULL} (authenticated)"
-        _CLONE_OK=1
-      else
-        _stop_spinner
-        warn "Could not clone ${_DATA_REPO_FULL}"
-        warn "Admin may not have created the data repo yet — run kg-setup-repo.sh first."
-      fi
-    else
-      warn "Could not clone ${_DATA_REPO_FULL} — repo may be private and gh not authenticated."
-      warn "Admin must run kg-setup-repo.sh (or make the repo public), then re-run installer."
-    fi
+    warn "Could not clone ${_DATA_REPO_FULL}"
+    warn "Admin may not have created the data repo yet — run kg-setup-repo.sh first."
   fi
 fi
 
@@ -714,7 +700,7 @@ if [[ -n "${_GH_USER}" ]]; then
   if [[ "${_VIEWER_PERM}" =~ ^(WRITE|MAINTAIN|ADMIN)$ ]]; then
     _PUSH_READY=1
   else
-    # No push access yet — file a GitHub issue on the (public) hc-enterprise-kg repo
+    # No push access yet — file a GitHub issue on hc-cdaio-kg
     # so the admin gets an automatic notification and knows exactly what to run.
     echo ""
     info "Requesting collaborator access from admin..."
@@ -735,13 +721,13 @@ Once the invitation is accepted, \`${_GH_USER}\` can re-run the installer to com
 ISSUEBODY
 )"
     if gh issue create \
-         --repo "${_DATA_REPO_OWNER}/hc-enterprise-kg" \
+         --repo "${_DATA_REPO_FULL}" \
          --title "${_ISSUE_TITLE}" \
          --body "${_ISSUE_BODY}" \
          --label "collaborator-request" \
          2>/dev/null \
        || gh issue create \
-         --repo "${_DATA_REPO_OWNER}/hc-enterprise-kg" \
+         --repo "${_DATA_REPO_FULL}" \
          --title "${_ISSUE_TITLE}" \
          --body "${_ISSUE_BODY}" \
          2>/dev/null; then
