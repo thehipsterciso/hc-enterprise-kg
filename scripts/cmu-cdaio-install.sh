@@ -164,7 +164,7 @@ usage() {
   exit 1
 }
 
-[[ "$1" == "-h" || "$1" == "--help" ]] && usage
+[[ "${1:-}" == "-h" || "${1:-}" == "--help" ]] && usage
 
 GRAPH_SOURCE="${1:-}"
 INSTALL_DIR="${HCKG_INSTALL_DIR:-${DEFAULT_INSTALL_DIR}}"
