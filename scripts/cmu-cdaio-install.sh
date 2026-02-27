@@ -544,109 +544,223 @@ ok "MCP server registered"
 
 # ---------------------------------------------------------------------------
 # [9/9] GitHub data repo (hc-cdaio-kg) + sync daemons
-# ---------------------------------------------------------------------------
-# This step is optional — if gh is not installed or the data repo hasn't been
-# created by the admin yet, we warn and skip cleanly.
+#
+# Two-phase design:
+#   Phase 1 — Read (no GitHub account needed):
+#     Clone hc-cdaio-kg via public HTTPS, build graph.json, register MCP.
+#     Claude works immediately even before push access is set up.
+#   Phase 2 — Write (needs GitHub account + collaborator access):
+#     Guide user through account creation if needed, authenticate with gh,
+#     discover username, create personal branch, push initial split,
+#     install sync daemons.  If access not yet granted, prints username
+#     so the user can share it with the admin and re-run later.
 # ---------------------------------------------------------------------------
 step "GitHub data repo + sync daemons"
 
 _DATA_REPO_NAME="hc-cdaio-kg"
 _DATA_REPO_OWNER="thehipsterciso"
 _DATA_REPO_FULL="${_DATA_REPO_OWNER}/${_DATA_REPO_NAME}"
+_DATA_REPO_URL="https://github.com/${_DATA_REPO_OWNER}/${_DATA_REPO_NAME}.git"
 _DATA_DIR="${HOME}/${_DATA_REPO_NAME}"
 _SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
 _SYNC_GRAPH="${_DATA_DIR}/graph.json"
+_GH_USER=""
+_MEMBER_BRANCH=""
+_CLONE_OK=0
+_PUSH_READY=0
 
-_skip_step9() {
-  warn "$*"
-  warn "Skipping GitHub data repo setup — you can re-run this step later."
-  warn "Run: bash ${_SCRIPTS_DIR}/kg-setup-repo.sh <graph> (admin) then re-run installer."
-}
+# ══════════════════════════════════════════════════════════════════════════
+# Phase 1 — Read: clone or pull, build graph.json, wire MCP
+# HTTPS clone works on any public repo without a GitHub account.
+# ══════════════════════════════════════════════════════════════════════════
+info "Phase 1: fetching shared graph data from ${_DATA_REPO_FULL}"
 
-# ── 9a. GitHub CLI check ─────────────────────────────────────────────────
-if ! command -v gh &>/dev/null; then
-  _skip_step9 "gh CLI not found — install from https://cli.github.com"
-elif ! gh auth status &>/dev/null; then
-  _skip_step9 "gh CLI not authenticated — run: gh auth login"
-elif ! gh repo view "${_DATA_REPO_FULL}" &>/dev/null 2>&1; then
-  _skip_step9 "Repo ${_DATA_REPO_FULL} not found — admin must run kg-setup-repo.sh first"
+if [[ -d "${_DATA_DIR}/.git" ]]; then
+  _start_spinner "Pulling latest main..."
+  git -C "${_DATA_DIR}" fetch origin --quiet 2>/dev/null || true
+  git -C "${_DATA_DIR}" checkout main --quiet 2>/dev/null || true
+  git -C "${_DATA_DIR}" merge --ff-only origin/main --quiet 2>/dev/null || true
+  _stop_spinner
+  ok "Data repo updated"
+  _CLONE_OK=1
 else
-
-  # ── 9b. Get GitHub username ─────────────────────────────────────────────
-  _GH_USER="$(gh api user --jq .login 2>/dev/null)" || _GH_USER="$(whoami)"
-  _MEMBER_BRANCH="${_GH_USER}/data"
-  info "GitHub user  : ${_GH_USER}"
-  info "Data branch  : ${_MEMBER_BRANCH}"
-  info "Data repo    : ${_DATA_DIR}"
-
-  # ── 9c. Clone or pull data repo ─────────────────────────────────────────
-  if [[ -d "${_DATA_DIR}/.git" ]]; then
-    info "Data repo already cloned — pulling latest main..."
-    git -C "${_DATA_DIR}" fetch origin --quiet 2>/dev/null || true
-    git -C "${_DATA_DIR}" checkout main --quiet 2>/dev/null || true
-    git -C "${_DATA_DIR}" merge --ff-only origin/main --quiet 2>/dev/null \
-      || warn "Could not fast-forward data repo main"
-  else
-    _start_spinner "Cloning ${_DATA_REPO_FULL}..."
-    gh repo clone "${_DATA_REPO_FULL}" "${_DATA_DIR}" -- --quiet
+  _start_spinner "Cloning ${_DATA_REPO_FULL}..."
+  if git clone --quiet "${_DATA_REPO_URL}" "${_DATA_DIR}" 2>/dev/null; then
     _stop_spinner
-    ok "Cloned data repo to ${_DATA_DIR}"
+    ok "Cloned ${_DATA_REPO_FULL}"
+    _CLONE_OK=1
+  else
+    _stop_spinner
+    # Repo is private — try gh if already authenticated
+    if command -v gh &>/dev/null && gh auth status &>/dev/null 2>&1; then
+      _start_spinner "Retrying with gh auth (private repo)..."
+      if gh repo clone "${_DATA_REPO_FULL}" "${_DATA_DIR}" -- --quiet 2>/dev/null; then
+        _stop_spinner
+        ok "Cloned ${_DATA_REPO_FULL} (authenticated)"
+        _CLONE_OK=1
+      else
+        _stop_spinner
+        warn "Could not clone ${_DATA_REPO_FULL}"
+        warn "Admin may not have created the data repo yet — run kg-setup-repo.sh first."
+      fi
+    else
+      warn "Could not clone ${_DATA_REPO_FULL} — repo may be private and gh not authenticated."
+      warn "Admin must run kg-setup-repo.sh (or make the repo public), then re-run installer."
+    fi
+  fi
+fi
+
+# Build graph.json from cloned per-type files, then register MCP
+if [[ "$_CLONE_OK" == "1" ]]; then
+  _BUILD_PY="${_SCRIPTS_DIR}/lib/kg-build.py"
+  if [[ -f "${_BUILD_PY}" ]] \
+       && [[ -d "${_DATA_DIR}/entities" || -d "${_DATA_DIR}/relationships" ]]; then
+    info "Building graph.json from per-type files..."
+    "$PYTHON_CMD" "${_BUILD_PY}" "${_DATA_DIR}" "${_SYNC_GRAPH}"
+  elif [[ ! -f "${_SYNC_GRAPH}" ]]; then
+    cp "${GRAPH_DEST}" "${_SYNC_GRAPH}" 2>/dev/null \
+      || warn "Could not seed ${_SYNC_GRAPH}"
   fi
 
-  # ── 9d. Create member branch if not yet present ─────────────────────────
+  if [[ -f "${_SYNC_GRAPH}" ]]; then
+    info "Updating HCKG_DEFAULT_GRAPH → ${_SYNC_GRAPH}"
+    "$POETRY_CMD" run hckg install claude \
+      --auto-install \
+      --graph "${_SYNC_GRAPH}" \
+      2>&1 | sed 's/^/    /'
+    ok "MCP now loading from ${_SYNC_GRAPH}  ← Claude is ready"
+  fi
+fi
+
+# ══════════════════════════════════════════════════════════════════════════
+# Phase 2 — Write: gh auth → username → branch → daemons
+# ══════════════════════════════════════════════════════════════════════════
+echo ""
+info "Phase 2: setting up your personal sync branch (requires GitHub account)"
+
+# ── Install gh CLI if missing ─────────────────────────────────────────────
+if ! command -v gh &>/dev/null; then
+  if [[ "$PLATFORM" == "macos" ]]; then
+    _start_spinner "Installing gh CLI..."
+    brew install gh; _stop_spinner
+  elif [[ "$_APT" == "1" ]]; then
+    if apt-cache show gh &>/dev/null 2>&1; then
+      _pkg_install gh
+    else
+      info "Adding GitHub CLI apt repo..."
+      sudo mkdir -p -m 755 /etc/apt/keyrings
+      wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+        | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null
+      sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+      _start_spinner "Installing gh..."
+      sudo apt-get update -q && _pkg_install gh; _stop_spinner
+    fi
+  elif [[ "$_DNF" == "1" ]]; then
+    _start_spinner "Installing gh..."; sudo dnf install -y gh; _stop_spinner
+  else
+    warn "Cannot auto-install gh — install from https://cli.github.com then re-run."
+  fi
+fi
+
+# ── Authenticate ──────────────────────────────────────────────────────────
+if command -v gh &>/dev/null && ! gh auth status &>/dev/null 2>&1; then
+  echo ""
+  echo -e "    ${BOLD}GitHub account needed to push your changes${RESET}"
+  echo ""
+  echo "    hc-cdaio-kg is publicly readable, but pushing your edits back"
+  echo "    requires a free GitHub account and collaborator access."
+  echo ""
+  if [[ -t 0 ]]; then
+    printf "    Do you already have a GitHub account? [y/N] "
+    read -r _HAS_ACCOUNT; echo ""
+    if [[ ! "$_HAS_ACCOUNT" =~ ^[Yy]([Ee][Ss])?$ ]]; then
+      echo "    ┌─────────────────────────────────────────────────────┐"
+      echo "    │  Create your free GitHub account:                   │"
+      echo "    │  https://github.com/signup                          │"
+      echo "    │  • Use your work email • Verify before continuing   │"
+      echo "    └─────────────────────────────────────────────────────┘"
+      echo ""
+      [[ "$PLATFORM" == "macos" ]] && open "https://github.com/signup" 2>/dev/null || true
+      command -v xdg-open &>/dev/null \
+        && xdg-open "https://github.com/signup" 2>/dev/null || true
+      printf "    Press Enter once your account is verified: "
+      read -r _; echo ""
+    fi
+    echo "    Launching GitHub authentication (a browser window will open)..."
+    echo "    Choose HTTPS when prompted for protocol."
+    echo ""
+    gh auth login --web --git-protocol https \
+      || warn "Authentication failed — sync daemons will not be installed"
+  else
+    warn "stdin is not a terminal — run: gh auth login  then re-run installer"
+  fi
+fi
+
+# ── Discover username ────────────────────────────────────────────────────
+if command -v gh &>/dev/null && gh auth status &>/dev/null 2>&1; then
+  _GH_USER="$(gh api user --jq .login 2>/dev/null || echo "")"
+fi
+
+if [[ -n "${_GH_USER}" ]]; then
+  ok "Authenticated as: ${_GH_USER}"
+  _MEMBER_BRANCH="${_GH_USER}/data"
+
+  # ── Check collaborator / push access ─────────────────────────────────
+  _VIEWER_PERM="$(gh repo view "${_DATA_REPO_FULL}" --json viewerPermission \
+    --jq '.viewerPermission' 2>/dev/null || echo "NONE")"
+
+  if [[ "${_VIEWER_PERM}" =~ ^(WRITE|MAINTAIN|ADMIN)$ ]]; then
+    _PUSH_READY=1
+  else
+    echo ""
+    echo -e "    ${YELLOW}${BOLD}Share your GitHub username with the admin to get push access:${RESET}"
+    echo ""
+    echo "    ┌─────────────────────────────────────────────────────────┐"
+    printf "    │  Your GitHub username: %-33s│\n" "${_GH_USER}"
+    echo "    │                                                         │"
+    echo "    │  Ask your admin (thehipsterciso) to run:                │"
+    printf "    │    bash kg-add-member.sh %-32s│\n" "${_GH_USER}"
+    echo "    │                                                         │"
+    echo "    │  Accept the GitHub invitation email, then re-run:       │"
+    echo "    │    bash $(basename "$0") <graph-source>                 │"
+    echo "    └─────────────────────────────────────────────────────────┘"
+    echo ""
+    warn "Sync daemons NOT installed — Claude reads from main branch until access is granted."
+  fi
+fi
+
+# ── Create branch + initial commit + push ───────────────────────────────
+if [[ "$_PUSH_READY" == "1" && "$_CLONE_OK" == "1" ]]; then
   if git -C "${_DATA_DIR}" ls-remote --exit-code --heads origin "${_MEMBER_BRANCH}" &>/dev/null; then
-    info "Branch ${_MEMBER_BRANCH} found — checking out"
     git -C "${_DATA_DIR}" checkout "${_MEMBER_BRANCH}" --quiet 2>/dev/null \
       || git -C "${_DATA_DIR}" checkout -b "${_MEMBER_BRANCH}" "origin/${_MEMBER_BRANCH}" --quiet
   else
-    warn "Branch ${_MEMBER_BRANCH} not yet on remote"
-    warn "Ask admin to run: bash ${_SCRIPTS_DIR}/kg-add-member.sh ${_GH_USER}"
-    info "Creating local branch and pushing — admin will also need to add collaborator access"
     git -C "${_DATA_DIR}" checkout -b "${_MEMBER_BRANCH}" origin/main --quiet 2>/dev/null \
       || git -C "${_DATA_DIR}" checkout -b "${_MEMBER_BRANCH}" --quiet
     git -C "${_DATA_DIR}" push origin "${_MEMBER_BRANCH}" --quiet 2>/dev/null \
-      || warn "Push failed — will retry on first kg-sync.sh run"
+      || warn "Branch push failed — will retry on first kg-sync.sh run"
   fi
+  info "Branch: ${_MEMBER_BRANCH}"
 
-  # ── 9e. Split seed graph into per-type files ─────────────────────────────
-  _SPLIT_PY="${_SCRIPTS_DIR}/lib/kg-split.py"
-  _BUILD_PY="${_SCRIPTS_DIR}/lib/kg-build.py"
-  if [[ -f "${_SPLIT_PY}" && -f "${_BUILD_PY}" ]]; then
-    info "Splitting ${GRAPH_DEST} into per-type files..."
-    "$PYTHON_CMD" "${_SPLIT_PY}" "${GRAPH_DEST}" "${_DATA_DIR}"
-
-    info "Building ${_SYNC_GRAPH} from per-type files..."
-    "$PYTHON_CMD" "${_BUILD_PY}" "${_DATA_DIR}" "${_SYNC_GRAPH}"
-
-    # Commit initial split to member branch if there are changes
+  # Split seed graph onto the member branch
+  if [[ -f "${_SCRIPTS_DIR}/lib/kg-split.py" ]]; then
+    "$PYTHON_CMD" "${_SCRIPTS_DIR}/lib/kg-split.py" "${GRAPH_DEST}" "${_DATA_DIR}" 2>/dev/null || true
     git -C "${_DATA_DIR}" add entities/ relationships/ 2>/dev/null || true
     if ! git -C "${_DATA_DIR}" diff --cached --quiet; then
       git -C "${_DATA_DIR}" commit -m "feat: initial graph split from installer" --quiet
       git -C "${_DATA_DIR}" push origin "${_MEMBER_BRANCH}" --quiet 2>/dev/null \
         || warn "Push failed — will retry on first kg-sync.sh run"
-      ok "Initial graph split committed and pushed"
+      ok "Initial graph split pushed to ${_MEMBER_BRANCH}"
     else
-      info "No new entities to commit — branch already up to date"
+      info "Branch already up to date"
     fi
-  else
-    warn "kg-split.py / kg-build.py not found in ${_SCRIPTS_DIR}/lib — skipping split"
-    cp "${GRAPH_DEST}" "${_SYNC_GRAPH}" 2>/dev/null \
-      || warn "Could not copy graph.json to data repo"
   fi
+fi
 
-  # ── 9f. Re-register MCP to use data repo graph.json ─────────────────────
-  info "Updating HCKG_DEFAULT_GRAPH → ${_SYNC_GRAPH}"
-  "$POETRY_CMD" run hckg install claude \
-    --auto-install \
-    --graph "${_SYNC_GRAPH}" \
-    2>&1 | sed 's/^/    /'
-  ok "MCP now loading from ${_SYNC_GRAPH}"
-
-  # ── 9g. Install LaunchAgent (macOS) or systemd timer (Linux) ─────────────
-  _HCKG_DATA_DIR_ENV="HCKG_DATA_DIR=${_DATA_DIR}"
-  _HCKG_GRAPH_SRC_ENV="HCKG_GRAPH_SRC=${GRAPH_DEST}"  # live working graph
-  _HCKG_GRAPH_OUT_ENV="HCKG_GRAPH_OUT=${_SYNC_GRAPH}"
-
+# ── Install daemons ──────────────────────────────────────────────────────
+if [[ "$_PUSH_READY" == "1" && -n "${_MEMBER_BRANCH}" ]]; then
   if [[ "$PLATFORM" == "macos" ]]; then
     _LA_DIR="${HOME}/Library/LaunchAgents"
     mkdir -p "${_LA_DIR}"
@@ -852,15 +966,15 @@ UNIT
     ok "systemd timers installed (sync every 30 min, EOD at 5pm, morning pull at 8am)"
   fi
 
-  # ── Summary of data workflow ──────────────────────────────────────────────
+  # ── Daemon summary ────────────────────────────────────────────────────────
   echo ""
-  info "Data repo workflow:"
-  info "  8 am  : kg-morning.sh pulls main → rebuilds graph.json"
-  info "  every 30 min : kg-sync.sh commits + pushes your changes"
-  info "  5 pm  : kg-eod.sh opens a PR to main"
-  info "  Logs  : ${_DATA_DIR}/.kg-*.log"
+  info "Sync daemons active:"
+  info "  8 am         : kg-morning.sh  — pull main → rebuild graph.json"
+  info "  every 30 min : kg-sync.sh     — commit + push your changes"
+  info "  5 pm         : kg-eod.sh      — open PR to main"
+  info "  Logs : ${_DATA_DIR}/.kg-*.log"
 
-fi  # end gh/repo check
+fi  # end daemon install (_PUSH_READY)
 
 # ---------------------------------------------------------------------------
 # [+] Claude Desktop process management (with user approval)
