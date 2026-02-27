@@ -170,7 +170,9 @@ GRAPH_SOURCE="${1:-}"
 INSTALL_DIR="${HCKG_INSTALL_DIR:-${DEFAULT_INSTALL_DIR}}"
 SKIP_PULL="${HCKG_SKIP_PULL:-0}"
 
-# Resolve GRAPH_SOURCE to absolute path now (before we cd away)
+# Resolve paths to absolute now — before any cd changes the working directory
+_SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 if [[ -n "$GRAPH_SOURCE" ]]; then
   if [[ -e "$GRAPH_SOURCE" ]]; then
     GRAPH_SOURCE="$(cd "$(dirname "$GRAPH_SOURCE")" && pwd)/$(basename "$GRAPH_SOURCE")"
@@ -578,7 +580,6 @@ _DATA_REPO_OWNER="thehipsterciso"
 _DATA_REPO_FULL="${_DATA_REPO_OWNER}/${_DATA_REPO_NAME}"
 _DATA_REPO_URL="https://github.com/${_DATA_REPO_OWNER}/${_DATA_REPO_NAME}.git"
 _DATA_DIR="${HOME}/${_DATA_REPO_NAME}"
-_SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
 _SYNC_GRAPH="${_DATA_DIR}/graph.json"
 _GH_USER=""
 _MEMBER_BRANCH=""
