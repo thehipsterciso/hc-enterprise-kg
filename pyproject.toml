@@ -40,6 +40,8 @@ classifiers = [
 
 dependencies = [
     "networkx>=3.2",
+    "numpy>=1.24",
+    "scipy>=1.10",
     "pydantic>=2.5",
     "faker>=22.0",
     "click>=8.1",
