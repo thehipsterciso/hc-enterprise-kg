@@ -2,7 +2,11 @@
 # =============================================================================
 # cmu-cdaio-install.sh — Zero-touch hc-enterprise-kg setup for CMU CDAIO
 #
-# Usage:
+# Usage (new team member — no local files needed):
+#   git clone https://github.com/thehipsterciso/hc-enterprise-kg
+#   bash hc-enterprise-kg/scripts/cmu-cdaio-install.sh
+#
+# Usage (optional — supply a local graph snapshot to seed step 7):
 #   bash cmu-cdaio-install.sh /path/to/graph.json
 #   bash cmu-cdaio-install.sh /path/to/json-source-directory/
 #
@@ -16,7 +20,7 @@
 #   [4/9] Repository clone / pull
 #   [5/9] Poetry
 #   [6/9] Python dependencies (mcp extras)
-#   [7/9] Knowledge graph load
+#   [7/9] Knowledge graph load (skipped if no local source — step 9 handles it)
 #   [8/9] Claude Desktop MCP registration
 #   [9/9] GitHub data repo (hc-cdaio-kg) + sync daemons
 #   [+]   Claude Desktop restart (with your approval, if it's running)
@@ -144,9 +148,12 @@ usage() {
   echo ""
   echo -e "${BOLD}CMU CDAIO — hc-enterprise-kg zero-touch installer${RESET}"
   echo ""
-  echo "  Usage:  bash $0 <graph-source>"
+  echo "  Usage:  bash $0 [graph-source]"
   echo ""
-  echo "  <graph-source> is one of:"
+  echo "  [graph-source] is OPTIONAL.  If omitted (recommended for new team members),"
+  echo "  graph data is pulled automatically from hc-cdaio-kg — no local file needed."
+  echo ""
+  echo "  If provided, <graph-source> is one of:"
   echo "    /path/to/graph.json          Pre-built KG snapshot → copied in directly"
   echo "    /path/to/json-source-dir/    Directory of JSON files → imported in order"
   echo ""
@@ -157,17 +164,19 @@ usage() {
   exit 1
 }
 
-[[ $# -lt 1 || "$1" == "-h" || "$1" == "--help" ]] && usage
+[[ "$1" == "-h" || "$1" == "--help" ]] && usage
 
-GRAPH_SOURCE="$1"
+GRAPH_SOURCE="${1:-}"
 INSTALL_DIR="${HCKG_INSTALL_DIR:-${DEFAULT_INSTALL_DIR}}"
 SKIP_PULL="${HCKG_SKIP_PULL:-0}"
 
 # Resolve GRAPH_SOURCE to absolute path now (before we cd away)
-if [[ -e "$GRAPH_SOURCE" ]]; then
-  GRAPH_SOURCE="$(cd "$(dirname "$GRAPH_SOURCE")" && pwd)/$(basename "$GRAPH_SOURCE")"
-else
-  die "Path does not exist: $GRAPH_SOURCE"
+if [[ -n "$GRAPH_SOURCE" ]]; then
+  if [[ -e "$GRAPH_SOURCE" ]]; then
+    GRAPH_SOURCE="$(cd "$(dirname "$GRAPH_SOURCE")" && pwd)/$(basename "$GRAPH_SOURCE")"
+  else
+    die "Path does not exist: $GRAPH_SOURCE"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -178,7 +187,7 @@ echo -e "${BOLD}╔════════════════════�
 echo -e "${BOLD}║   CMU CDAIO — hc-enterprise-kg installer             ║${RESET}"
 echo -e "${BOLD}╚══════════════════════════════════════════════════════╝${RESET}"
 echo ""
-info "Graph source : ${GRAPH_SOURCE}"
+info "Graph source : ${GRAPH_SOURCE:-(none — will build from hc-cdaio-kg)}"
 info "Install dir  : ${INSTALL_DIR}"
 info "Steps        : ${TOTAL_STEPS} (+ optional Claude restart)"
 
@@ -410,16 +419,21 @@ rm -f "$_POETRY_TMPOUT"; _POETRY_TMPOUT=""
 ok "Dependencies installed"
 
 # ---------------------------------------------------------------------------
-# [7/8] Knowledge graph
+# [7/9] Knowledge graph (optional — skipped when no local source provided)
 # ---------------------------------------------------------------------------
 GRAPH_DEST="${INSTALL_DIR}/graph.json"
 
 step "Knowledge graph"
-info "Source : ${GRAPH_SOURCE}"
-info "Dest   : ${GRAPH_DEST}"
 
-if [[ -f "$GRAPH_SOURCE" ]]; then
+if [[ -z "$GRAPH_SOURCE" ]]; then
+  info "No local graph source provided — skipping."
+  info "Step 9 will pull from hc-cdaio-kg and build graph.json automatically."
+  ok "Skipped — graph will come from hc-cdaio-kg"
+
+elif [[ -f "$GRAPH_SOURCE" ]]; then
   # ── Single graph.json snapshot ─────────────────────────────────────────
+  info "Source : ${GRAPH_SOURCE}"
+  info "Dest   : ${GRAPH_DEST}"
   info "Single file — validating..."
 
   # Export path for the quoted heredoc (no bash expansion inside <<'PYCHECK')
@@ -452,6 +466,8 @@ PYCHECK
 
 elif [[ -d "$GRAPH_SOURCE" ]]; then
   # ── Directory of JSON source files ─────────────────────────────────────
+  info "Source : ${GRAPH_SOURCE}"
+  info "Dest   : ${GRAPH_DEST}"
   # while-read loop for bash 3.2 compat (mapfile requires bash 4+)
   JSON_FILES=()
   while IFS= read -r _f; do
@@ -739,7 +755,7 @@ ISSUEBODY
     fi
     echo ""
     info "Once the admin grants access and you accept the GitHub invitation email:"
-    info "  Re-run: bash $(basename "$0") ${GRAPH_SOURCE}"
+    info "  Re-run: bash $(basename "$0")"
     warn "Sync daemons NOT installed yet — Claude reads from main branch for now."
   fi
 fi
@@ -757,9 +773,12 @@ if [[ "$_PUSH_READY" == "1" && "$_CLONE_OK" == "1" ]]; then
   fi
   info "Branch: ${_MEMBER_BRANCH}"
 
-  # Split seed graph onto the member branch
-  if [[ -f "${_SCRIPTS_DIR}/lib/kg-split.py" ]]; then
-    "$PYTHON_CMD" "${_SCRIPTS_DIR}/lib/kg-split.py" "${GRAPH_DEST}" "${_DATA_DIR}" 2>/dev/null || true
+  # Split seed graph onto the member branch.
+  # Prefer local GRAPH_DEST (if Step 7 ran); fall back to _SYNC_GRAPH from hc-cdaio-kg.
+  _SPLIT_SRC="${GRAPH_DEST}"
+  [[ ! -f "${_SPLIT_SRC}" ]] && _SPLIT_SRC="${_SYNC_GRAPH}"
+  if [[ -f "${_SCRIPTS_DIR}/lib/kg-split.py" && -f "${_SPLIT_SRC}" ]]; then
+    "$PYTHON_CMD" "${_SCRIPTS_DIR}/lib/kg-split.py" "${_SPLIT_SRC}" "${_DATA_DIR}" 2>/dev/null || true
     git -C "${_DATA_DIR}" add entities/ relationships/ 2>/dev/null || true
     if ! git -C "${_DATA_DIR}" diff --cached --quiet; then
       git -C "${_DATA_DIR}" commit -m "feat: initial graph split from installer" --quiet
@@ -1106,10 +1125,9 @@ echo "  \"Load my knowledge graph and show the top 10 most connected entities\""
 echo ""
 echo -e "${BOLD}Useful commands:${RESET}"
 echo "  Diagnose:      cd ${INSTALL_DIR} && poetry run hckg install doctor"
-echo "  Update graph:  cp /new/graph.json ${GRAPH_DEST}"
-echo "                 (server auto-reloads on next tool call — no restart needed)"
+echo "  Morning pull:  bash ${_SCRIPTS_DIR:-$(dirname "$0")}/kg-morning.sh"
+echo "                 (rebuilds graph.json from hc-cdaio-kg main — auto-reloads in Claude)"
 echo "  Manual sync:   bash ${_SCRIPTS_DIR:-$(dirname "$0")}/kg-sync.sh"
 echo "  Manual EOD:    bash ${_SCRIPTS_DIR:-$(dirname "$0")}/kg-eod.sh"
-echo "  Morning pull:  bash ${_SCRIPTS_DIR:-$(dirname "$0")}/kg-morning.sh"
 echo "  Fresh demo:    cd ${INSTALL_DIR} && poetry run hckg demo --clean"
 echo ""
