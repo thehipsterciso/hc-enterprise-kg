@@ -88,7 +88,7 @@ poetry run hckg demo --employees 5000 --systems 500 --vendors 100 --controls 200
 
 Each graph contains **30 interconnected entity types** modelling a complete organization across 12 generation layers: compliance and governance (regulations, controls, risks, threats), technology infrastructure (systems, integrations, networks), data landscape (assets, domains, flows), organizational structure (departments, business units, capabilities), people and roles, physical locations and jurisdictions, products and portfolios, customers and market segments, vendor contracts, and strategic initiatives.
 
-These entities are connected by **52 relationship types**, each carrying contextual weight, confidence scores, and typed properties. A `depends_on` relationship between two systems includes a dependency type and strength. A `mitigates` relationship between a control and a risk carries effectiveness metadata. Three industry profiles (technology, financial services, healthcare) produce structurally different graphs that reflect real-world sector patterns, with entity counts scaled to research-backed benchmarks (Gartner, MuleSoft, NIST, Hackett Group, McKinsey) from 100-employee startups to 20,000-employee enterprises.
+These entities are connected by **58 relationship types**, each carrying contextual weight, confidence scores, and typed properties. A `depends_on` relationship between two systems includes a dependency type and strength. A `mitigates` relationship between a control and a risk carries effectiveness metadata. Three industry profiles (technology, financial services, healthcare) produce structurally different graphs that reflect real-world sector patterns, with entity counts scaled to research-backed benchmarks (Gartner, MuleSoft, NIST, Hackett Group, McKinsey) from 100-employee startups to 20,000-employee enterprises.
 
 Departments exceeding 500 headcount are automatically subdivided into sub-departments (30+ industry-specific templates), and roles expand with seniority variants (Junior/Senior/Staff) based on headcount. At 14,512 employees, a tech org generates 42 departments and 301 roles instead of the fixed 10/35. Individual entity counts can be pinned via CLI flags (`--systems 500 --vendors 100`) to bypass scaling.
 
@@ -107,6 +107,8 @@ Generated data is validated by an automated quality scoring module that checks r
 - **Risk quantification** -- Score entities based on connected vulnerabilities, exposure, and structural position rather than qualitative heat maps
 - **Attack path analysis** -- Find shortest paths between threat entry points and critical assets
 - **Data governance mapping** -- Visualize data asset ownership, classification, and lineage across departments, systems, and third parties
+- **Maturity and readiness assessment** -- Evaluate data domain maturity (DCAM-aligned), quality targets, and governance posture across the organization
+- **Compliance traceability** -- Traverse the chain from regulation to policy to control to risk — the "keep me out of jail" layer
 
 ---
 
@@ -125,8 +127,8 @@ src/
   analysis/     Graph metrics (centrality, PageRank), risk scoring, benchmarking
   rag/          GraphRAG retrieval pipeline
   serve/        REST API server (Flask, OpenAI-compatible endpoints)
-  mcp_server/   MCP server for Claude Desktop (10 tools, auto-reload)
-tests/          740+ tests (unit, integration, stress, performance)
+  mcp_server/   MCP server for Claude Desktop (16 tools, auto-reload)
+tests/          1200+ tests (unit, integration, stress, performance)
 ```
 
 > See [Architecture](ARCHITECTURE.md) for the full system design.
@@ -156,7 +158,7 @@ tests/          740+ tests (unit, integration, stress, performance)
 
 | Document | Description |
 |---|---|
-| [Entity Model Reference](docs/entity-model.md) | All 30 entity types, 52 relationship types, generation layers, base model fields |
+| [Entity Model Reference](docs/entity-model.md) | All 30 entity types, 58 relationship types, generation layers, base model fields |
 | [CLI Reference](docs/cli.md) | All commands with options, defaults, examples, REST endpoints |
 | [Python API Guide](docs/python-api.md) | Generation, querying, analysis, auto-construction, exporting |
 | [Organization Profiles](docs/profiles.md) | Industry profiles, scaling model, quality scoring, custom profiles |
@@ -165,6 +167,8 @@ tests/          740+ tests (unit, integration, stress, performance)
 | [Troubleshooting](docs/troubleshooting.md) | Common issues, setup, runnable examples |
 | [Architecture Decision Records](docs/adr/) | Design rationale for all major architectural choices (12 ADRs) |
 | [Contributing](CONTRIBUTING.md) | Development setup, code style, adding entity types |
+| [CDAIO Evaluation](docs/cdaio-evaluation.md) | Platform evaluation against enterprise data leadership curriculum — gap analysis and alignment |
+| [CDAIO Roadmap](docs/cdaio-roadmap.md) | Incremental roadmap for value measurement, data architecture, and organizational readiness |
 | [Changelog](CHANGELOG.md) | Release history |
 
 ---
@@ -186,7 +190,7 @@ poetry install --extras dev         # Development tools (pytest, mypy, ruff)
 
 ```bash
 make install    # Install with dev dependencies
-make test       # Run all tests (~740)
+make test       # Run all tests (~1200)
 make test-cov   # Tests with coverage report
 make lint       # Lint with ruff
 make format     # Auto-format with ruff
