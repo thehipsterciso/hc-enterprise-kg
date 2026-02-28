@@ -37,7 +37,7 @@ These are the highest-impact gaps. Every module — Steyer, Cheriath, Craig — 
 
 **Gap:** No financial structure on Initiative entity. Cannot represent ROI, investment ask, benefit realization, or value category.
 
-**Attribution:** Dr. David Steyer (Module 1) — "It either has to make me money, save me money, or keep me out of jail." Craig (Module 5) — value measurement framework with four categories (operational, customer, economic, strategic) and the principle that finance must be the referee for value claims. Krishna Cheriath (Module 2) — the distinction between "CFO-certifiable value" and "bullshit value."
+**Attribution:** Dr. David Steyer (Module 1) — framing data investments in terms executives act on: revenue generation, cost reduction, or regulatory compliance. Craig (Module 5) — value measurement across operational, customer, economic, and strategic categories with finance as the validating function. Krishna Cheriath (Module 2) — the distinction between financially validated value and aspirational value.
 
 **Change:** Add fields to Initiative entity:
 
@@ -59,7 +59,7 @@ payback_months: int | None   # estimated time to breakeven
 
 **Gap:** No way to track where an initiative stands in its lifecycle. Cannot differentiate a napkin idea from a funded pilot from a scaled production deployment.
 
-**Attribution:** Craig (Module 5) — Four Ps framework (Problem → POC → Pilot → Production) with explicit stage-gate criteria. Cheriath (Module 2) — the Ferrari vs. Cargo Ship distinction between quick wins and structural programs.
+**Attribution:** Craig (Module 5) — initiative lifecycle with explicit stage-gate criteria between problem identification, proof of concept, pilot, and production. Cheriath (Module 2) — the distinction between quick wins and structural programs in portfolio prioritization.
 
 **Change:** Add fields to Initiative entity:
 
@@ -94,7 +94,7 @@ Module 3 exposed gaps in how the platform represents modern data architecture co
 
 **Gap:** DataAsset models individual data artifacts but not the data-as-a-product concept from data mesh — published APIs, consumer contracts, producer accountability, SLAs.
 
-**Attribution:** Module 3 Instructor — Zhamak Dehghani's four data mesh principles, particularly domain ownership and data as a product. Dr. Steyer (Module 1) — the Sears catalog analogy for how producers publish data with agreed protocols.
+**Attribution:** Module 3 Instructor — data mesh principles, particularly domain ownership and data as a product. Dr. Steyer (Module 1) — the concept of data producers publishing with agreed-upon protocols for consumer access.
 
 **Change:** Add fields to DataAsset:
 
@@ -172,7 +172,7 @@ training_program_active: bool
 
 **Gap:** No structured representation of who decides what. Cannot model the DAI framework or RACI assignments.
 
-**Attribution:** Cheriath (Module 2) — DAI Decision Framework (Decision owner, Advice givers, Informed) as a practical alternative to full RACI. Craig (Module 5) — decision intelligence and the three stages of human-machine interaction.
+**Attribution:** Cheriath (Module 2) — lightweight decision-rights frameworks as a practical alternative to full RACI. Craig (Module 5) — decision intelligence and the evolution of human-machine interaction in enterprise decisions.
 
 **Change:** Add optional fields to Role:
 
@@ -187,7 +187,7 @@ decision_authority: str          # decides | advises | informed
 
 **Gap:** Culture is inherently hard to model in a graph. But its indicators — governance cadence, quality trends, engagement with data tools — are measurable.
 
-**Attribution:** Doug Laney and Karan DeWal (Module 4) — VECTOR framework for culture assessment. Craig (Module 5) — adoption-first strategy and go-and-see observation.
+**Attribution:** Doug Laney and Karan DeWal (Module 4) — structured culture assessment methodology. Craig (Module 5) — adoption-first strategy and direct observation of how data is actually used in the field.
 
 **Change:** Add optional fields to OrganizationalUnit:
 
@@ -235,11 +235,11 @@ These gaps were raised in Modules 3–5 as forward-looking concerns. They are re
 
 **Why deferred:** Ethics governance is better served by policy tooling and organizational process than by knowledge graph structure. The Policy entity can already reference ethics policies; the gap is in linking them to specific data assets and initiatives.
 
-### 4.4 Data Valuation (Infonomics)
+### 4.4 Data Valuation
 
 **Gap:** No economic valuation model for data assets. DataAsset has no representation of the properties Doug Laney described — non-rivalrous, non-depleting, self-generative.
 
-**Attribution:** Doug Laney (Module 4) — *Infonomics* framework. Data as an asset that appreciates with use rather than depreciating.
+**Attribution:** Doug Laney (Module 4) — data as an economic asset that appreciates with use rather than depreciating, requiring valuation methodologies distinct from traditional assets.
 
 **Future direction:** Optional `estimated_economic_value`, `value_basis` (cost, market, income, utility), and `monetization_status` fields on DataAsset.
 
@@ -266,11 +266,11 @@ These gaps were raised in Modules 3–5 as forward-looking concerns. They are re
 | Advisor | Modules | Primary Contributions to This Roadmap |
 |---------|---------|--------------------------------------|
 | Dr. David Steyer | 1 | Data lifecycle, governance mechanisms, data quality dimensions, business case construction, cost of poor quality |
-| Krishna Cheriath | 2 | Digital blueprint concept, four-dimension strategy, CFO-certifiable value, DAI framework, minimum viable bureaucracy, partnership model |
+| Krishna Cheriath | 2 | Digital blueprint concept, multi-dimension strategy, value validation, decision rights, right-sized governance, partnership model |
 | [Module 3 Instructor] | 3 | Data mesh/fabric architecture, semantic layer, AI-ready data criteria, data observability, medallion architecture |
-| Doug Laney | 4 | 8-dimension maturity model, DCAM framework, data valuation, Infonomics properties, governance operating models |
-| Karan DeWal | 4 | VECTOR culture framework, decision traceability, AI-era data types, non-human identity management |
-| Craig [Last Name] | 5 | Four Ps lifecycle, value measurement framework, fluency levels, decision intelligence, finance as referee, adoption-first strategy, data ethics |
+| Doug Laney | 4 | Maturity model, DCAM framework, data valuation, data-as-asset economics, governance operating models |
+| Karan DeWal | 4 | Culture assessment, decision traceability, AI-era data types, non-human identity management |
+| Craig [Last Name] | 5 | Initiative lifecycle, value measurement, fluency levels, decision intelligence, finance as validator, adoption-first strategy, data ethics |
 
 ### Program
 

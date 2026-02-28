@@ -55,12 +55,12 @@ Five module transcripts were analyzed for substantive teaching concepts, framewo
 |---------|-----------|----------------------|
 | The Digital Blueprint | **Strong** | The entire platform is a digital blueprint engine. 30 entity types across 11 layers with typed relationships. The MCP server makes it queryable in natural language. This is the artifact Cheriath said 80% of organizations lack. |
 | Four-dimension strategy (tech foundation, data mgmt, unlocking value, fluency) | **Partial** | Dimensions 1–2 (tech foundation, data management) are well-represented through System, Integration, DataAsset, DataDomain, Control. Dimension 3 (unlocking value) is partially represented through BusinessCapability and Initiative. Dimension 4 (fluency) has no representation. |
-| Ferrari vs. Cargo Ship (quick wins vs. structural programs) | **Gap** | No way to classify initiatives as quick-win vs. structural. Initiative entity has no lifecycle stage, effort estimate, or time-to-value classification. |
-| CFO-certifiable value vs. "bullshit value" | **Gap** | No financial validation structure. No way to distinguish demonstrated value from projected value from aspirational value. |
-| 70/30 rule (70% business process, 30% tech) | **N/A** | This is a principle, not a structural concept. Noted for roadmap framing — the platform is the 30%, not the 70%. |
+| Quick wins vs. structural programs | **Gap** | No way to classify initiatives as quick-win vs. structural. Initiative entity has no lifecycle stage, effort estimate, or time-to-value classification. |
+| Financially validated value vs. aspirational value | **Gap** | No financial validation structure. No way to distinguish demonstrated value from projected value from aspirational value. |
+| Business process vs. technology balance | **N/A** | This is a principle, not a structural concept. Noted for roadmap framing — the platform supports the technology side, not the process redesign side. |
 | Minimum Viable Bureaucracy for governance | **Strong** | The platform's governance layer (Policy, Regulation, Control, Risk) is designed for rapid evaluation, not exhaustive compliance. This aligns with Cheriath's principle of right-sizing governance to organizational maturity. |
 | Data custodianship (position, not person) | **Strong** | DataDomain.domain_owner and domain_steward reference Role entities, not Person entities. The abstraction is correct — custodianship belongs to the position. |
-| DAI Decision Framework | **Gap** | No structured representation of Decision owner, Advice givers, Informed. Person and Role exist but lack decision-rights assignment. |
+| Decision rights framework | **Gap** | No structured representation of who decides, who advises, and who is informed. Person and Role exist but lack decision-rights assignment. |
 | Systems of Record / Insight / Enablement | **Partial** | System has system_type but no explicit classification into Cheriath's three-system taxonomy. Representable through system_type values but not enforced or guided. |
 | Risk of under-innovation | **Strong** | blast_radius(), find_vendor_dependencies(), and centrality analysis directly enable the dependency risk analysis Cheriath described. If a platform is untouchable due to technical debt, the blast radius shows what else stays frozen. |
 | Partnership model (CDAIO owns 30%) | **Partial** | Vendor and Contract entities model external partnerships. But the internal partnership model — which systems/capabilities are owned by CDAIO vs. IT vs. business units — is not explicitly represented. |
@@ -75,7 +75,7 @@ Five module transcripts were analyzed for substantive teaching concepts, framewo
 | Concept | Alignment | Platform Representation |
 |---------|-----------|----------------------|
 | Medallion Architecture (Bronze/Silver/Gold) | **Partial** | DataAsset has classification and data_type but no explicit tier/zone concept for processing stages. Representable through naming conventions but not structurally enforced. |
-| Data Mesh (Dehghani's 4 principles) | **Partial** | DataDomain models domain ownership. DataAsset models individual assets. But the data-as-a-product concept — published APIs, consumer contracts, SLAs — is not structurally present. |
+| Data Mesh principles | **Partial** | DataDomain models domain ownership. DataAsset models individual assets. But the data-as-a-product concept — published APIs, consumer contracts, SLAs — is not structurally present. |
 | Data Fabric | **Partial** | Integration entity tracks system-to-system data movement. But the unified metadata layer that defines a fabric is implicit, not explicit. |
 | Semantic layer | **Gap** | No entity type for semantic models, business glossaries, or shared definitions. DataDomain has business_glossary_reference but it is a URL pointer, not a structural model. |
 | Data lineage | **Strong** | DataFlow tracks source_system, target_system, transformations, frequency, sensitivity, and jurisdiction crossing. The lineage chain is traversable. |
@@ -95,8 +95,8 @@ Five module transcripts were analyzed for substantive teaching concepts, framewo
 |---------|-----------|----------------------|
 | 8-dimension maturity model | **Strong** | DataDomain.maturity_dimensions + BusinessCapability.maturity provide structural representation. Radar/spider chart output is supported via the quality radar chart type. |
 | DCAM as industry standard | **Strong** | DataDomain.maturity_dimensions explicitly reference DCAM 2.2 dimensions with scored assessments. |
-| Data as enterprise asset (Infonomics) | **Partial** | DataAsset exists as an entity type. But the Infonomics properties Laney described — non-rivalrous, non-depleting, self-generative — are not represented. No economic valuation model for data assets. |
-| VECTOR framework (culture assessment) | **Gap** | No entity type for culture metrics, survey results, or organizational readiness scores. The 5 pillars and 320 questions have no structural representation. |
+| Data as enterprise asset | **Partial** | DataAsset exists as an entity type. But the economic properties of data — non-rivalrous, non-depleting, self-generative — are not represented. No economic valuation model for data assets. |
+| Data culture assessment | **Gap** | No entity type for culture metrics, survey results, or organizational readiness scores. Culture assessment frameworks have no structural representation. |
 | Decision traceability | **Gap** | Entity provenance tracks who assessed what and when. But decision chains — why a particular classification was chosen, what alternatives were considered, who approved — are not modeled. |
 | New data types from AI | **Gap** | Decision traces, vector embeddings, synthetic data, agent interaction logs — none have entity types. The platform models traditional enterprise data but not AI-generated data artifacts. |
 | Non-human identity management | **Gap** | No entity type for AI agents, service accounts, or automated actors as first-class identities. Person is human-only. |
@@ -114,11 +114,11 @@ Five module transcripts were analyzed for substantive teaching concepts, framewo
 |---------|-----------|----------------------|
 | Analytics continuum (descriptive → prescriptive) | **Partial** | The analysis module provides descriptive (centrality, statistics) and diagnostic (blast radius, attack paths) capabilities. Predictive and prescriptive analytics are not built in — the platform provides data for them, not the analytics themselves. |
 | Decision intelligence (3 stages) | **Gap** | No representation of human-machine decision interaction stages. The platform models the enterprise, not the decision-making process applied to it. |
-| Four Ps (Problem → POC → Pilot → Production) | **Gap** | Initiative entity has no lifecycle stage field. No stage-gate concept, no success criteria per stage, no funding gates. Cannot model "this initiative is in POC and awaiting pilot approval." |
+| Initiative lifecycle (problem → POC → pilot → production) | **Gap** | Initiative entity has no lifecycle stage field. No stage-gate concept, no success criteria per stage, no funding gates. Cannot model "this initiative is in POC and awaiting pilot approval." |
 | Value measurement (operational, customer, economic, strategic) | **Gap** | No value taxonomy. No entity type for measured outcomes, benefit realization, or value attribution. This is the single most-emphasized gap across all modules. |
 | Data/AI literacy (5 levels) | **Gap** | No entity type for organizational fluency assessment, training programs, or competency tracking. |
-| Go-and-see / Gemba observation | **N/A** | Operational practice, not a structural concept. |
-| POC vs. Pilot differentiation | **Gap** | Subsumed by the Four Ps gap above. |
+| Direct observation practice | **N/A** | Operational practice, not a structural concept. |
+| POC vs. Pilot differentiation | **Gap** | Subsumed by the initiative lifecycle gap above. |
 | Finance as referee for value claims | **Gap** | No validation layer for distinguishing demonstrated vs. projected vs. aspirational value. Subsumed by the value measurement gap. |
 | Adoption-first strategy | **N/A** | Design principle, not a structural concept. Noted for roadmap prioritization. |
 | Data ethics as trust currency | **Gap** | No entity type for ethical review records, appropriate use policies, or trust metrics. |
@@ -139,8 +139,8 @@ Ranked by frequency of emphasis across modules and practical impact on rapid eva
 | **Decision traceability** | 4 | Medium — important for governance maturity but can be deferred |
 | **Semantic layer / data products** | 3 | Medium — important for data mesh orgs, less so for rapid evaluation |
 | **AI model governance** | 3, 4 | Medium — increasingly important but tangential to enterprise structure |
-| **Data valuation (Infonomics)** | 4 | Low-Medium — strategic concept, hard to operationalize in rapid eval |
-| **Culture / VECTOR metrics** | 4, 5 | Low — inherently hard to model; indicators are more practical |
+| **Data valuation** | 4 | Low-Medium — strategic concept, hard to operationalize in rapid eval |
+| **Culture metrics** | 4, 5 | Low — inherently hard to model; indicators are more practical |
 | **Non-human identity** | 4 | Low — emerging concern, not yet standard |
 | **Data ethics records** | 5 | Low — important but better served by policy tooling than graph modeling |
 
