@@ -28,7 +28,7 @@ Five module transcripts were analyzed for substantive teaching concepts, framewo
 ## Module-by-Module Alignment
 
 ### Module 1: Enterprise Data Management Foundations
-**Instructor:** Dr. David Steyer (formerly Deloitte, PwC)
+**Instructor:** Dr. David Steyer
 
 | Concept | Alignment | Platform Representation |
 |---------|-----------|----------------------|
@@ -49,7 +49,7 @@ Five module transcripts were analyzed for substantive teaching concepts, framewo
 ---
 
 ### Module 2: Data & AI Strategy
-**Instructor:** Krishna Cheriath, CDO, Thermo Fisher Scientific (Biopharma Services)
+**Instructor:** Krishna Cheriath
 
 | Concept | Alignment | Platform Representation |
 |---------|-----------|----------------------|
@@ -89,7 +89,7 @@ Five module transcripts were analyzed for substantive teaching concepts, framewo
 ---
 
 ### Module 4: Maturity Assessment & Data Culture
-**Instructors:** Doug Laney (Data & Analytics Strategy Advisor, author of *Infonomics*) and Karan DeWal
+**Instructors:** Doug Laney and Karan DeWal
 
 | Concept | Alignment | Platform Representation |
 |---------|-----------|----------------------|
@@ -108,7 +108,7 @@ Five module transcripts were analyzed for substantive teaching concepts, framewo
 ---
 
 ### Module 5: Analytics & AI in Practice
-**Instructor:** Craig [Last Name], formerly Ford, Best Buy, McDonald's, Caterpillar
+**Instructor:** Craig [Last Name]
 
 | Concept | Alignment | Platform Representation |
 |---------|-----------|----------------------|

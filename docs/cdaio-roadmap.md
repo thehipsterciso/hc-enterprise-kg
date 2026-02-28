@@ -263,14 +263,14 @@ These gaps were raised in Modules 3–5 as forward-looking concerns. They are re
 
 ## Advisor and Program Attribution
 
-| Advisor | Affiliation | Modules | Primary Contributions to This Roadmap |
-|---------|------------|---------|--------------------------------------|
-| Dr. David Steyer | CMU Heinz College (formerly Deloitte, PwC) | 1 | Data lifecycle, governance mechanisms, data quality dimensions, business case construction, cost of poor quality |
-| Krishna Cheriath | CDO, Thermo Fisher Scientific | 2 | Digital blueprint concept, four-dimension strategy, CFO-certifiable value, DAI framework, minimum viable bureaucracy, partnership model |
-| [Module 3 Instructor] | [Affiliation] | 3 | Data mesh/fabric architecture, semantic layer, AI-ready data criteria, data observability, medallion architecture |
-| Doug Laney | Data & Analytics Strategy Advisor, author of *Infonomics* | 4 | 8-dimension maturity model, DCAM framework, data valuation, Infonomics properties, governance operating models |
-| Karan DeWal | [Affiliation] | 4 | VECTOR culture framework, decision traceability, AI-era data types, non-human identity management |
-| Craig [Last Name] | Formerly Ford, Best Buy, McDonald's, Caterpillar | 5 | Four Ps lifecycle, value measurement framework, fluency levels, decision intelligence, finance as referee, adoption-first strategy, data ethics |
+| Advisor | Modules | Primary Contributions to This Roadmap |
+|---------|---------|--------------------------------------|
+| Dr. David Steyer | 1 | Data lifecycle, governance mechanisms, data quality dimensions, business case construction, cost of poor quality |
+| Krishna Cheriath | 2 | Digital blueprint concept, four-dimension strategy, CFO-certifiable value, DAI framework, minimum viable bureaucracy, partnership model |
+| [Module 3 Instructor] | 3 | Data mesh/fabric architecture, semantic layer, AI-ready data criteria, data observability, medallion architecture |
+| Doug Laney | 4 | 8-dimension maturity model, DCAM framework, data valuation, Infonomics properties, governance operating models |
+| Karan DeWal | 4 | VECTOR culture framework, decision traceability, AI-era data types, non-human identity management |
+| Craig [Last Name] | 5 | Four Ps lifecycle, value measurement framework, fluency levels, decision intelligence, finance as referee, adoption-first strategy, data ethics |
 
 ### Program
 
