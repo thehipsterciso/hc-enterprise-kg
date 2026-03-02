@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import webbrowser
 from pathlib import Path
 
@@ -45,7 +46,6 @@ ENTITY_COLORS: dict[str, str] = {
 
 # Node sizes by entity type — structurally important types are larger
 ENTITY_SIZES: dict[str, int] = {
-    # v0.1 original types
     "person": 15,
     "department": 30,
     "role": 12,
@@ -58,7 +58,6 @@ ENTITY_SIZES: dict[str, int] = {
     "vulnerability": 14,
     "threat_actor": 16,
     "incident": 18,
-    # Enterprise ontology types
     "regulation": 20,
     "control": 14,
     "risk": 18,
@@ -77,6 +76,52 @@ ENTITY_SIZES: dict[str, int] = {
     "customer": 18,
     "contract": 16,
     "initiative": 22,
+}
+
+# Per-theme color tokens used by both the vis.js options and the injected UI panels
+THEMES: dict[str, dict[str, str]] = {
+    "dark": {
+        "bgcolor": "#1a1a2e",
+        "font_color": "#e0e0e0",
+        "panel_bg": "rgba(26,26,46,0.95)",
+        "panel_border": "#333333",
+        "text_color": "#e0e0e0",
+        "text_muted": "#aaaaaa",
+        "divider": "#444444",
+        "edge_color": "#555555",
+        "edge_highlight": "#cccccc",
+        "edge_hover": "#999999",
+        "input_bg": "rgba(255,255,255,0.07)",
+        "input_border": "#555555",
+        "input_text": "#e0e0e0",
+        "btn_bg": "rgba(255,255,255,0.10)",
+        "btn_border": "#555555",
+        "btn_text": "#cccccc",
+        "btn_hover_bg": "rgba(255,255,255,0.20)",
+        "scroll_track": "rgba(255,255,255,0.04)",
+        "scroll_thumb": "rgba(255,255,255,0.22)",
+    },
+    "light": {
+        "bgcolor": "#f0f2f5",
+        "font_color": "#222222",
+        "panel_bg": "rgba(255,255,255,0.97)",
+        "panel_border": "#dddddd",
+        "text_color": "#222222",
+        "text_muted": "#777777",
+        "divider": "#e0e0e0",
+        "edge_color": "#bbbbbb",
+        "edge_highlight": "#333333",
+        "edge_hover": "#777777",
+        "input_bg": "#ffffff",
+        "input_border": "#cccccc",
+        "input_text": "#111111",
+        "btn_bg": "#f0f0f0",
+        "btn_border": "#cccccc",
+        "btn_text": "#555555",
+        "btn_hover_bg": "#e0e0e0",
+        "scroll_track": "#f0f0f0",
+        "scroll_thumb": "#cccccc",
+    },
 }
 
 
@@ -98,6 +143,45 @@ def _build_tooltip(data: dict) -> str:
         display_key = key.replace("_", " ").title()
         lines.append(f"<b>{display_key}:</b> {value}")
     return "<br>".join(lines)
+
+
+def _build_vis_options(physics: bool, t: dict[str, str]) -> dict:
+    """Build the vis.js network options dict, theme-aware."""
+    edge_opts: dict = {
+        "smooth": {"type": "continuous", "forceDirection": "none"},
+        "color": {
+            "color": t["edge_color"],
+            "highlight": t["edge_highlight"],
+            "hover": t["edge_hover"],
+            "inherit": False,
+        },
+        "arrows": {"to": {"enabled": True, "scaleFactor": 0.5}},
+        "width": 0.8,
+        "selectionWidth": 2.5,
+        "hoverWidth": 1.5,
+    }
+    interaction_opts: dict = {
+        "hover": True,
+        "tooltipDelay": 80,
+        "navigationButtons": True,
+        "keyboard": True,
+    }
+    physics_opts: dict = (
+        {
+            "forceAtlas2Based": {
+                "gravitationalConstant": -80,
+                "centralGravity": 0.01,
+                "springLength": 150,
+                "springConstant": 0.02,
+                "damping": 0.4,
+            },
+            "solver": "forceAtlas2Based",
+            "stabilization": {"iterations": 200, "updateInterval": 25},
+        }
+        if physics
+        else {"enabled": False}
+    )
+    return {"physics": physics_opts, "interaction": interaction_opts, "edges": edge_opts}
 
 
 @click.command()
@@ -131,6 +215,13 @@ def _build_tooltip(data: dict) -> str:
     default=True,
     help="Automatically open in browser.",
 )
+@click.option(
+    "--theme",
+    type=click.Choice(["dark", "light"]),
+    default="dark",
+    show_default=True,
+    help="Color theme.",
+)
 def visualize_cmd(
     source: str,
     output: str | None,
@@ -138,13 +229,15 @@ def visualize_cmd(
     width: str,
     physics: bool,
     open_browser: bool,
+    theme: str,
 ) -> None:
     """Visualize a knowledge graph as an interactive HTML network.
 
     \b
     Loads a JSON graph file and renders it as an interactive, color-coded
     network diagram in your browser. Each entity type gets a distinct color
-    and size. Hover over nodes for details.
+    and size. Hover over nodes for details. The filter panel uses the exact
+    same colors as the nodes in the graph.
 
     \b
     Requires the viz extras:
@@ -153,6 +246,7 @@ def visualize_cmd(
     \b
     Examples:
         hckg visualize graph.json
+        hckg visualize graph.json --theme light
         hckg visualize graph.json --output my_viz.html --no-open
         hckg visualize graph.json --no-physics --height 1200px
     """
@@ -166,7 +260,6 @@ def visualize_cmd(
     from graph.knowledge_graph import KnowledgeGraph
     from ingest.json_ingestor import JSONIngestor
 
-    # Ingest the graph
     click.echo(f"Loading {source}...")
     kg = KnowledgeGraph()
     ingestor = JSONIngestor()
@@ -188,93 +281,21 @@ def visualize_cmd(
     stats = kg.statistics
     click.echo(f"  {stats['entity_count']} entities, {stats['relationship_count']} relationships")
 
-    # Build pyvis network
+    t = THEMES[theme]
+
+    # No select_menu / filter_menu — pyvis's built-in menus use vis.js's internal
+    # group-color palette which does not match our per-node ENTITY_COLORS.
+    # We inject a fully custom filter panel below instead.
     net = Network(
         height=height,
         width=width,
         directed=True,
-        bgcolor="#1a1a2e",
-        font_color="#e0e0e0",
-        select_menu=True,
-        filter_menu=True,
+        bgcolor=t["bgcolor"],
+        font_color=t["font_color"],
     )
 
-    # Physics configuration for readable layouts
-    if physics:
-        net.set_options("""
-        {
-            "physics": {
-                "forceAtlas2Based": {
-                    "gravitationalConstant": -80,
-                    "centralGravity": 0.01,
-                    "springLength": 150,
-                    "springConstant": 0.02,
-                    "damping": 0.4
-                },
-                "solver": "forceAtlas2Based",
-                "stabilization": {
-                    "iterations": 200,
-                    "updateInterval": 25
-                }
-            },
-            "interaction": {
-                "hover": true,
-                "tooltipDelay": 100,
-                "navigationButtons": true,
-                "keyboard": true
-            },
-            "edges": {
-                "smooth": {
-                    "type": "continuous",
-                    "forceDirection": "none"
-                },
-                "color": {
-                    "color": "#555555",
-                    "highlight": "#ffffff",
-                    "hover": "#aaaaaa"
-                },
-                "arrows": {
-                    "to": {
-                        "enabled": true,
-                        "scaleFactor": 0.5
-                    }
-                }
-            }
-        }
-        """)
-    else:
-        net.set_options("""
-        {
-            "physics": {
-                "enabled": false
-            },
-            "interaction": {
-                "hover": true,
-                "tooltipDelay": 100,
-                "navigationButtons": true,
-                "keyboard": true
-            },
-            "edges": {
-                "smooth": {
-                    "type": "continuous",
-                    "forceDirection": "none"
-                },
-                "color": {
-                    "color": "#555555",
-                    "highlight": "#ffffff",
-                    "hover": "#aaaaaa"
-                },
-                "arrows": {
-                    "to": {
-                        "enabled": true,
-                        "scaleFactor": 0.5
-                    }
-                }
-            }
-        }
-        """)
+    net.set_options(json.dumps(_build_vis_options(physics, t)))
 
-    # Add nodes
     native_graph = kg.engine.get_native_graph()
     for node_id, data in native_graph.nodes(data=True):
         entity_type = data.get("entity_type", "unknown")
@@ -294,31 +315,22 @@ def visualize_cmd(
             borderWidthSelected=4,
         )
 
-    # Add edges
+    # title= provides hover tooltip; label= is intentionally omitted so edge
+    # relationship text is not rendered permanently on every edge (too noisy).
     for u, v, _key, data in native_graph.edges(keys=True, data=True):
         rel_type = data.get("relationship_type", "related_to")
-        label = rel_type.replace("_", " ")
-        net.add_edge(
-            u,
-            v,
-            title=label,
-            label=label,
-            font={"size": 8, "color": "#888888"},
-        )
+        net.add_edge(u, v, title=rel_type.replace("_", " "))
 
-    # Determine output path
     if output is None:
         source_stem = Path(source).stem
         output_path = Path(f"{source_stem}_viz.html")
     else:
         output_path = Path(output)
 
-    # Write HTML
     output_path.parent.mkdir(parents=True, exist_ok=True)
     net.write_html(str(output_path))
 
-    # Inject a legend into the HTML
-    _inject_legend(output_path, stats)
+    _inject_custom_ui(output_path, stats, theme)
 
     click.echo(f"  Visualization saved to {output_path.resolve()}")
 
@@ -327,51 +339,245 @@ def visualize_cmd(
         webbrowser.open(f"file://{output_path.resolve()}")
 
 
-def _inject_legend(html_path: Path, stats: dict) -> None:
-    """Inject a floating legend and title bar into the visualization HTML."""
-    entity_types_in_graph = set(stats.get("entity_types", {}).keys())
+def _inject_custom_ui(html_path: Path, stats: dict, theme: str) -> None:
+    """Inject a themed, interactive filter + search UI overlay into the HTML.
 
-    legend_items = []
-    for etype, color in ENTITY_COLORS.items():
-        if etype in entity_types_in_graph:
-            display = etype.replace("_", " ").title()
-            count = stats["entity_types"].get(etype, 0)
-            legend_items.append(
-                f'<div style="display:flex;align-items:center;margin:3px 0;">'
-                f'<span style="display:inline-block;width:12px;height:12px;'
-                f"border-radius:50%;background:{color};margin-right:8px;"
-                f'flex-shrink:0;"></span>'
-                f'<span style="font-size:12px;">{display} ({count})</span></div>'
-            )
+    Replaces the old static legend.  The filter panel uses ENTITY_COLORS
+    directly so every colored dot is pixel-identical to the corresponding
+    node in the graph.  Type visibility is toggled via the vis.js DataSet
+    API (hidden property), which automatically hides connected edges too.
+    """
+    t = THEMES[theme]
+    entity_types = stats.get("entity_types", {})
+    entity_count = stats["entity_count"]
+    rel_count = stats["relationship_count"]
 
-    legend_html = (
-        '<div id="kg-legend" style="'
-        "position:fixed;top:10px;right:10px;background:rgba(26,26,46,0.92);"
-        "border:1px solid #333;border-radius:8px;padding:14px 16px;"
-        "z-index:9999;color:#e0e0e0;font-family:system-ui,sans-serif;"
-        'max-width:200px;backdrop-filter:blur(8px);">'
-        '<div style="font-weight:600;font-size:13px;margin-bottom:8px;'
-        'border-bottom:1px solid #444;padding-bottom:6px;">Entity Types</div>'
-        + "\n".join(legend_items)
-        + "</div>"
+    # Only entity types present in this graph, sorted by count descending
+    present = [
+        (
+            etype,
+            {
+                "color": ENTITY_COLORS.get(etype, "#cccccc"),
+                "count": entity_types[etype],
+                "label": etype.replace("_", " ").title(),
+            },
+        )
+        for etype in ENTITY_COLORS
+        if etype in entity_types
+    ]
+    present.sort(key=lambda x: x[1]["count"], reverse=True)
+
+    # Embed type metadata for JS (color + count, keyed by entity type string)
+    type_data_js = json.dumps({k: v for k, v in present})
+
+    filter_items_html = "\n".join(
+        f'<label class="kg-fi" title="{info["label"]} \u2014 {info["count"]} nodes">'
+        f'<input type="checkbox" class="kg-cb" data-type="{etype}" checked '
+        f'onchange="window.kgToggleType(\'{etype}\', this.checked)">'
+        f'<span class="kg-dot" style="background:{info["color"]}"></span>'
+        f'<span class="kg-fn">{info["label"]}</span>'
+        f'<span class="kg-fc">{info["count"]}</span>'
+        f"</label>"
+        for etype, info in present
     )
 
-    title_html = (
-        '<div style="'
-        "position:fixed;top:10px;left:10px;background:rgba(26,26,46,0.92);"
-        "border:1px solid #333;border-radius:8px;padding:12px 16px;"
-        "z-index:9999;color:#e0e0e0;font-family:system-ui,sans-serif;"
-        'backdrop-filter:blur(8px);">'
-        '<div style="font-weight:700;font-size:15px;">hc-enterprise-kg</div>'
-        f'<div style="font-size:12px;color:#aaa;margin-top:2px;">'
-        f"{stats['entity_count']} entities &middot; "
-        f"{stats['relationship_count']} relationships</div>"
-        "</div>"
+    css = f"""<style>
+  .kg-panel {{
+    position: fixed; z-index: 9999;
+    background: {t["panel_bg"]};
+    border: 1px solid {t["panel_border"]};
+    border-radius: 10px; padding: 14px 16px;
+    color: {t["text_color"]};
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    font-size: 13px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.14);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }}
+  #kg-tp {{ top: 12px; left: 12px; min-width: 220px; max-width: 270px; }}
+  #kg-fp {{
+    top: 12px; right: 12px; min-width: 200px; max-width: 228px;
+    max-height: calc(100vh - 40px);
+    display: flex; flex-direction: column; overflow: hidden;
+  }}
+  .kg-title {{ font-weight: 700; font-size: 15px; margin-bottom: 2px; }}
+  .kg-stats {{ font-size: 12px; color: {t["text_muted"]}; margin-bottom: 10px; }}
+  .kg-sw {{ position: relative; }}
+  #kg-s {{
+    width: 100%; box-sizing: border-box;
+    background: {t["input_bg"]}; border: 1px solid {t["input_border"]};
+    border-radius: 6px; color: {t["input_text"]};
+    padding: 6px 26px 6px 10px; font-size: 12px;
+    outline: none; font-family: inherit;
+    transition: border-color 0.15s;
+  }}
+  #kg-s:focus {{ border-color: #4E79A7; }}
+  #kg-s::placeholder {{ color: {t["text_muted"]}; opacity: 1; }}
+  #kg-sc {{
+    position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+    cursor: pointer; color: {t["text_muted"]}; font-size: 16px;
+    line-height: 1; display: none;
+    background: none; border: none; padding: 0 2px; font-family: inherit;
+  }}
+  #kg-sc:hover {{ color: {t["text_color"]}; }}
+  #kg-ss {{
+    font-size: 11px; color: {t["text_muted"]};
+    margin-top: 5px; min-height: 15px; line-height: 15px;
+  }}
+  .kg-ph {{
+    display: flex; align-items: center; justify-content: space-between;
+    font-weight: 600; font-size: 13px;
+    margin-bottom: 8px; padding-bottom: 8px;
+    border-bottom: 1px solid {t["divider"]}; flex-shrink: 0;
+  }}
+  .kg-fbs {{ display: flex; gap: 4px; }}
+  .kg-btn {{
+    background: {t["btn_bg"]}; border: 1px solid {t["btn_border"]};
+    color: {t["btn_text"]}; border-radius: 4px; padding: 2px 8px;
+    font-size: 11px; cursor: pointer; font-family: inherit;
+    transition: background 0.12s;
+  }}
+  .kg-btn:hover {{ background: {t["btn_hover_bg"]}; }}
+  .kg-fl {{
+    overflow-y: auto; flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: {t["scroll_thumb"]} {t["scroll_track"]};
+  }}
+  .kg-fl::-webkit-scrollbar {{ width: 5px; }}
+  .kg-fl::-webkit-scrollbar-track {{ background: {t["scroll_track"]}; border-radius: 3px; }}
+  .kg-fl::-webkit-scrollbar-thumb {{ background: {t["scroll_thumb"]}; border-radius: 3px; }}
+  .kg-fi {{
+    display: flex; align-items: center; gap: 7px;
+    padding: 4px 3px; cursor: pointer; border-radius: 5px;
+    transition: background 0.1s; user-select: none;
+  }}
+  .kg-fi:hover {{ background: rgba(128,128,128,0.10); }}
+  .kg-fi input[type="checkbox"] {{
+    width: 13px; height: 13px; flex-shrink: 0;
+    cursor: pointer; margin: 0; accent-color: #4E79A7;
+  }}
+  .kg-dot {{
+    width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0;
+    border: 1.5px solid rgba(0,0,0,0.18);
+  }}
+  .kg-fn {{ flex: 1; font-size: 12px; }}
+  .kg-fc {{ font-size: 11px; color: {t["text_muted"]}; flex-shrink: 0; }}
+  .kg-fi[data-hidden="1"] .kg-fn,
+  .kg-fi[data-hidden="1"] .kg-fc {{ opacity: 0.38; }}
+</style>"""
+
+    title_panel = (
+        f'<div id="kg-tp" class="kg-panel">'
+        f'<div class="kg-title">hc-enterprise-kg</div>'
+        f'<div class="kg-stats">'
+        f'{entity_count:,} entities &middot; {rel_count:,} relationships</div>'
+        f'<div class="kg-sw">'
+        f'<input id="kg-s" type="text" placeholder="Search entities\u2026"'
+        f' autocomplete="off" spellcheck="false">'
+        f'<button id="kg-sc" onclick="window.kgClearSearch()" title="Clear">&times;</button>'
+        f"</div>"
+        f'<div id="kg-ss"></div>'
+        f"</div>"
     )
+
+    filter_panel = (
+        f'<div id="kg-fp" class="kg-panel">'
+        f'<div class="kg-ph">Entity Types'
+        f'<div class="kg-fbs">'
+        f'<button class="kg-btn" onclick="window.kgSetAllFilters(true)">All</button>'
+        f'<button class="kg-btn" onclick="window.kgSetAllFilters(false)">None</button>'
+        f"</div></div>"
+        f'<div class="kg-fl">{filter_items_html}</div>'
+        f"</div>"
+    )
+
+    js = f"""<script>
+(function () {{
+  // Type metadata injected by Python: color + count per entity type
+  var TYPE_DATA = {type_data_js};
+
+  // Lazily built map: entity_type -> [node_id, ...]
+  // Uses node.group which pyvis sets from our group= parameter.
+  var _tm = null;
+  function tm() {{
+    if (_tm) return _tm;
+    _tm = {{}};
+    network.body.data.nodes.forEach(function (n) {{
+      if (!_tm[n.group]) _tm[n.group] = [];
+      _tm[n.group].push(n.id);
+    }});
+    return _tm;
+  }}
+
+  // Toggle one entity type on/off.
+  // vis.js automatically hides/shows connected edges when a node is hidden.
+  window.kgToggleType = function (type, visible) {{
+    var ids = tm()[type] || [];
+    network.body.data.nodes.update(ids.map(function (id) {{
+      return {{ id: id, hidden: !visible }};
+    }}));
+    var label = document.querySelector('.kg-cb[data-type="' + type + '"]');
+    if (label) label.closest('.kg-fi').dataset.hidden = visible ? '0' : '1';
+  }};
+
+  // Toggle all entity types at once.
+  window.kgSetAllFilters = function (visible) {{
+    var updates = [];
+    network.body.data.nodes.forEach(function (n) {{
+      updates.push({{ id: n.id, hidden: !visible }});
+    }});
+    network.body.data.nodes.update(updates);
+    document.querySelectorAll('.kg-cb').forEach(function (cb) {{
+      cb.checked = visible;
+      cb.closest('.kg-fi').dataset.hidden = visible ? '0' : '1';
+    }});
+  }};
+
+  // Search — highlights and fits to matching visible nodes.
+  var inp = document.getElementById('kg-s');
+  var clr = document.getElementById('kg-sc');
+  var sta = document.getElementById('kg-ss');
+
+  window.kgClearSearch = function () {{
+    inp.value = '';
+    inp.dispatchEvent(new Event('input'));
+    inp.focus();
+  }};
+
+  inp.addEventListener('input', function () {{
+    var q = this.value.trim().toLowerCase();
+    clr.style.display = q ? 'block' : 'none';
+    if (!q) {{
+      network.unselectAll();
+      sta.textContent = '';
+      return;
+    }}
+    var hits = [];
+    network.body.data.nodes.forEach(function (n) {{
+      if (!n.hidden && n.label && n.label.toLowerCase().indexOf(q) !== -1) hits.push(n.id);
+    }});
+    network.unselectAll();
+    if (hits.length) {{
+      network.selectNodes(hits);
+      var anim = {{ duration: 400, easingFunction: 'easeInOutQuad' }};
+      network.fit({{ nodes: hits, animation: anim }});
+      sta.textContent = hits.length + ' match' + (hits.length !== 1 ? 'es' : '');
+      sta.style.color = '{t["text_muted"]}';
+    }} else {{
+      sta.textContent = 'No matches found';
+      sta.style.color = '#e05252';
+    }}
+  }});
+
+  document.addEventListener('keydown', function (e) {{
+    if (e.key === 'Escape' && document.activeElement === inp) window.kgClearSearch();
+  }});
+}})();
+</script>"""
 
     content = html_path.read_text()
     if "</body>" not in content:
-        click.echo("  Warning: could not inject legend (no </body> tag found)", err=True)
+        click.echo("  Warning: could not inject UI (no </body> tag found)", err=True)
         return
-    content = content.replace("</body>", f"{legend_html}\n{title_html}\n</body>")
+    injection = css + "\n" + title_panel + "\n" + filter_panel + "\n" + js + "\n"
+    content = content.replace("</body>", injection + "</body>")
     html_path.write_text(content)
