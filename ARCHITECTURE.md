@@ -8,7 +8,7 @@ This document describes the high-level architecture of hc-enterprise-kg.
 ┌─────────────────────────────────────────────────────────────┐
 │                        CLI (Click)                          │
 │  demo | generate | inspect | auto | serve | install | viz   │
-│  export | benchmark                                         │
+│  export | benchmark | charts                                │
 └─────────────┬───────────────┬───────────────┬───────────────┘
               │               │               │
     ┌─────────▼──────┐  ┌────▼────┐  ┌───────▼───────┐

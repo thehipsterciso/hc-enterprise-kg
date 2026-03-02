@@ -144,7 +144,7 @@ tests/          1200+ tests (unit, integration, stress, performance)
 | `hckg inspect <file>` | Load and inspect a graph file (entity/relationship breakdown) |
 | `hckg auto build <csv>` | Build a knowledge graph from CSV data |
 | `hckg auto extract <text>` | Extract entities from text (emails, IPs, CVEs) |
-| `hckg visualize <file>` | Interactive graph visualization in the browser |
+| `hckg visualize <file>` | Interactive graph visualization in the browser (`--theme dark\|light`, filter panel, search) |
 | `hckg serve <file>` | REST API server or MCP stdio for Claude Desktop |
 | `hckg install claude` | Register with Claude Desktop |
 | `hckg export` | Convert between JSON and GraphML formats |

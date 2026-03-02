@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.31.1] - 2026-03-02
+
+### Fixed
+- **Visualization filter color mismatch** — pyvis `filter_menu`/`select_menu` sourced colors from vis.js's internal cycling palette instead of `ENTITY_COLORS`; every filter dot showed the wrong color. Removed pyvis built-ins; replaced with a custom interactive panel that reads `ENTITY_COLORS` directly so every dot is pixel-identical to its node (#266)
+- **Edge labels always visible** — `label=` on `add_edge` rendered relationship type text permanently on all edges, making dense graphs unreadable. Removed; `title=` (hover tooltip) is kept (#266)
+
+### Added
+- **`hckg visualize --theme dark|light`** — Full per-theme color tokens (`THEMES` dict) applied to background, font, edge colors, and all panel styles. Defaults to `dark` (no behaviour change for existing users) (#266)
+- **Interactive entity-type filter** — Checkboxes toggle node + edge visibility via `vis.js DataSet.update({hidden})`; All / None buttons; scrollable list with styled scrollbar (#266)
+- **Node search** — Search input in the title panel highlights and zooms to matching visible nodes; respects already-hidden types; Escape to clear (#266)
+- **`_build_vis_options(physics, theme)`** helper — Eliminates duplicated 40-line raw-string options blocks; uses `json.dumps`; edge colors are theme-aware (#266)
+
 ## [0.31.0] - 2026-02-26
 
 ### Added

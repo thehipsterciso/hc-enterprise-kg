@@ -99,6 +99,8 @@ The MCP server (`src/mcp_server/`) provides 16 tools for Claude Desktop:
 
 **Install reliability (v0.31.0):** `hckg install claude --auto-install` installs missing MCP extras automatically. `hckg install doctor` now exits 0 (not an error) when not yet registered. Apple CLT Python is detected in the pre-flight with a targeted `brew install poetry` fix message.
 
+**Visualization (v0.31.1):** `hckg visualize` supports `--theme dark|light`. Custom interactive filter panel sources colors from `ENTITY_COLORS` directly (pyvis `filter_menu`/`select_menu` removed — they used vis.js's internal palette, mismatching node colors). Edge `label=` removed (hover `title=` only). Node search in title panel. `_build_vis_options(physics, theme)` helper.
+
 ## Architecture Decision Records
 
 All major design choices are formally documented in `docs/adr/`. Before proposing changes to any of these areas, read the relevant ADR for context, trade-offs, and re-evaluation triggers.
