@@ -132,6 +132,52 @@ THEMES: dict[str, dict[str, str]] = {
     },
 }
 
+# Per-theme color tokens used by both the vis.js options and the injected UI panels
+THEMES: dict[str, dict[str, str]] = {
+    "dark": {
+        "bgcolor": "#1a1a2e",
+        "font_color": "#e0e0e0",
+        "panel_bg": "rgba(26,26,46,0.95)",
+        "panel_border": "#333333",
+        "text_color": "#e0e0e0",
+        "text_muted": "#aaaaaa",
+        "divider": "#444444",
+        "edge_color": "#555555",
+        "edge_highlight": "#cccccc",
+        "edge_hover": "#999999",
+        "input_bg": "rgba(255,255,255,0.07)",
+        "input_border": "#555555",
+        "input_text": "#e0e0e0",
+        "btn_bg": "rgba(255,255,255,0.10)",
+        "btn_border": "#555555",
+        "btn_text": "#cccccc",
+        "btn_hover_bg": "rgba(255,255,255,0.20)",
+        "scroll_track": "rgba(255,255,255,0.04)",
+        "scroll_thumb": "rgba(255,255,255,0.22)",
+    },
+    "light": {
+        "bgcolor": "#f0f2f5",
+        "font_color": "#222222",
+        "panel_bg": "rgba(255,255,255,0.97)",
+        "panel_border": "#dddddd",
+        "text_color": "#222222",
+        "text_muted": "#777777",
+        "divider": "#e0e0e0",
+        "edge_color": "#bbbbbb",
+        "edge_highlight": "#333333",
+        "edge_hover": "#777777",
+        "input_bg": "#ffffff",
+        "input_border": "#cccccc",
+        "input_text": "#111111",
+        "btn_bg": "#f0f0f0",
+        "btn_border": "#cccccc",
+        "btn_text": "#555555",
+        "btn_hover_bg": "#e0e0e0",
+        "scroll_track": "#f0f0f0",
+        "scroll_thumb": "#cccccc",
+    },
+}
+
 
 def _get_node_label(data: dict) -> str:
     """Extract the best display label from node data."""
@@ -474,7 +520,7 @@ def _inject_custom_ui(html_path: Path, stats: dict, theme: str) -> None:
 </style>"""
 
     title_panel = (
-        f'<div id="kg-tp" class="kg-panel kg-legend">'
+        f'<div id="kg-tp" class="kg-panel">'
         f'<div class="kg-title">hc-enterprise-kg</div>'
         f'<div class="kg-stats">'
         f"{entity_count:,} entities &middot; {rel_count:,} relationships</div>"
@@ -588,51 +634,4 @@ def _inject_custom_ui(html_path: Path, stats: dict, theme: str) -> None:
         return
     injection = css + "\n" + title_panel + "\n" + filter_panel + "\n" + js + "\n"
     content = content.replace("</body>", injection + "</body>")
-    html_path.write_text(content)
-
-
-def _inject_legend(html_path: Path, stats: dict, theme: str = "dark") -> None:
-    """Inject a static HTML legend panel into the visualization HTML.
-
-    This is a lightweight legend (class ``kg-legend``) that lists each entity
-    type present in *stats* together with its node count.  It is intentionally
-    kept simple so it remains easy to unit-test independently of the full
-    interactive UI injected by :func:`_inject_custom_ui`.
-
-    The function is a no-op (and does not modify the file) when the HTML
-    does not contain a ``</body>`` tag.
-    """
-    content = html_path.read_text()
-    if "</body>" not in content:
-        return
-
-    entity_types = stats.get("entity_types", {})
-    entity_count = stats.get("entity_count", 0)
-    rel_count = stats.get("relationship_count", 0)
-
-    _default_color = "#cccccc"
-    items_html = "\n".join(
-        f'<div class="kg-legend-item">'
-        f'<span class="kg-legend-dot"'
-        f' style="background:{ENTITY_COLORS.get(etype, _default_color)}"></span>'
-        f'<span class="kg-legend-label">'
-        f"{etype.replace('_', ' ').title()} ({count})</span>"
-        f"</div>"
-        for etype, count in sorted(entity_types.items(), key=lambda x: x[1], reverse=True)
-        if etype in ENTITY_COLORS
-    )
-
-    legend_html = (
-        f'<div class="kg-legend" id="kg-legend-panel" '
-        f'style="position:fixed;bottom:12px;left:12px;z-index:9998;'
-        f"background:rgba(26,26,46,0.92);border:1px solid #333;border-radius:8px;"
-        f'padding:10px 14px;color:#e0e0e0;font-family:system-ui,sans-serif;font-size:12px;">'
-        f'<div style="font-weight:700;margin-bottom:6px;">hc-enterprise-kg</div>'
-        f'<div style="font-size:11px;color:#aaa;margin-bottom:8px;">'
-        f"{entity_count:,} entities &middot; {rel_count:,} relationships</div>"
-        f"{items_html}"
-        f"</div>\n"
-    )
-
-    content = content.replace("</body>", legend_html + "</body>")
     html_path.write_text(content)
