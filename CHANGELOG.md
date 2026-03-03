@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.32.0] - 2026-03-03
+
+### Added
+- **Intelligence-driven enrichment agency** (ADR-013) — 30 entity-type enrichers with context-aware graph traversal, OSINT grounding, provenance/confidence tracking, and 5 maturity tiers aligned to CMMI/DCAM standards
+- **AdversarialValidator** — 4-gate validation: Pydantic sub-model coercion, plausibility bounds, confidence rubric enforcement, source staleness checking
+- **ProvenanceReconciler** — 4-factor weighted confidence model (source quality 35%, timeliness 25%, completeness 25%, consistency 15%) with hard confidence ceilings
+- **GraphContextEngine** — Holistic entity profiles from graph traversal for context-aware enrichment decisions
+- **6 cross-entity coherence rules** — PersonSkillsAlignWithRole, SystemCostMatchesCriticality, VendorRiskMatchesContractValue, ControlEffectivenessMatchesRiskResidual, TemporalConsistency, DataClassificationConsistency
+- **OSINTResearchAgent** — External data grounding with source metadata (NIST, MITRE, ISO, regulatory databases) and per-source validity windows
+- **EnrichmentQualityReport** — Weighted completeness scoring (critical 3x, operational 2x, metadata 1x) with field population detail
+- **KARMA multi-agent pipeline** (ADR-014) — 9 specialized agents (Controller, Ingestion, Reader, Summarizer, EntityExtractor, RelExtractor, SchemaAligner, ConflictResolver, Evaluator) adapted from Lu et al., NeurIPS 2025
+- **GraphGuard quality contracts** (ADR-015) — 5 declarative contracts (PlausibilityContract, StalenessContract, ConfidenceRubricContract, CoherenceContract, CompletenessContract) with 3 Guardian agents, adapted from Fraunhofer 2023
+- **CLI: `hckg enrich`** — `--tier N --profile tech|financial|healthcare --pipeline karma|legacy`
+
 ## [0.31.1] - 2026-03-02
 
 ### Fixed

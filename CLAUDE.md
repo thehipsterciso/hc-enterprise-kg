@@ -16,6 +16,8 @@ poetry run hckg import data.json     # Import real org data
 poetry run hckg import people.csv -t person  # Import CSV
 poetry run hckg charts               # Generate analytics charts (default: tech, 100-5000)
 poetry run hckg charts --full        # All 3 profiles, 6 scales
+poetry run hckg enrich --tier 3      # Enrich graph to tier 3 (default: tech profile, legacy pipeline)
+poetry run hckg enrich --tier 4 --profile financial --pipeline karma  # KARMA pipeline
 ```
 
 ## Architecture
@@ -31,7 +33,10 @@ src/
   export/       # JSONExporter (ADR-012), GraphMLExporter
   analysis/     # Centrality, risk scoring, attack paths, blast radius, benchmarking, charts
   rag/          # GraphRAG retrieval pipeline
-  cli/          # Click CLI (demo, generate, inspect, auto, serve, install, visualize, export, benchmark, charts)
+  enrichment/   # Enrichment agency (ADR-013): 30 enrichers, OSINT, provenance, coherence, quality
+  enrichment/karma/   # KARMA multi-agent pipeline (ADR-014): 9 agents for enrichment orchestration
+  enrichment/guard/   # GraphGuard quality contracts (ADR-015): 5 contracts, 3 guardians
+  cli/          # Click CLI (demo, generate, inspect, auto, serve, install, visualize, export, benchmark, charts, enrich)
   mcp_server/   # MCP server for Claude Desktop (ADR-009, ADR-010: state.py, helpers.py, tools.py, server.py)
   serve/        # REST API server (Flask)
 ```
@@ -119,6 +124,9 @@ All major design choices are formally documented in `docs/adr/`. Before proposin
 | [010](docs/adr/010-compact-entity-serialization.md) | Compact entity serialization for LLM context windows |
 | [011](docs/adr/011-rapidfuzz-search.md) | rapidfuzz over embedding-based search |
 | [012](docs/adr/012-json-primary-export.md) | JSON as primary export format |
+| [013](docs/adr/013-enrichment-agency.md) | Intelligence-driven enrichment agency |
+| [014](docs/adr/014-karma-agent-pipeline.md) | KARMA multi-agent pipeline for enrichment |
+| [015](docs/adr/015-graphguard-quality-contracts.md) | GraphGuard quality contracts for validation |
 
 ## Engineering Discipline (non-negotiable)
 
