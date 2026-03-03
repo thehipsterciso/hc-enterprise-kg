@@ -11,16 +11,13 @@ of the enriched knowledge graph entries.
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import TYPE_CHECKING
 
-from domain.base import BaseEntity
 from enrichment.base import EnrichmentResult, ValidationFailure
-from enrichment.guard.contract import ContractSeverity, QualityContract
+from enrichment.guard.contracts.confidence_rubric import ConfidenceRubricContract
 from enrichment.guard.contracts.plausibility import PlausibilityContract
 from enrichment.guard.contracts.staleness import StalenessContract
-from enrichment.guard.contracts.confidence_rubric import ConfidenceRubricContract
 from enrichment.guard.guardian import AbstractGuardian, GuardianPhase
-from enrichment.guard.reports import QualityValidationReport
 from enrichment.karma.base_agent import (
     AbstractKarmaAgent,
     AgentMessage,
@@ -28,6 +25,9 @@ from enrichment.karma.base_agent import (
     MessageType,
     PipelineState,
 )
+
+if TYPE_CHECKING:
+    from enrichment.guard.contract import QualityContract
 
 logger = logging.getLogger(__name__)
 
@@ -96,9 +96,7 @@ class EvaluatorAgent(AbstractKarmaAgent):
 
         entity = message.payload.get("entity")
         result: EnrichmentResult | None = message.payload.get("result")
-        schema_failures: list[ValidationFailure] = message.payload.get(
-            "schema_failures", []
-        )
+        schema_failures: list[ValidationFailure] = message.payload.get("schema_failures", [])
 
         if entity is None or result is None:
             return []

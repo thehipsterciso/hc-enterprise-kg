@@ -8,14 +8,11 @@ source/target entity provenance and relationship semantics.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
-from typing import ClassVar
+from datetime import UTC, datetime
 
 from domain.base import BaseEntity, BaseRelationship, EntityType, RelationshipType
 from domain.shared import ProvenanceAndConfidence
 from enrichment.base import (
-    ConfidenceLevel,
-    EnrichmentContext,
     EnrichmentProfile,
     EnrichmentStats,
     EnrichmentTier,
@@ -54,7 +51,12 @@ class RelationshipEnricher:
             "redundancy_available": [True, False],
         },
         RelationshipType.MITIGATES: {
-            "effectiveness_rating": ["effective", "largely_effective", "partially_effective", "ineffective"],
+            "effectiveness_rating": [
+                "effective",
+                "largely_effective",
+                "partially_effective",
+                "ineffective",
+            ],
             "coverage_pct": None,  # Range 0-100
         },
         RelationshipType.HOSTS: {
@@ -290,9 +292,13 @@ class RelationshipEnricher:
 
         # For certain relationship types, infer valid_until.
         # E.g., if target has valid_until, relationship inherits it.
-        if target and hasattr(target, "valid_until") and target.valid_until:
-            if not rel.valid_until or rel.valid_until > target.valid_until:
-                updates["valid_until"] = target.valid_until
+        if (
+            target
+            and hasattr(target, "valid_until")
+            and target.valid_until
+            and (not rel.valid_until or rel.valid_until > target.valid_until)
+        ):
+            updates["valid_until"] = target.valid_until
 
         return updates
 

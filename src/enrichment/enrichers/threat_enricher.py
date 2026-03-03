@@ -13,11 +13,11 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
-    EnricherRegistry,
     EntityContext,
     OSINTResults,
 )

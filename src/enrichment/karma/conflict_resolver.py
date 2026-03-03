@@ -16,7 +16,6 @@ from typing import TYPE_CHECKING, Any
 
 from enrichment.base import (
     ConfidenceLevel,
-    EnrichmentAction,
     EnrichmentResult,
 )
 from enrichment.karma.base_agent import (
@@ -56,9 +55,7 @@ class ConflictResolverAgent(AbstractKarmaAgent):
         provenance_reconciler: ProvenanceReconciler for confidence tracking.
     """
 
-    def __init__(
-        self, provenance_reconciler: ProvenanceReconciler | None = None
-    ) -> None:
+    def __init__(self, provenance_reconciler: ProvenanceReconciler | None = None) -> None:
         self._provenance = provenance_reconciler
 
     @property
@@ -105,9 +102,7 @@ class ConflictResolverAgent(AbstractKarmaAgent):
                         action.confidence,
                     )
                 except Exception as e:
-                    logger.debug(
-                        f"Provenance recording failed for {result.entity_id}: {e}"
-                    )
+                    logger.debug(f"Provenance recording failed for {result.entity_id}: {e}")
 
         # For multi-source conflicts (future enhancement):
         # If multiple results for the same entity exist, merge them

@@ -13,11 +13,11 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
-    EnricherRegistry,
     EntityContext,
     OSINTResults,
 )
@@ -93,7 +93,7 @@ class PolicyEnricher(AbstractEnricher):
         """Tier 2: Assess policy scope and governance coverage."""
         governed_systems = context.get_neighbors(RelationshipType.GOVERNS)
         governed_assets = context.get_neighbors(RelationshipType.APPLIES_TO)
-        regulations = context.get_neighbors(RelationshipType.REQUIRED_BY)
+        context.get_neighbors(RelationshipType.REQUIRED_BY)
 
         # Determine policy type from scope.
         if governed_systems:

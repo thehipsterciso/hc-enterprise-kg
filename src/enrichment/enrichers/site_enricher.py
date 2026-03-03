@@ -14,15 +14,14 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
-    EnricherRegistry,
     EntityContext,
     OSINTResults,
 )
-
 
 SITE_TYPES = [
     "Corporate Headquarters",
@@ -236,9 +235,7 @@ class SiteEnricher(AbstractEnricher):
 
         # Power supply configuration.
         result.field_updates["power_redundancy_level"] = (
-            "2N+1"
-            if "Data Center" in str(result.field_updates.get("site_type", ""))
-            else "N+1"
+            "2N+1" if "Data Center" in str(result.field_updates.get("site_type", "")) else "N+1"
         )
         result.field_updates["ups_runtime_minutes"] = (
             120 if "Data Center" in str(result.field_updates.get("site_type", "")) else 30
@@ -274,17 +271,13 @@ class SiteEnricher(AbstractEnricher):
             annual_cost = occupancy * 2000 + 500000
 
         result.field_updates["annual_operating_cost_usd"] = annual_cost
-        result.field_updates["cost_per_occupant"] = (
-            annual_cost / max(occupancy, 1)
-        )
+        result.field_updates["cost_per_occupant"] = annual_cost / max(occupancy, 1)
         result.field_updates["cost_per_sqft"] = annual_cost / 50000
 
         # Facility condition index (RICS).
         result.field_updates["facility_condition_rating"] = "Good"
         result.field_updates["facility_condition_score"] = 0.75
-        result.field_updates["deferred_maintenance_amount_usd"] = max(
-            annual_cost * 0.05, 100000
-        )
+        result.field_updates["deferred_maintenance_amount_usd"] = max(annual_cost * 0.05, 100000)
 
         # Availability metrics.
         result.field_updates["target_availability_pct"] = (
@@ -302,7 +295,9 @@ class SiteEnricher(AbstractEnricher):
         if utilization < 40:
             result.field_updates["consolidation_candidate"] = True
             result.field_updates["consolidation_priority"] = "Medium"
-            result.field_updates["consolidation_rationale"] = "Low utilization; candidate for closure or relocation"
+            result.field_updates["consolidation_rationale"] = (
+                "Low utilization; candidate for closure or relocation"
+            )
         else:
             result.field_updates["consolidation_candidate"] = False
             result.field_updates["consolidation_priority"] = "None"

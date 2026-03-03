@@ -17,19 +17,17 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from domain.base import EntityType, RelationshipType
+from domain.base import EntityType
 from enrichment.base import (
+    CONFIDENCE_RUBRIC,
+    SOURCE_VALIDITY_WINDOWS,
     AdversarialValidator,
     AssessmentMethodology,
-    CONFIDENCE_RUBRIC,
     ConfidenceLevel,
     EnrichmentAction,
     EnrichmentResult,
     FieldCategory,
-    SOURCE_VALIDITY_WINDOWS,
-    ValidationFailure,
 )
-
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -233,7 +231,13 @@ class TestConfidenceRubricStructure:
             assert level in CONFIDENCE_RUBRIC, f"Missing rubric for {level}"
 
     def test_rubric_has_required_keys(self):
-        required_keys = {"description", "required_source_types", "min_sources", "max_staleness_days", "examples"}
+        required_keys = {
+            "description",
+            "required_source_types",
+            "min_sources",
+            "max_staleness_days",
+            "examples",
+        }
         for level, rubric in CONFIDENCE_RUBRIC.items():
             assert required_keys.issubset(rubric.keys()), (
                 f"Rubric for {level} missing keys: {required_keys - rubric.keys()}"

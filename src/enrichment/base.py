@@ -17,18 +17,22 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import StrEnum
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 # UTC timezone (Python 3.11+) or fallback for compatibility
 try:
     from datetime import UTC
 except ImportError:
-    UTC = timezone.utc
+    UTC = UTC
 
-from domain.base import BaseEntity, BaseRelationship, EntityType, RelationshipType
-from domain.shared import DataGap, ProvenanceAndConfidence
+
+from enrichment.profiles.base import EnrichmentProfile
+
+if TYPE_CHECKING:
+    from domain.base import BaseEntity, BaseRelationship, EntityType, RelationshipType
+    from domain.shared import DataGap, ProvenanceAndConfidence
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +81,12 @@ CONFIDENCE_RUBRIC: dict[ConfidenceLevel, dict[str, Any]] = {
     },
     ConfidenceLevel.HIGH: {
         "description": "Authoritative industry source with audit trail within validity window",
-        "required_source_types": ["sec_filing", "soc2_report", "regulatory_text", "vendor_attestation"],
+        "required_source_types": [
+            "sec_filing",
+            "soc2_report",
+            "regulatory_text",
+            "vendor_attestation",
+        ],
         "min_sources": 1,
         "max_staleness_days": 548,  # 18 months for SOC 2; 12 months for SEC filings
         "examples": [
@@ -177,24 +186,24 @@ class FieldCategory(StrEnum):
 # it is considered stale and requires re-verification.
 SOURCE_VALIDITY_WINDOWS: dict[str, int] = {
     # Government / standard body sources
-    "nist": 730,            # 2 years — NIST revisions are infrequent
-    "iso": 1095,            # 3 years — ISO standards have long cycles
-    "mitre": 365,           # 1 year — ATT&CK updates annually
-    "cis": 365,             # 1 year — CIS Controls update annually
+    "nist": 730,  # 2 years — NIST revisions are infrequent
+    "iso": 1095,  # 3 years — ISO standards have long cycles
+    "mitre": 365,  # 1 year — ATT&CK updates annually
+    "cis": 365,  # 1 year — CIS Controls update annually
     # Regulatory / compliance sources
-    "sec_filing": 365,      # 1 year — annual filings
-    "soc2_report": 548,     # 18 months — SOC 2 Type II validity
+    "sec_filing": 365,  # 1 year — annual filings
+    "soc2_report": 548,  # 18 months — SOC 2 Type II validity
     "regulatory_text": 1095,  # 3 years — regulation text is stable
     "certified_audit": 365,  # 1 year — audit reports annual
     # Industry / OSINT sources
     "industry_benchmark": 365,  # 1 year — annual surveys
-    "press_release": 180,   # 6 months — news decays fast
-    "web_search": 90,       # 3 months — web content is volatile
+    "press_release": 180,  # 6 months — news decays fast
+    "web_search": 90,  # 3 months — web content is volatile
     "vendor_attestation": 365,  # 1 year — vendor self-reports
     # Graph-derived sources
     "graph_inference": 30,  # 30 days — graph changes invalidate inferences
-    "template": 0,          # Immediately stale — templates are defaults only
-    "synthetic": 0,         # Immediately stale — synthetic is placeholder
+    "template": 0,  # Immediately stale — templates are defaults only
+    "synthetic": 0,  # Immediately stale — synthetic is placeholder
 }
 
 
@@ -206,7 +215,9 @@ class ValidationFailure:
     """
 
     field_name: str
-    failure_type: str  # "pydantic_validation", "confidence_inflation", "stale_source", "coherence_violation"
+    failure_type: (
+        str  # "pydantic_validation", "confidence_inflation", "stale_source", "coherence_violation"
+    )
     message: str
     attempted_value: Any = None
     enricher_source: str = ""
@@ -296,9 +307,7 @@ class EntityContext:
     """
 
     entity: BaseEntity
-    neighbors_by_type: dict[RelationshipType, list[BaseEntity]] = field(
-        default_factory=dict
-    )
+    neighbors_by_type: dict[RelationshipType, list[BaseEntity]] = field(default_factory=dict)
     relationships: list[BaseRelationship] = field(default_factory=list)
 
     def get_neighbors(self, rel_type: RelationshipType) -> list[BaseEntity]:
@@ -462,9 +471,7 @@ class EnricherRegistry:
     _registry: dict[EntityType, type[AbstractEnricher]] = {}
 
     @classmethod
-    def register(
-        cls, enricher_class: type[AbstractEnricher]
-    ) -> type[AbstractEnricher]:
+    def register(cls, enricher_class: type[AbstractEnricher]) -> type[AbstractEnricher]:
         """Register an enricher class. Can be used as a decorator.
 
         Example:
@@ -716,6 +723,7 @@ class AdversarialValidator:
         Returns the constructed model instance, or None if coercion fails.
         """
         import typing
+
         from pydantic import BaseModel
 
         # Unwrap Optional, Union types
@@ -735,9 +743,7 @@ class AdversarialValidator:
             try:
                 return target_type.model_validate(value)
             except Exception as e:
-                logger.debug(
-                    f"Sub-model coercion failed for {entity_class_name}.{field_name}: {e}"
-                )
+                logger.debug(f"Sub-model coercion failed for {entity_class_name}.{field_name}: {e}")
                 return None
 
         return value  # Not a sub-model field — return as-is
@@ -751,6 +757,7 @@ class AdversarialValidator:
     ) -> list | None:
         """Attempt to coerce a list of dicts to a list of Pydantic sub-models."""
         import typing
+
         from pydantic import BaseModel
 
         origin = getattr(annotation, "__origin__", None)
@@ -773,8 +780,7 @@ class AdversarialValidator:
                     return [item_type.model_validate(item) for item in value]
                 except Exception as e:
                     logger.debug(
-                        f"List sub-model coercion failed for "
-                        f"{entity_class_name}.{field_name}: {e}"
+                        f"List sub-model coercion failed for {entity_class_name}.{field_name}: {e}"
                     )
                     return None
 
@@ -791,7 +797,7 @@ class AdversarialValidator:
         if field_name not in bounds:
             return None
 
-        if not isinstance(value, (int, float)):
+        if not isinstance(value, int | float):
             return None
 
         low, high = bounds[field_name]
@@ -807,9 +813,7 @@ class AdversarialValidator:
             )
         return None
 
-    def _enforce_confidence_rubric(
-        self, action: EnrichmentAction
-    ) -> EnrichmentAction:
+    def _enforce_confidence_rubric(self, action: EnrichmentAction) -> EnrichmentAction:
         """Enforce confidence rubric: downgrade inflated confidence claims.
 
         Checks that the claimed confidence level is supported by the source type
@@ -828,9 +832,7 @@ class AdversarialValidator:
         # Check source staleness if source_date is provided
         if action.source_date:
             try:
-                source_dt = datetime.fromisoformat(
-                    action.source_date.replace("Z", "+00:00")
-                )
+                source_dt = datetime.fromisoformat(action.source_date.replace("Z", "+00:00"))
                 days_old = (datetime.now(UTC) - source_dt).days
                 if days_old > max_staleness and max_staleness > 0:
                     # Downgrade: find the appropriate lower level
@@ -857,9 +859,7 @@ class AdversarialValidator:
 
         return action
 
-    def _downgrade_for_staleness(
-        self, current: ConfidenceLevel, days_old: int
-    ) -> ConfidenceLevel:
+    def _downgrade_for_staleness(self, current: ConfidenceLevel, days_old: int) -> ConfidenceLevel:
         """Determine the appropriate confidence level given source age.
 
         Walks down the confidence ladder until finding a level whose

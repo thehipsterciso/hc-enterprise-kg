@@ -20,16 +20,15 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
-    EnricherRegistry,
     OSINTResults,
 )
-
 
 PRODUCT_TYPE_TEMPLATES = {
     "Software": {
@@ -56,7 +55,13 @@ PRODUCT_TYPE_TEMPLATES = {
 
 LIFECYCLE_STAGES = ["Introduction", "Growth", "Maturity", "Decline", "Sunset"]
 
-DELIVERY_MODELS = ["SaaS", "Perpetual License", "Subscription", "Managed Service", "Professional Services"]
+DELIVERY_MODELS = [
+    "SaaS",
+    "Perpetual License",
+    "Subscription",
+    "Managed Service",
+    "Professional Services",
+]
 
 
 @EnricherRegistry.register
@@ -146,7 +151,9 @@ class ProductEnricher(AbstractEnricher):
         else:
             product_key = "Physical"
 
-        product_template = PRODUCT_TYPE_TEMPLATES.get(product_key, PRODUCT_TYPE_TEMPLATES["Service"])
+        product_template = PRODUCT_TYPE_TEMPLATES.get(
+            product_key, PRODUCT_TYPE_TEMPLATES["Service"]
+        )
         result.field_updates["product_type"] = product_template["product_type"]
         result.field_updates["delivery_model"] = product_template["delivery_model"]
 
@@ -166,9 +173,7 @@ class ProductEnricher(AbstractEnricher):
             lifecycle_stage = "Introduction"
         elif customer_count < 5:
             lifecycle_stage = "Growth"
-        elif customer_count < 20:
-            lifecycle_stage = "Maturity"
-        elif customer_count < 50:
+        elif customer_count < 20 or customer_count < 50:
             lifecycle_stage = "Maturity"
         else:
             lifecycle_stage = "Decline"
@@ -214,7 +219,7 @@ class ProductEnricher(AbstractEnricher):
     ) -> None:
         """Tier 3: Market position and regulatory applicability."""
         customers = context.get_neighbors(RelationshipType.BUYS)
-        market_segments = context.get_neighbors(RelationshipType.SERVES)
+        context.get_neighbors(RelationshipType.SERVES)
 
         # Market position
         customer_count = len(customers)
@@ -255,7 +260,9 @@ class ProductEnricher(AbstractEnricher):
             {
                 "regulation_id": "SOC2",
                 "regulation_name": "SOC 2 Type II",
-                "applicability": "Applicable" if "Software" in str(result.field_updates.get("product_type", "")) else "Not applicable",
+                "applicability": "Applicable"
+                if "Software" in str(result.field_updates.get("product_type", ""))
+                else "Not applicable",
                 "impact_level": "High",
                 "compliance_status": "In Progress",
                 "last_assessed_date": datetime.now(UTC).isoformat(),
@@ -346,12 +353,14 @@ class ProductEnricher(AbstractEnricher):
 
         # Innovation pipeline
         result.field_updates["innovation_pipeline"] = {
-            "next_version_planned": True if customer_count > 5 else False,
+            "next_version_planned": customer_count > 5,
             "planned_features": [
                 "AI-powered analytics",
                 "Mobile-first redesign",
                 "API-first architecture",
-            ] if customer_count > 10 else [],
+            ]
+            if customer_count > 10
+            else [],
             "rd_investment_usd": 500000 if customer_count > 10 else 150000,
             "planned_release_date": "2026-Q4",
             "innovation_focus": "Modernization" if customer_count > 5 else "Stabilization",
@@ -369,11 +378,17 @@ class ProductEnricher(AbstractEnricher):
 
         # Cannibalization risk
         result.field_updates["cannibalization_risk"] = {
-            "risk_level": "High" if customer_count > 20 else "Medium" if customer_count > 10 else "Low",
+            "risk_level": "High"
+            if customer_count > 20
+            else "Medium"
+            if customer_count > 10
+            else "Low",
             "competing_products": [
                 f"Product-{entity.id[:6]}-Alt1",
                 f"Product-{entity.id[:6]}-Alt2",
-            ] if customer_count > 15 else [],
+            ]
+            if customer_count > 15
+            else [],
             "risk_mitigation": "Segment positioning and feature differentiation",
             "potential_lost_revenue_usd": customer_count * 25000 if customer_count > 15 else 0,
             "assessed_date": datetime.now(UTC).isoformat(),

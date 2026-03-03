@@ -14,54 +14,86 @@ Tier 5: future_skills_projection, automation_risk_assessment
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 from domain.base import BaseEntity, EntityType, RelationshipType
 from domain.entities.role import (
-    RequiredSkill,
-    TravelRequirement,
     AuthorityDelegated,
-    FinancialLimit,
-    ContractAuthority,
     CompetencyModelReference,
     CompetencyReference,
+    ContractAuthority,
+    FinancialLimit,
+    RequiredSkill,
+    TravelRequirement,
 )
-from domain.shared import DataGap, DataQualityScore, ProvenanceAndConfidence
-
+from domain.shared import DataQualityScore, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
-    ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
     OSINTResults,
-    EnricherRegistry,
 )
-
 
 # Coordinated skill templates by role family
 ROLE_SKILL_TEMPLATES = {
     "engineering": [
         {"name": "Python", "category": "Technical", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Cloud Architecture", "category": "Technical", "level": "Expert", "criticality": "Must Have"},
-        {"name": "System Design", "category": "Technical", "level": "Practitioner", "criticality": "Should Have"},
+        {
+            "name": "Cloud Architecture",
+            "category": "Technical",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "System Design",
+            "category": "Technical",
+            "level": "Practitioner",
+            "criticality": "Should Have",
+        },
         {
             "name": "Software Engineering Practices",
             "category": "Strategic & Business",
             "level": "Expert",
             "criticality": "Must Have",
         },
-        {"name": "Team Leadership", "category": "Leadership & Management", "level": "Practitioner", "criticality": "Should Have"},
+        {
+            "name": "Team Leadership",
+            "category": "Leadership & Management",
+            "level": "Practitioner",
+            "criticality": "Should Have",
+        },
     ],
     "data": [
         {"name": "SQL", "category": "Technical", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Statistics", "category": "Analytical & Quantitative", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Data Modeling", "category": "Technical", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Python/R", "category": "Technical", "level": "Practitioner", "criticality": "Should Have"},
-        {"name": "Business Acumen", "category": "Strategic & Business", "level": "Practitioner", "criticality": "Should Have"},
+        {
+            "name": "Statistics",
+            "category": "Analytical & Quantitative",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "Data Modeling",
+            "category": "Technical",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "Python/R",
+            "category": "Technical",
+            "level": "Practitioner",
+            "criticality": "Should Have",
+        },
+        {
+            "name": "Business Acumen",
+            "category": "Strategic & Business",
+            "level": "Practitioner",
+            "criticality": "Should Have",
+        },
     ],
     "product": [
         {
@@ -70,28 +102,88 @@ ROLE_SKILL_TEMPLATES = {
             "level": "Expert",
             "criticality": "Must Have",
         },
-        {"name": "User Research", "category": "Communication & Influence", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Roadmap Development", "category": "Strategic & Business", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Data Analysis", "category": "Analytical & Quantitative", "level": "Practitioner", "criticality": "Should Have"},
-        {"name": "Stakeholder Management", "category": "Communication & Influence", "level": "Expert", "criticality": "Must Have"},
+        {
+            "name": "User Research",
+            "category": "Communication & Influence",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "Roadmap Development",
+            "category": "Strategic & Business",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "Data Analysis",
+            "category": "Analytical & Quantitative",
+            "level": "Practitioner",
+            "criticality": "Should Have",
+        },
+        {
+            "name": "Stakeholder Management",
+            "category": "Communication & Influence",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
     ],
     "compliance": [
-        {"name": "Risk Management", "category": "Regulatory & Compliance", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Audit Procedures", "category": "Regulatory & Compliance", "level": "Expert", "criticality": "Must Have"},
+        {
+            "name": "Risk Management",
+            "category": "Regulatory & Compliance",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "Audit Procedures",
+            "category": "Regulatory & Compliance",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
         {
             "name": "Regulatory Framework Knowledge",
             "category": "Regulatory & Compliance",
             "level": "Expert",
             "criticality": "Must Have",
         },
-        {"name": "Documentation & Writing", "category": "Communication & Influence", "level": "Expert", "criticality": "Must Have"},
+        {
+            "name": "Documentation & Writing",
+            "category": "Communication & Influence",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
     ],
     "management": [
-        {"name": "Strategic Planning", "category": "Strategic & Business", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Team Leadership", "category": "Leadership & Management", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Budget Management", "category": "Analytical & Quantitative", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Stakeholder Management", "category": "Communication & Influence", "level": "Expert", "criticality": "Must Have"},
-        {"name": "Change Management", "category": "Leadership & Management", "level": "Practitioner", "criticality": "Should Have"},
+        {
+            "name": "Strategic Planning",
+            "category": "Strategic & Business",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "Team Leadership",
+            "category": "Leadership & Management",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "Budget Management",
+            "category": "Analytical & Quantitative",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "Stakeholder Management",
+            "category": "Communication & Influence",
+            "level": "Expert",
+            "criticality": "Must Have",
+        },
+        {
+            "name": "Change Management",
+            "category": "Leadership & Management",
+            "level": "Practitioner",
+            "criticality": "Should Have",
+        },
     ],
 }
 
@@ -179,9 +271,11 @@ class RoleEnricher(AbstractEnricher):
             return result
 
         # Analyze graph context
-        filled_by = context.get_neighbors(RelationshipType.FILLED_BY) if RelationshipType.FILLED_BY in [
-            rt.value for rt in RelationshipType
-        ] else []
+        filled_by = (
+            context.get_neighbors(RelationshipType.FILLED_BY)
+            if RelationshipType.FILLED_BY in [rt.value for rt in RelationshipType]
+            else []
+        )
         departments = context.get_neighbors(RelationshipType.BELONGS_TO)
         systems = context.get_neighbors(RelationshipType.REQUIRES)
 
@@ -218,7 +312,7 @@ class RoleEnricher(AbstractEnricher):
                     timeliness_score="Current",
                     consistency_score="Consistent",
                 ),
-                last_assessed_date=datetime.now(timezone.utc).isoformat(),
+                last_assessed_date=datetime.now(UTC).isoformat(),
             )
 
         return result
@@ -237,7 +331,10 @@ class RoleEnricher(AbstractEnricher):
             return "product"
         elif any(keyword in combined for keyword in ["compliance", "audit", "risk", "governance"]):
             return "compliance"
-        elif any(keyword in combined for keyword in ["director", "vp", "head", "chief", "manager", "lead"]):
+        elif any(
+            keyword in combined
+            for keyword in ["director", "vp", "head", "chief", "manager", "lead"]
+        ):
             return "management"
         else:
             return "engineering"
@@ -275,7 +372,9 @@ class RoleEnricher(AbstractEnricher):
         }
 
         # authority_level based on role family
-        updates["authority_level"] = "Manager" if role_family in ("management", "product") else "Practitioner"
+        updates["authority_level"] = (
+            "Manager" if role_family in ("management", "product") else "Practitioner"
+        )
 
         # travel_requirement
         updates["travel_requirement"] = TravelRequirement(
@@ -313,7 +412,9 @@ class RoleEnricher(AbstractEnricher):
         # governance_memberships
         updates["governance_memberships"] = [
             {
-                "governance_body": "Architecture Review Board" if role_family in ("engineering", "data") else "Risk Committee",
+                "governance_body": "Architecture Review Board"
+                if role_family in ("engineering", "data")
+                else "Risk Committee",
                 "participation_type": "Core Member",
                 "contribution_area": f"{role_family.title()} Domain",
             }
@@ -385,11 +486,17 @@ class RoleEnricher(AbstractEnricher):
             "engineering": ["AI/ML Integration", "Cloud Native Architecture", "Security by Design"],
             "data": ["Real-time Analytics", "ML Ops", "Data Ethics & Governance"],
             "product": ["AI Product Strategy", "Ethical AI", "Extended Reality (XR)"],
-            "compliance": ["AI Risk Assessment", "Algorithmic Accountability", "Privacy Engineering"],
+            "compliance": [
+                "AI Risk Assessment",
+                "Algorithmic Accountability",
+                "Privacy Engineering",
+            ],
             "management": ["Remote Team Leadership", "AI Governance", "Organizational Resilience"],
         }
 
-        updates["future_skills_projection"] = future_skills.get(role_family, ["Emerging Technology Literacy"])
+        updates["future_skills_projection"] = future_skills.get(
+            role_family, ["Emerging Technology Literacy"]
+        )
 
         # automation_risk_assessment
         automation_risks = {
@@ -402,7 +509,7 @@ class RoleEnricher(AbstractEnricher):
 
         updates["automation_risk"] = {
             "risk_level": automation_risks.get(role_family, "Low"),
-            "assessment_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "assessment_date": datetime.now(UTC).strftime("%Y-%m-%d"),
             "risk_factors": [
                 "Increasing automation of manual data analysis",
                 "AI-assisted code generation",
@@ -423,7 +530,9 @@ class RoleEnricher(AbstractEnricher):
                 max_term_months=36,
             ),
             system_access_level=auth_template["system_access"],
-            data_access_level="Business Unit Scope" if role_family == "management" else "Role-Specific Scope",
+            data_access_level="Business Unit Scope"
+            if role_family == "management"
+            else "Role-Specific Scope",
         )
 
         return updates

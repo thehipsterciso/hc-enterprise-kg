@@ -14,11 +14,11 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
-    EnricherRegistry,
     EntityContext,
     OSINTResults,
 )
@@ -30,7 +30,12 @@ MARKET_DATA = {
         "gdp_growth_rate": 2.5,
         "economic_classification": "Developed",
         "primary_currency": "USD",
-        "timezone_coverage": ["America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles"],
+        "timezone_coverage": [
+            "America/New_York",
+            "America/Chicago",
+            "America/Denver",
+            "America/Los_Angeles",
+        ],
     },
     "Europe": {
         "total_gdp": 19000000000000,
@@ -195,14 +200,15 @@ class GeographyEnricher(AbstractEnricher):
                 getattr(entity, "countries_included", [])
             )
             result.field_updates["timezone_coverage"] = [
-                getattr(tz, "timezone", "UTC")
-                for tz in getattr(entity, "time_zones", [])
+                getattr(tz, "timezone", "UTC") for tz in getattr(entity, "time_zones", [])
             ]
             result.field_updates["primary_timezone"] = "UTC"
 
         # Primary languages.
         primary_langs = getattr(entity, "primary_languages", [])
-        result.field_updates["primary_languages"] = primary_langs[:3] if primary_langs else ["English"]
+        result.field_updates["primary_languages"] = (
+            primary_langs[:3] if primary_langs else ["English"]
+        )
 
     def _enrich_tier4(
         self,
@@ -224,9 +230,7 @@ class GeographyEnricher(AbstractEnricher):
         if market_info:
             result.field_updates["total_gdp_usd"] = market_info["total_gdp"]
             result.field_updates["gdp_growth_rate_pct"] = market_info["gdp_growth_rate"]
-            result.field_updates["economic_classification"] = market_info[
-                "economic_classification"
-            ]
+            result.field_updates["economic_classification"] = market_info["economic_classification"]
             result.field_updates["primary_currency"] = market_info["primary_currency"]
             result.field_updates["population"] = None  # Would come from OSINT
         else:
@@ -263,9 +267,7 @@ class GeographyEnricher(AbstractEnricher):
 
         # Business environment metrics.
         result.field_updates["business_environment_score"] = 7.5  # 1-10 scale
-        result.field_updates["regulatory_complexity_score"] = (
-            8.5 if "Europe" in geo_name else 6.0
-        )
+        result.field_updates["regulatory_complexity_score"] = 8.5 if "Europe" in geo_name else 6.0
         result.field_updates["market_competition_intensity"] = (
             "High" if "North America" in geo_name else "Medium"
         )

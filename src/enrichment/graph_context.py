@@ -109,9 +109,7 @@ class HolisticEntityProfile:
         """
         type_map = {
             EntityType.DEPARTMENT: [self.department] if self.department else [],
-            EntityType.ORGANIZATIONAL_UNIT: (
-                [self.org_unit] if self.org_unit else []
-            ),
+            EntityType.ORGANIZATIONAL_UNIT: ([self.org_unit] if self.org_unit else []),
             EntityType.ROLE: self.roles,
             EntityType.SYSTEM: self.systems,
             EntityType.RISK: self.risks,
@@ -193,15 +191,11 @@ class GraphContextEngine:
 
         for rel in relationships:
             # Determine target entity: if source is our entity, target is the neighbor
-            target_id = (
-                rel.target_id if rel.source_id == entity_id else rel.source_id
-            )
+            target_id = rel.target_id if rel.source_id == entity_id else rel.source_id
             target_entity = self.kg.get_entity(target_id)
 
             if target_entity is None:
-                logger.warning(
-                    f"Relationship {rel.id} references non-existent entity {target_id}"
-                )
+                logger.warning(f"Relationship {rel.id} references non-existent entity {target_id}")
                 continue
 
             rel_type = RelationshipType(rel.relationship_type)
@@ -242,9 +236,7 @@ class GraphContextEngine:
         # Retrieve neighbors for all entity types
         # For efficiency, retrieve by type rather than iterating all neighbors
         for target_type in EntityType:
-            neighbors = self.kg.neighbors(
-                entity_id, direction="both", entity_type=target_type
-            )
+            neighbors = self.kg.neighbors(entity_id, direction="both", entity_type=target_type)
 
             if not neighbors:
                 continue
@@ -313,9 +305,7 @@ class GraphContextEngine:
 
         return profile
 
-    def get_neighbors_by_type(
-        self, entity_id: str, entity_type: EntityType
-    ) -> list[BaseEntity]:
+    def get_neighbors_by_type(self, entity_id: str, entity_type: EntityType) -> list[BaseEntity]:
         """Retrieve all neighbors of a specific entity type.
 
         Convenience method for querying neighbors filtered by a single entity type.
@@ -327,9 +317,7 @@ class GraphContextEngine:
         Returns:
             List of neighbors matching the specified entity type.
         """
-        return self.kg.neighbors(
-            entity_id, direction="both", entity_type=entity_type
-        )
+        return self.kg.neighbors(entity_id, direction="both", entity_type=entity_type)
 
     def get_relationship_context(
         self, entity_id: str
@@ -358,15 +346,11 @@ class GraphContextEngine:
 
         for rel in relationships:
             # Determine target entity ID
-            target_id = (
-                rel.target_id if rel.source_id == entity_id else rel.source_id
-            )
+            target_id = rel.target_id if rel.source_id == entity_id else rel.source_id
             target_entity = self.kg.get_entity(target_id)
 
             if target_entity is None:
-                logger.warning(
-                    f"Relationship {rel.id} references non-existent entity {target_id}"
-                )
+                logger.warning(f"Relationship {rel.id} references non-existent entity {target_id}")
                 continue
 
             rel_type = RelationshipType(rel.relationship_type)
@@ -463,9 +447,7 @@ class GraphContextEngine:
         # Count neighbors by type
         neighbors_by_type: dict[EntityType, int] = {}
         for target_type in EntityType:
-            neighbors = self.kg.neighbors(
-                entity_id, direction="both", entity_type=target_type
-            )
+            neighbors = self.kg.neighbors(entity_id, direction="both", entity_type=target_type)
             if neighbors:
                 neighbors_by_type[target_type.value] = len(neighbors)
 
@@ -493,16 +475,12 @@ class GraphContextEngine:
         inferred_properties["regulated"] = neighbors_by_type.get("regulation", 0) > 0
         inferred_properties["multi_site"] = neighbors_by_type.get("site", 0) > 1
         inferred_properties["has_vendors"] = neighbors_by_type.get("vendor", 0) > 0
-        inferred_properties["has_initiatives"] = (
-            neighbors_by_type.get("initiative", 0) > 0
-        )
+        inferred_properties["has_initiatives"] = neighbors_by_type.get("initiative", 0) > 0
 
         return CrossEntityProfile(
             entity_id=entity_id,
             entity_type=EntityType(entity.entity_type),
-            neighbors_by_type={
-                EntityType(k): v for k, v in neighbors_by_type.items()
-            },
+            neighbors_by_type={EntityType(k): v for k, v in neighbors_by_type.items()},
             relationship_patterns=relationship_patterns,
             inferred_properties=inferred_properties,
             risk_signals=risk_signals,

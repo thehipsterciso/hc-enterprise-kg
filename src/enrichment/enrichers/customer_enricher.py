@@ -20,16 +20,15 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
-    EnricherRegistry,
     OSINTResults,
 )
-
 
 CUSTOMER_TYPE_TEMPLATES = {
     "Enterprise": {
@@ -152,7 +151,9 @@ class CustomerEnricher(AbstractEnricher):
             customer_key = "Enterprise"
             status = "Active"
 
-        customer_template = CUSTOMER_TYPE_TEMPLATES.get(customer_key, CUSTOMER_TYPE_TEMPLATES["SMB"])
+        customer_template = CUSTOMER_TYPE_TEMPLATES.get(
+            customer_key, CUSTOMER_TYPE_TEMPLATES["SMB"]
+        )
         result.field_updates["customer_type"] = customer_template["customer_type"]
         result.field_updates["status"] = status
 
@@ -201,7 +202,9 @@ class CustomerEnricher(AbstractEnricher):
         # Primary contact placeholder
         result.field_updates["primary_contact"] = {
             "contact_name": f"Contact {entity.id[:8]}",
-            "contact_title": "IT Director" if customer_key == "Enterprise" else "Operations Manager",
+            "contact_title": "IT Director"
+            if customer_key == "Enterprise"
+            else "Operations Manager",
             "contact_email": f"contact.{entity.id[:6]}@example.com",
         }
         result.actions.append(
@@ -345,7 +348,6 @@ class CustomerEnricher(AbstractEnricher):
 
         # Risk assessment
         payment_health = 95
-        support_health = 80
         engagement_health = 75 if len(products) > 2 else 50
 
         result.field_updates["risk_assessment"] = {
@@ -355,9 +357,13 @@ class CustomerEnricher(AbstractEnricher):
             "key_risk_factors": [
                 "Declining engagement metrics",
                 "Budget constraints in vertical",
-            ] if engagement_health < 70 else [],
+            ]
+            if engagement_health < 70
+            else [],
             "retention_priority": "High" if engagement_health < 70 else "Standard",
-            "recommended_action": "Quarterly business review" if engagement_health > 70 else "Immediate outreach",
+            "recommended_action": "Quarterly business review"
+            if engagement_health > 70
+            else "Immediate outreach",
         }
         result.actions.append(
             EnrichmentAction(
@@ -403,7 +409,9 @@ class CustomerEnricher(AbstractEnricher):
                 "Increase engagement touch points",
                 "Offer usage-based discount",
                 "Executive business review",
-            ] if churn_score > 60 else [],
+            ]
+            if churn_score > 60
+            else [],
         }
         result.actions.append(
             EnrichmentAction(
@@ -428,7 +436,9 @@ class CustomerEnricher(AbstractEnricher):
                 "Professional Services Package",
                 "Premium Support Tier",
             ],
-            "expansion_strategy": "Upsell advanced features" if len(products) < 5 else "Cross-sell adjacent",
+            "expansion_strategy": "Upsell advanced features"
+            if len(products) < 5
+            else "Cross-sell adjacent",
             "expected_close_timeline_months": 6,
         }
         result.actions.append(
@@ -443,7 +453,7 @@ class CustomerEnricher(AbstractEnricher):
         )
 
         # Strategic value assessment
-        annual_revenue = financial.get("annual_revenue_usd", 0)
+        financial.get("annual_revenue_usd", 0)
         customer_type = result.field_updates.get("customer_type", "SMB")
 
         if customer_type == "Enterprise":
@@ -459,10 +469,16 @@ class CustomerEnricher(AbstractEnricher):
         result.field_updates["strategic_value_assessment"] = {
             "strategic_value": strategic_value,
             "value_drivers": value_drivers,
-            "account_investment_level": "High" if strategic_value == "High" else "Medium" if strategic_value == "Medium" else "Low",
+            "account_investment_level": "High"
+            if strategic_value == "High"
+            else "Medium"
+            if strategic_value == "Medium"
+            else "Low",
             "competitive_threat_level": "High" if len(products) < 2 else "Low",
             "vip_status": strategic_value == "High",
-            "recommended_engagement_model": "Executive relationships" if strategic_value == "High" else "Standard CSM",
+            "recommended_engagement_model": "Executive relationships"
+            if strategic_value == "High"
+            else "Standard CSM",
         }
         result.actions.append(
             EnrichmentAction(

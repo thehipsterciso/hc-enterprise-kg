@@ -29,7 +29,9 @@ class FieldPopulationDetail:
     total_fields: int = 0
     populated_fields: int = 0
     unweighted_pct: float = 0.0
-    weighted_pct: float = 0.0  # Weighted by FieldCategory (critical 3x, operational 2x, metadata 1x)
+    weighted_pct: float = (
+        0.0  # Weighted by FieldCategory (critical 3x, operational 2x, metadata 1x)
+    )
     critical_pct: float = 0.0  # Critical fields only
     operational_pct: float = 0.0  # Operational fields only
     metadata_pct: float = 0.0  # Metadata fields only
@@ -47,8 +49,12 @@ class EnrichmentQualityReport:
     """
 
     overall_score: float = 0.0
-    field_population_by_tier: dict[int, float] = field(default_factory=dict)  # tier → unweighted population %
-    weighted_population_by_tier: dict[int, float] = field(default_factory=dict)  # tier → weighted population %
+    field_population_by_tier: dict[int, float] = field(
+        default_factory=dict
+    )  # tier → unweighted population %
+    weighted_population_by_tier: dict[int, float] = field(
+        default_factory=dict
+    )  # tier → weighted population %
     field_population_detail: list[FieldPopulationDetail] = field(default_factory=list)
     cross_entity_coherence: float = 0.0
     temporal_consistency: float = 0.0
@@ -62,17 +68,21 @@ class EnrichmentQualityReport:
         """Human-readable summary of the enrichment quality report."""
         lines = [
             f"Enrichment Quality Score: {self.overall_score:.2f}",
-            f"  Field Population (by tier):",
+            "  Field Population (by tier):",
         ]
         for detail in self.field_population_detail:
             lines.append(f"    Tier {detail.tier}:")
-            lines.append(f"      Unweighted: {detail.unweighted_pct:.1%} ({detail.populated_fields}/{detail.total_fields})")
+            lines.append(
+                f"      Unweighted: {detail.unweighted_pct:.1%} ({detail.populated_fields}/{detail.total_fields})"
+            )
             lines.append(f"      Weighted:   {detail.weighted_pct:.1%}")
             lines.append(f"      Critical:   {detail.critical_pct:.1%}")
             lines.append(f"      Operational: {detail.operational_pct:.1%}")
             lines.append(f"      Metadata:   {detail.metadata_pct:.1%}")
             if detail.missing_critical:
-                lines.append(f"      Missing Critical Fields: {', '.join(detail.missing_critical[:5])}")
+                lines.append(
+                    f"      Missing Critical Fields: {', '.join(detail.missing_critical[:5])}"
+                )
 
         # Fallback for old-style tier data
         if not self.field_population_detail:
@@ -80,13 +90,15 @@ class EnrichmentQualityReport:
                 pct = self.field_population_by_tier[tier]
                 lines.append(f"    Tier {tier}: {pct:.1%}")
 
-        lines.extend([
-            f"  Cross-Entity Coherence:        {self.cross_entity_coherence:.2f}",
-            f"  Temporal Consistency:          {self.temporal_consistency:.2f}",
-            f"  Framework Mapping Completeness: {self.framework_mapping_completeness:.2f}",
-            f"  Provenance Coverage:           {self.provenance_coverage:.1%}",
-            f"  Adversarial Rejection Rate:    {self.adversarial_rejection_rate:.1%}",
-        ])
+        lines.extend(
+            [
+                f"  Cross-Entity Coherence:        {self.cross_entity_coherence:.2f}",
+                f"  Temporal Consistency:          {self.temporal_consistency:.2f}",
+                f"  Framework Mapping Completeness: {self.framework_mapping_completeness:.2f}",
+                f"  Provenance Coverage:           {self.provenance_coverage:.1%}",
+                f"  Adversarial Rejection Rate:    {self.adversarial_rejection_rate:.1%}",
+            ]
+        )
 
         if self.enrichment_recommendations:
             lines.append(f"  Recommendations: {len(self.enrichment_recommendations)}")
@@ -143,7 +155,9 @@ def assess_enrichment_quality(kg: KnowledgeGraph, tier: int) -> EnrichmentQualit
     return report
 
 
-def _check_field_population(kg: KnowledgeGraph, tier: int, report: EnrichmentQualityReport) -> float:
+def _check_field_population(
+    kg: KnowledgeGraph, tier: int, report: EnrichmentQualityReport
+) -> float:
     """Check what percentage of expected fields are populated at each tier.
 
     Computes both unweighted and weighted completeness. Weighted completeness
@@ -288,26 +302,74 @@ def _classify_field(field_name: str, entity_type: EntityType) -> FieldCategory:
 
     # Critical patterns — load-bearing for risk, compliance, and operations
     critical_patterns = [
-        "name", "status", "risk", "compliance", "confidentiality", "integrity",
-        "availability", "owner", "responsible", "classification", "criticality",
-        "severity", "control_type", "threat_level", "risk_level", "encryption",
-        "regulation", "jurisdiction", "effective_date", "entity_type",
+        "name",
+        "status",
+        "risk",
+        "compliance",
+        "confidentiality",
+        "integrity",
+        "availability",
+        "owner",
+        "responsible",
+        "classification",
+        "criticality",
+        "severity",
+        "control_type",
+        "threat_level",
+        "risk_level",
+        "encryption",
+        "regulation",
+        "jurisdiction",
+        "effective_date",
+        "entity_type",
     ]
 
     # Operational patterns — day-to-day business operations
     operational_patterns = [
-        "description", "location", "contact", "email", "phone", "address",
-        "department", "role", "budget", "cost", "value", "count", "score",
-        "frequency", "assessment", "remediation", "implementation",
-        "capability", "requirement", "dependency", "integration",
+        "description",
+        "location",
+        "contact",
+        "email",
+        "phone",
+        "address",
+        "department",
+        "role",
+        "budget",
+        "cost",
+        "value",
+        "count",
+        "score",
+        "frequency",
+        "assessment",
+        "remediation",
+        "implementation",
+        "capability",
+        "requirement",
+        "dependency",
+        "integration",
     ]
 
     # Metadata patterns — process tracking and audit
     metadata_patterns = [
-        "provenance", "temporal", "created_at", "updated_at", "version",
-        "tag", "note", "comment", "audit", "log", "history", "attestation",
-        "data_quality", "assessed_by", "methodology", "confidence",
-        "last_assessed", "valid_from", "valid_until",
+        "provenance",
+        "temporal",
+        "created_at",
+        "updated_at",
+        "version",
+        "tag",
+        "note",
+        "comment",
+        "audit",
+        "log",
+        "history",
+        "attestation",
+        "data_quality",
+        "assessed_by",
+        "methodology",
+        "confidence",
+        "last_assessed",
+        "valid_from",
+        "valid_until",
     ]
 
     for pattern in critical_patterns:
@@ -353,7 +415,9 @@ def _check_cross_entity_coherence(kg: KnowledgeGraph, report: EnrichmentQualityR
     report.cross_entity_coherence = score
 
     if score < 0.6:
-        report.warnings.append("Cross-entity coherence is low; some relationships lack enriched endpoints")
+        report.warnings.append(
+            "Cross-entity coherence is low; some relationships lack enriched endpoints"
+        )
 
     return score
 
@@ -383,7 +447,9 @@ def _check_temporal_consistency(kg: KnowledgeGraph, report: EnrichmentQualityRep
     report.temporal_consistency = score
 
     if score < 0.9:
-        report.warnings.append("Some entities have temporal inconsistencies (created_at > updated_at)")
+        report.warnings.append(
+            "Some entities have temporal inconsistencies (created_at > updated_at)"
+        )
 
     return score
 
@@ -442,15 +508,20 @@ def _check_provenance_coverage(kg: KnowledgeGraph, report: EnrichmentQualityRepo
 
                 # Handle both dict and Pydantic model instances
                 if prov is not None:
-                    if isinstance(prov, dict) and len(prov) > 0:
+                    if (
+                        isinstance(prov, dict)
+                        and len(prov) > 0
+                        or hasattr(prov, "primary_data_source")
+                        and prov.primary_data_source
+                    ):
                         provenance_count += 1
-                    elif hasattr(prov, "primary_data_source") and prov.primary_data_source:
-                        provenance_count += 1
-                elif prov_and_conf is not None:
-                    if isinstance(prov_and_conf, dict) and len(prov_and_conf) > 0:
-                        provenance_count += 1
-                    elif hasattr(prov_and_conf, "primary_data_source") and prov_and_conf.primary_data_source:
-                        provenance_count += 1
+                elif prov_and_conf is not None and (
+                    isinstance(prov_and_conf, dict)
+                    and len(prov_and_conf) > 0
+                    or hasattr(prov_and_conf, "primary_data_source")
+                    and prov_and_conf.primary_data_source
+                ):
+                    provenance_count += 1
             except (AttributeError, KeyError):
                 pass
 
@@ -458,7 +529,9 @@ def _check_provenance_coverage(kg: KnowledgeGraph, report: EnrichmentQualityRepo
     report.provenance_coverage = score
 
     if score < 0.5:
-        report.warnings.append(f"Low provenance coverage: {score:.1%} of entities have provenance set")
+        report.warnings.append(
+            f"Low provenance coverage: {score:.1%} of entities have provenance set"
+        )
         report.enrichment_recommendations.append(
             "Enrich provenance metadata to track source and confidence of enriched data"
         )

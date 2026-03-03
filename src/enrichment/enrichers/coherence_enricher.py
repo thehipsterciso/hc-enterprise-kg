@@ -158,8 +158,8 @@ class CoherenceEnricher:
                     try:
                         kg.update_entity(entity_id, violation.recommended_fix)
                         fixed += 1
-                    except Exception:
-                        pass  # Silently skip failed remediations.
+                    except Exception:  # noqa: S110
+                        pass  # Best-effort remediation — errors are non-fatal.
 
         return fixed
 
@@ -373,7 +373,7 @@ class CoherenceEnricher:
         entities_by_type: dict[EntityType, dict[str, BaseEntity]],
     ) -> None:
         """Rule 5: Temporal fields are chronologically consistent."""
-        for entity_type, entities in entities_by_type.items():
+        for _entity_type, entities in entities_by_type.items():
             for entity_id, entity in entities.items():
                 created_at = getattr(entity, "created_at", None)
                 updated_at = getattr(entity, "updated_at", None)
@@ -424,23 +424,21 @@ class CoherenceEnricher:
             # Check source and target data assets.
             if hasattr(kg, "get_relationships"):
                 for rel in kg.get_relationships():
-                    if (
-                        rel.source_id == flow_id
-                        and rel.relationship_type == "originates_from"
-                    ):
-                        source = entities_by_type.get(EntityType.DATA_ASSET, {}).get(
-                            rel.target_id
-                        )
-                        if source and hasattr(source, "classification"):
-                            if source.classification != flow_class:
-                                self.violations.append(
-                                    CoherenceViolation(
-                                        rule_id="RULE_6",
-                                        violation_type="classification_mismatch",
-                                        severity=CoherenceSeverity.MEDIUM,
-                                        affected_entities=[flow_id, rel.target_id],
-                                        description=f"DataFlow classification='{flow_class}' but source='{source.classification}'",
-                                        remediation="Align classifications",
-                                        recommended_fix={"classification": source.classification},
-                                    )
+                    if rel.source_id == flow_id and rel.relationship_type == "originates_from":
+                        source = entities_by_type.get(EntityType.DATA_ASSET, {}).get(rel.target_id)
+                        if (
+                            source
+                            and hasattr(source, "classification")
+                            and source.classification != flow_class
+                        ):  # noqa: E501
+                            self.violations.append(
+                                CoherenceViolation(
+                                    rule_id="RULE_6",
+                                    violation_type="classification_mismatch",
+                                    severity=CoherenceSeverity.MEDIUM,
+                                    affected_entities=[flow_id, rel.target_id],
+                                    description=f"DataFlow classification='{flow_class}' but source='{source.classification}'",
+                                    remediation="Align classifications",
+                                    recommended_fix={"classification": source.classification},
                                 )
+                            )

@@ -14,7 +14,6 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from domain.base import EntityType
 from enrichment.base import EnricherRegistry
 from enrichment.karma.base_agent import (
     AbstractKarmaAgent,
@@ -97,8 +96,7 @@ class IngestionAgent(AbstractKarmaAgent):
             )
 
         logger.info(
-            f"IngestionAgent: loaded {total_entities} entities across "
-            f"{len(messages)} entity types"
+            f"IngestionAgent: loaded {total_entities} entities across {len(messages)} entity types"
         )
 
         state.entities_queued = total_entities

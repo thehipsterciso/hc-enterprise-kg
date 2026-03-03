@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
-from enrichment.base import EntityContext, EnrichmentTier, OSINTResults, SOURCE_VALIDITY_WINDOWS
+from enrichment.base import SOURCE_VALIDITY_WINDOWS, EnrichmentTier, EntityContext, OSINTResults
 from enrichment.osint.frameworks import (
     CIS_CONTROLS_V8,
     ISO_27001_CONTROLS,
@@ -174,7 +174,9 @@ class OSINTResearchAgent:
                 regulatory_findings = self._infer_regulatory_references(description)
                 if regulatory_findings:
                     results.regulatory_findings = regulatory_findings
-                    results.research_sources.extend([rf.get("source", "Unknown") for rf in regulatory_findings])
+                    results.research_sources.extend(
+                        [rf.get("source", "Unknown") for rf in regulatory_findings]
+                    )
 
     def _research_threat(
         self,
@@ -247,7 +249,7 @@ class OSINTResearchAgent:
         tier: EnrichmentTier,
     ) -> None:
         """Research a Vulnerability entity."""
-        vuln_name = getattr(entity, "name", "")
+        getattr(entity, "name", "")
         cve = getattr(entity, "cve_id", "")
 
         # In future: Look up CVE details from NVD API.
@@ -263,7 +265,7 @@ class OSINTResearchAgent:
         tier: EnrichmentTier,
     ) -> None:
         """Research a System entity for benchmarks."""
-        system_type = getattr(entity, "system_type", "")
+        getattr(entity, "system_type", "")
         profile = getattr(entity, "profile", "tech")
 
         benchmarks = self._get_industry_benchmarks("system", profile)
@@ -343,7 +345,7 @@ class OSINTResearchAgent:
         matches = []
         search_lower = description.lower()
 
-        for technique_id, technique_data in MITRE_ATTACK_TECHNIQUES.items():
+        for _technique_id, technique_data in MITRE_ATTACK_TECHNIQUES.items():
             technique_name = technique_data.get("technique", "").lower()
             if technique_name in search_lower or search_lower in technique_name:
                 matches.append(technique_data)
@@ -474,28 +476,36 @@ class OSINTResearchAgent:
         desc_lower = description.lower()
 
         if "gdpr" in desc_lower:
-            findings.append({
-                "regulation": "GDPR",
-                "relevance": "mentioned",
-                "source": "Text Analysis",
-            })
+            findings.append(
+                {
+                    "regulation": "GDPR",
+                    "relevance": "mentioned",
+                    "source": "Text Analysis",
+                }
+            )
         if "hipaa" in desc_lower:
-            findings.append({
-                "regulation": "HIPAA",
-                "relevance": "mentioned",
-                "source": "Text Analysis",
-            })
+            findings.append(
+                {
+                    "regulation": "HIPAA",
+                    "relevance": "mentioned",
+                    "source": "Text Analysis",
+                }
+            )
         if "pci" in desc_lower:
-            findings.append({
-                "regulation": "PCI DSS",
-                "relevance": "mentioned",
-                "source": "Text Analysis",
-            })
+            findings.append(
+                {
+                    "regulation": "PCI DSS",
+                    "relevance": "mentioned",
+                    "source": "Text Analysis",
+                }
+            )
         if "sox" in desc_lower or "sarbanes" in desc_lower:
-            findings.append({
-                "regulation": "Sarbanes-Oxley",
-                "relevance": "mentioned",
-                "source": "Text Analysis",
-            })
+            findings.append(
+                {
+                    "regulation": "Sarbanes-Oxley",
+                    "relevance": "mentioned",
+                    "source": "Text Analysis",
+                }
+            )
 
         return findings

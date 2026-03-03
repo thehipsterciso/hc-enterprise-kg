@@ -15,14 +15,12 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from domain.base import EntityType
 from enrichment.base import (
     EnrichmentResult,
     EnrichmentStats,
-    ValidationFailure,
 )
 from enrichment.coherence_rules import CoherenceSeverity, validate_all_rules
 from enrichment.guard.contracts.coherence import CoherenceContract
@@ -44,16 +42,16 @@ from enrichment.karma.schema_aligner import SchemaAlignerAgent
 from enrichment.karma.summarizer import SummarizerAgent
 
 if TYPE_CHECKING:
-    from graph.knowledge_graph import KnowledgeGraph
     from enrichment.graph_context import GraphContextEngine
     from enrichment.osint_agent import OSINTResearchAgent
     from enrichment.provenance_reconciler import ProvenanceReconciler
+    from graph.knowledge_graph import KnowledgeGraph
 
 # UTC timezone
 try:
     from datetime import UTC
 except ImportError:
-    UTC = timezone.utc
+    UTC = UTC
 
 logger = logging.getLogger(__name__)
 
@@ -95,9 +93,7 @@ class ControllerAgent(AbstractKarmaAgent):
         # Instantiate specialist agents
         self._agents: dict[AgentRole, AbstractKarmaAgent] = {
             AgentRole.INGESTION: IngestionAgent(knowledge_graph),
-            AgentRole.READER: ReaderAgent(
-                knowledge_graph, graph_context_engine, osint_agent
-            ),
+            AgentRole.READER: ReaderAgent(knowledge_graph, graph_context_engine, osint_agent),
             AgentRole.SUMMARIZER: SummarizerAgent(graph_context_engine),
             AgentRole.ENTITY_EXTRACTOR: EntityExtractorAgent(),
             AgentRole.RELATIONSHIP_EXTRACTOR: RelExtractorAgent(),
@@ -134,8 +130,8 @@ class ControllerAgent(AbstractKarmaAgent):
             return []
 
         result: EnrichmentResult | None = message.payload.get("result")
-        entity = message.payload.get("entity")
-        schema_failures = message.payload.get("schema_failures", [])
+        message.payload.get("entity")
+        message.payload.get("schema_failures", [])
 
         if result is None:
             return []
@@ -233,27 +229,19 @@ class ControllerAgent(AbstractKarmaAgent):
 
                 for sum_msg in summary_messages:
                     # EntityExtractor: run the enricher
-                    result_messages = self._dispatch(
-                        AgentRole.ENTITY_EXTRACTOR, sum_msg
-                    )
+                    result_messages = self._dispatch(AgentRole.ENTITY_EXTRACTOR, sum_msg)
 
                     for res_msg in result_messages:
                         # RelExtractor: process relationships
-                        rel_messages = self._dispatch(
-                            AgentRole.RELATIONSHIP_EXTRACTOR, res_msg
-                        )
+                        rel_messages = self._dispatch(AgentRole.RELATIONSHIP_EXTRACTOR, res_msg)
 
                         for rel_msg in rel_messages:
                             # SchemaAligner: validate against Pydantic
-                            schema_messages = self._dispatch(
-                                AgentRole.SCHEMA_ALIGNER, rel_msg
-                            )
+                            schema_messages = self._dispatch(AgentRole.SCHEMA_ALIGNER, rel_msg)
 
                             for schema_msg in schema_messages:
                                 # Evaluator: run GraphGuard contracts
-                                eval_messages = self._dispatch(
-                                    AgentRole.EVALUATOR, schema_msg
-                                )
+                                eval_messages = self._dispatch(AgentRole.EVALUATOR, schema_msg)
 
                                 for eval_msg in eval_messages:
                                     # ConflictResolver: merge + provenance
@@ -264,9 +252,7 @@ class ControllerAgent(AbstractKarmaAgent):
                                     # Controller: apply to graph
                                     for final_msg in resolve_messages:
                                         self.process(final_msg, self._state)
-                                        self._update_tier_stats(
-                                            tier_stats, final_msg
-                                        )
+                                        self._update_tier_stats(tier_stats, final_msg)
 
         tier_duration = time.time() - tier_start
         tier_stats.end_time = datetime.now(UTC)
@@ -278,9 +264,7 @@ class ControllerAgent(AbstractKarmaAgent):
 
         return tier_stats
 
-    def _dispatch(
-        self, agent_role: AgentRole, message: AgentMessage
-    ) -> list[AgentMessage]:
+    def _dispatch(self, agent_role: AgentRole, message: AgentMessage) -> list[AgentMessage]:
         """Dispatch a message to an agent and return its response messages.
 
         Args:
@@ -300,9 +284,7 @@ class ControllerAgent(AbstractKarmaAgent):
         try:
             return agent.process(message, self._state)
         except Exception as e:
-            logger.error(
-                f"Agent {agent_role.value} failed: {e}", exc_info=True
-            )
+            logger.error(f"Agent {agent_role.value} failed: {e}", exc_info=True)
             self._state.errors.append(f"{agent_role.value}: {e}")
             return []
 
@@ -318,15 +300,11 @@ class ControllerAgent(AbstractKarmaAgent):
             try:
                 self._kg.update_entity(result.entity_id, **result.field_updates)
             except Exception as e:
-                logger.error(
-                    f"Error updating entity {result.entity_id}: {e}"
-                )
+                logger.error(f"Error updating entity {result.entity_id}: {e}")
 
         # Apply provenance
         if result.actions:
-            provenance_field = self._provenance.get_provenance_field_name(
-                result.entity_type
-            )
+            provenance_field = self._provenance.get_provenance_field_name(result.entity_type)
             for action in result.actions:
                 try:
                     provenance = self._provenance.record_enrichment(
@@ -337,9 +315,7 @@ class ControllerAgent(AbstractKarmaAgent):
                         action.methodology,
                         action.confidence,
                     )
-                    self._kg.update_entity(
-                        result.entity_id, **{provenance_field: provenance}
-                    )
+                    self._kg.update_entity(result.entity_id, **{provenance_field: provenance})
                 except Exception as e:
                     logger.debug(f"Provenance update failed for {result.entity_id}: {e}")
 
@@ -349,14 +325,8 @@ class ControllerAgent(AbstractKarmaAgent):
         try:
             violations = validate_all_rules(self._kg)
             if violations:
-                error_count = sum(
-                    1 for v in violations
-                    if v.severity == CoherenceSeverity.ERROR
-                )
-                warn_count = sum(
-                    1 for v in violations
-                    if v.severity == CoherenceSeverity.WARNING
-                )
+                error_count = sum(1 for v in violations if v.severity == CoherenceSeverity.ERROR)
+                warn_count = sum(1 for v in violations if v.severity == CoherenceSeverity.WARNING)
                 logger.info(
                     f"Coherence validation: {len(violations)} violations "
                     f"({error_count} errors, {warn_count} warnings)"
@@ -369,20 +339,16 @@ class ControllerAgent(AbstractKarmaAgent):
         except Exception as e:
             logger.error(f"Coherence validation error: {e}", exc_info=True)
 
-    def _update_tier_stats(
-        self, stats: EnrichmentStats, message: AgentMessage
-    ) -> None:
+    def _update_tier_stats(self, stats: EnrichmentStats, message: AgentMessage) -> None:
         """Update tier stats from a CONFLICT_RESOLUTION message."""
         result: EnrichmentResult | None = message.payload.get("result")
         schema_failures = message.payload.get("schema_failures", [])
-        quality_report = message.payload.get("quality_report")
+        message.payload.get("quality_report")
 
         if result and result.has_updates():
             stats.total_entities_enriched += 1
             stats.total_fields_enriched += len(result.field_updates)
-            stats.total_relationships_suggested += len(
-                result.relationship_suggestions
-            )
+            stats.total_relationships_suggested += len(result.relationship_suggestions)
             stats.total_gaps_identified += len(result.known_gaps)
             stats.actions.extend(result.actions)
 

@@ -16,21 +16,20 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import ClassVar
 
+from domain.base import BaseEntity, EntityType, RelationshipType
+from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
+    ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
-    EnrichmentResult,
-    EntityContext,
-    EnricherRegistry,
-    EnrichmentTier,
     EnrichmentProfile,
-    ConfidenceLevel,
+    EnrichmentResult,
+    EnrichmentTier,
+    EntityContext,
     OSINTResults,
 )
-from domain.base import BaseEntity, EntityType, RelationshipType
-from domain.shared import ProvenanceAndConfidence, DataGap
-
 
 # Realistic tech stacks mapped to system types
 TECH_STACK_TEMPLATES = {
@@ -40,14 +39,34 @@ TECH_STACK_TEMPLATES = {
         {"layer": "Framework", "technology": "Spring Boot", "version": "3.x", "vendor": "VMware"},
     ],
     "Microservice": [
-        {"layer": "Container Runtime", "technology": "Docker", "version": "24.x", "vendor": "Docker Inc"},
+        {
+            "layer": "Container Runtime",
+            "technology": "Docker",
+            "version": "24.x",
+            "vendor": "Docker Inc",
+        },
         {"layer": "Orchestration", "technology": "Kubernetes", "version": "1.28", "vendor": "CNCF"},
         {"layer": "Language", "technology": "Node.js", "version": "20.x", "vendor": "OpenJS"},
     ],
     "Data Platform": [
-        {"layer": "Cluster Manager", "technology": "Apache Spark", "version": "3.5.x", "vendor": "Apache"},
-        {"layer": "Message Queue", "technology": "Apache Kafka", "version": "3.x", "vendor": "Apache"},
-        {"layer": "Database", "technology": "PostgreSQL", "version": "15.x", "vendor": "PostgreSQL"},
+        {
+            "layer": "Cluster Manager",
+            "technology": "Apache Spark",
+            "version": "3.5.x",
+            "vendor": "Apache",
+        },
+        {
+            "layer": "Message Queue",
+            "technology": "Apache Kafka",
+            "version": "3.x",
+            "vendor": "Apache",
+        },
+        {
+            "layer": "Database",
+            "technology": "PostgreSQL",
+            "version": "15.x",
+            "vendor": "PostgreSQL",
+        },
     ],
     "Data Warehouse": [
         {"layer": "Database", "technology": "Snowflake", "version": "Cloud", "vendor": "Snowflake"},
@@ -55,7 +74,12 @@ TECH_STACK_TEMPLATES = {
         {"layer": "BI Tool", "technology": "Tableau", "version": "2024.1", "vendor": "Salesforce"},
     ],
     "API Gateway": [
-        {"layer": "Operating System", "technology": "Ubuntu", "version": "22.04 LTS", "vendor": "Canonical"},
+        {
+            "layer": "Operating System",
+            "technology": "Ubuntu",
+            "version": "22.04 LTS",
+            "vendor": "Canonical",
+        },
         {"layer": "Gateway", "technology": "Kong", "version": "3.x", "vendor": "Kong Inc"},
         {"layer": "Monitoring", "technology": "Prometheus", "version": "2.x", "vendor": "CNCF"},
     ],
@@ -68,9 +92,19 @@ TECH_STACK_TEMPLATES = {
 
 AUTHENTICATION_TEMPLATES = [
     {"mechanism": "SAML 2.0", "protocol": "SAML", "mfa_supported": True, "mfa_enforced": False},
-    {"mechanism": "OAuth 2.0", "protocol": "OpenID Connect", "mfa_supported": True, "mfa_enforced": True},
+    {
+        "mechanism": "OAuth 2.0",
+        "protocol": "OpenID Connect",
+        "mfa_supported": True,
+        "mfa_enforced": True,
+    },
     {"mechanism": "LDAP", "protocol": "LDAP3", "mfa_supported": False, "mfa_enforced": False},
-    {"mechanism": "Kerberos", "protocol": "Kerberos5", "mfa_supported": True, "mfa_enforced": False},
+    {
+        "mechanism": "Kerberos",
+        "protocol": "Kerberos5",
+        "mfa_supported": True,
+        "mfa_enforced": False,
+    },
     {"mechanism": "mTLS", "protocol": "TLS 1.3", "mfa_supported": True, "mfa_enforced": True},
 ]
 
@@ -203,7 +237,9 @@ class SystemEnricher(AbstractEnricher):
                 return True
         return False
 
-    def _populate_tier_2(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_2(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 2 (Managed) fields: core operational."""
         updates = {}
         actions = []
@@ -211,7 +247,9 @@ class SystemEnricher(AbstractEnricher):
         system_type = getattr(entity, "system_type", "").strip() or "Enterprise Application"
 
         # Tech stack from templates
-        tech_stack = TECH_STACK_TEMPLATES.get(system_type, TECH_STACK_TEMPLATES["Enterprise Application"])
+        tech_stack = TECH_STACK_TEMPLATES.get(
+            system_type, TECH_STACK_TEMPLATES["Enterprise Application"]
+        )
         updates["tech_stack"] = tech_stack
         actions.append(
             EnrichmentAction(
@@ -270,7 +308,9 @@ class SystemEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_3(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_3(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 3 (Defined) fields: cross-entity coherence."""
         updates = {}
         actions = []
@@ -368,7 +408,9 @@ class SystemEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_4(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_4(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 4 (Measured) fields: quantitative metrics."""
         updates = {}
         actions = []
@@ -377,21 +419,25 @@ class SystemEnricher(AbstractEnricher):
         integration_count = cross_profile.get("integrations_count", 0)
         opportunities = []
         if integration_count > 5:
-            opportunities.append({
-                "opportunity_description": "Consolidate redundant integrations",
-                "estimated_annual_savings": 50000.0,
-                "currency": "USD",
-                "effort_level": "High",
-                "status": "Identified",
-            })
+            opportunities.append(
+                {
+                    "opportunity_description": "Consolidate redundant integrations",
+                    "estimated_annual_savings": 50000.0,
+                    "currency": "USD",
+                    "effort_level": "High",
+                    "status": "Identified",
+                }
+            )
         if cross_profile.get("system_type", "").lower() == "legacy":
-            opportunities.append({
-                "opportunity_description": "Migrate to cloud platform",
-                "estimated_annual_savings": 100000.0,
-                "currency": "USD",
-                "effort_level": "Very High",
-                "status": "Identified",
-            })
+            opportunities.append(
+                {
+                    "opportunity_description": "Migrate to cloud platform",
+                    "estimated_annual_savings": 100000.0,
+                    "currency": "USD",
+                    "effort_level": "Very High",
+                    "status": "Identified",
+                }
+            )
         updates["cost_optimization"] = opportunities
         actions.append(
             EnrichmentAction(
@@ -428,7 +474,9 @@ class SystemEnricher(AbstractEnricher):
             "p2_count_12m": max(0, vuln_count // 2),
             "mttr_hours": 4.5,
             "last_major_incident_date": datetime.now(UTC).isoformat(),
-            "last_major_incident_description": "Security patch deployment" if vuln_count > 0 else "None",
+            "last_major_incident_description": "Security patch deployment"
+            if vuln_count > 0
+            else "None",
         }
         actions.append(
             EnrichmentAction(
@@ -443,7 +491,9 @@ class SystemEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_5(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_5(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 5 (Optimized) fields: full fidelity & predictive."""
         updates = {}
         actions = []
@@ -489,7 +539,9 @@ class SystemEnricher(AbstractEnricher):
         impact_per_hour = 500000.0 if is_critical else 50000.0
         affected_users = 5000 if is_critical else 500
         updates["business_impact_if_unavailable"] = {
-            "impact_description": "Critical revenue and operations impact" if is_critical else "Operational disruption",
+            "impact_description": "Critical revenue and operations impact"
+            if is_critical
+            else "Operational disruption",
             "estimated_financial_impact_per_hour": impact_per_hour,
             "currency": "USD",
             "affected_capabilities": ["Payment Processing"] if is_critical else ["Reporting"],

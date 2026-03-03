@@ -16,25 +16,27 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import ClassVar
 
+from domain.base import BaseEntity, EntityType, RelationshipType
+from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
+    ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
-    EnrichmentResult,
-    EntityContext,
-    EnricherRegistry,
-    EnrichmentTier,
     EnrichmentProfile,
-    ConfidenceLevel,
+    EnrichmentResult,
+    EnrichmentTier,
+    EntityContext,
     OSINTResults,
 )
-from domain.base import BaseEntity, EntityType, RelationshipType
-from domain.shared import ProvenanceAndConfidence, DataGap
-
 
 SECURITY_ZONE_CLASSIFIERS = {
     "dmz": {"traffic_risk": "High", "typical_systems": ["Web Servers", "API Gateways"]},
-    "internal": {"traffic_risk": "Medium", "typical_systems": ["Application Servers", "Business Apps"]},
+    "internal": {
+        "traffic_risk": "Medium",
+        "typical_systems": ["Application Servers", "Business Apps"],
+    },
     "restricted": {"traffic_risk": "Low", "typical_systems": ["Database Servers", "Auth Services"]},
     "guest": {"traffic_risk": "Very High", "typical_systems": ["VPN", "Public WiFi"]},
     "external": {"traffic_risk": "Critical", "typical_systems": ["Internet-facing", "Third-party"]},
@@ -155,9 +157,7 @@ class NetworkEnricher(AbstractEnricher):
         systems_on_network = context.get_neighbors(RelationshipType.RUNS_ON)
 
         # Determine criticality
-        has_critical_systems = any(
-            self._system_is_critical(sys) for sys in systems_on_network
-        )
+        has_critical_systems = any(self._system_is_critical(sys) for sys in systems_on_network)
 
         profile = {
             "network_id": entity.id,
@@ -175,10 +175,21 @@ class NetworkEnricher(AbstractEnricher):
         system_type = getattr(system, "system_type", "").lower()
         name = getattr(system, "name", "").lower()
 
-        critical_keywords = ["payment", "auth", "identity", "core", "main", "critical", "database", "data warehouse"]
+        critical_keywords = [
+            "payment",
+            "auth",
+            "identity",
+            "core",
+            "main",
+            "critical",
+            "database",
+            "data warehouse",
+        ]
         return any(keyword in system_type or keyword in name for keyword in critical_keywords)
 
-    def _populate_tier_2(self, entity: BaseEntity, context: EntityContext, network_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_2(
+        self, entity: BaseEntity, context: EntityContext, network_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 2 (Managed) fields: core operational."""
         updates = {}
         actions = []
@@ -219,7 +230,9 @@ class NetworkEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_3(self, entity: BaseEntity, context: EntityContext, network_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_3(
+        self, entity: BaseEntity, context: EntityContext, network_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 3 (Defined) fields: cross-entity coherence."""
         updates = {}
         actions = []
@@ -265,7 +278,9 @@ class NetworkEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_4(self, entity: BaseEntity, context: EntityContext, network_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_4(
+        self, entity: BaseEntity, context: EntityContext, network_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 4 (Measured) fields: quantitative metrics."""
         updates = {}
         actions = []
@@ -294,7 +309,9 @@ class NetworkEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_5(self, entity: BaseEntity, context: EntityContext, network_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_5(
+        self, entity: BaseEntity, context: EntityContext, network_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 5 (Optimized) fields: optimization recommendations."""
         updates = {}
         actions = []
@@ -307,37 +324,45 @@ class NetworkEnricher(AbstractEnricher):
 
         # Generate zone-specific recommendations
         if zone == "internal" and system_count > 50:
-            recommendations.append({
-                "recommendation": "Implement VLAN sub-segmentation",
-                "benefit": "Improved traffic isolation and performance",
-                "effort": "Medium",
-                "estimated_savings": 0,
-            })
+            recommendations.append(
+                {
+                    "recommendation": "Implement VLAN sub-segmentation",
+                    "benefit": "Improved traffic isolation and performance",
+                    "effort": "Medium",
+                    "estimated_savings": 0,
+                }
+            )
 
         if zone == "dmz" and connected_networks > 3:
-            recommendations.append({
-                "recommendation": "Deploy jump-host architecture",
-                "benefit": "Enhanced security posture",
-                "effort": "High",
-                "estimated_savings": 0,
-            })
+            recommendations.append(
+                {
+                    "recommendation": "Deploy jump-host architecture",
+                    "benefit": "Enhanced security posture",
+                    "effort": "High",
+                    "estimated_savings": 0,
+                }
+            )
 
         if zone == "restricted":
-            recommendations.append({
-                "recommendation": "Enable encrypted traffic monitoring",
-                "benefit": "Better visibility without decryption",
-                "effort": "Low",
-                "estimated_savings": 0,
-            })
+            recommendations.append(
+                {
+                    "recommendation": "Enable encrypted traffic monitoring",
+                    "benefit": "Better visibility without decryption",
+                    "effort": "Low",
+                    "estimated_savings": 0,
+                }
+            )
 
         # Bandwidth optimization
         if zone != "external":
-            recommendations.append({
-                "recommendation": "Monitor QoS and implement traffic shaping",
-                "benefit": "Prevent bandwidth congestion",
-                "effort": "Low",
-                "estimated_savings": 50000,
-            })
+            recommendations.append(
+                {
+                    "recommendation": "Monitor QoS and implement traffic shaping",
+                    "benefit": "Prevent bandwidth congestion",
+                    "effort": "Low",
+                    "estimated_savings": 50000,
+                }
+            )
 
         updates["optimization_recommendations"] = recommendations
         actions.append(

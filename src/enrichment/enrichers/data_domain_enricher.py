@@ -17,9 +17,12 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import ClassVar
 
+from domain.base import BaseEntity, EntityType, RelationshipType
+from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
@@ -27,19 +30,21 @@ from enrichment.base import (
     EnrichmentTier,
     EntityContext,
     OSINTResults,
-    EnricherRegistry,
 )
-from domain.base import BaseEntity, EntityType, RelationshipType
-from domain.shared import ProvenanceAndConfidence, DataGap
-
 
 # DCAM 2.2 Maturity Dimension Definitions
 DCAM_DIMENSIONS = [
-    {"name": "Data Management Strategy", "description": "Strategic alignment and governance vision"},
+    {
+        "name": "Data Management Strategy",
+        "description": "Strategic alignment and governance vision",
+    },
     {"name": "Data Governance", "description": "Policies, roles, and accountability"},
     {"name": "Data Quality Management", "description": "Quality metrics and remediation"},
     {"name": "Data Operations", "description": "Day-to-day operational management"},
-    {"name": "Data Platform & Architecture", "description": "Technical infrastructure and integration"},
+    {
+        "name": "Data Platform & Architecture",
+        "description": "Technical infrastructure and integration",
+    },
 ]
 
 # Domain type templates
@@ -89,8 +94,14 @@ REGULATORY_SENSITIVITIES = {
 # Data residency requirements
 DATA_RESIDENCY_REQUIREMENTS = {
     "EU": {"localization_required": True, "requirement_description": "GDPR data localization"},
-    "China": {"localization_required": True, "requirement_description": "Data sovereignty requirement"},
-    "USA": {"localization_required": False, "requirement_description": "No localization requirement"},
+    "China": {
+        "localization_required": True,
+        "requirement_description": "Data sovereignty requirement",
+    },
+    "USA": {
+        "localization_required": False,
+        "requirement_description": "No localization requirement",
+    },
     "Canada": {"localization_required": True, "requirement_description": "PIPEDA compliance"},
 }
 
@@ -212,7 +223,9 @@ class DataDomainEnricher(AbstractEnricher):
         }
         return profile
 
-    def _populate_tier_2(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_2(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 2 (Managed) fields: core governance."""
         updates = {}
         actions = []
@@ -289,10 +302,10 @@ class DataDomainEnricher(AbstractEnricher):
 
         # Sub-domains based on domain type
         domain_type = cross_profile.get("domain_type", "transactional")
-        sub_domains_count = DOMAIN_TYPE_TEMPLATES.get(domain_type, {}).get("typical_assets", 5)
+        DOMAIN_TYPE_TEMPLATES.get(domain_type, {}).get("typical_assets", 5)
         sub_domains = [
             {
-                "sub_domain_name": f"{domain_type.title()} - Subdomain {i+1}",
+                "sub_domain_name": f"{domain_type.title()} - Subdomain {i + 1}",
                 "sub_domain_description": f"Sub-classification within {cross_profile.get('domain_name', 'domain')}",
             }
             for i in range(max(1, len(assets) // 3))  # 1 subdomain per 3 assets
@@ -312,7 +325,9 @@ class DataDomainEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_3(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_3(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 3 (Defined) fields: cross-entity coherence."""
         updates = {}
         actions = []
@@ -346,22 +361,30 @@ class DataDomainEnricher(AbstractEnricher):
         regulatory_sensitivities = []
         if has_pii:
             # Add GDPR if PII present
-            regulatory_sensitivities.append({
-                "regulation": "GDPR",
-                "sensitivity_description": "Personal data of EU residents",
-                "handling_requirements": REGULATORY_SENSITIVITIES["GDPR"]["handling_requirements"],
-                "jurisdiction_id": "EU",
-            })
+            regulatory_sensitivities.append(
+                {
+                    "regulation": "GDPR",
+                    "sensitivity_description": "Personal data of EU residents",
+                    "handling_requirements": REGULATORY_SENSITIVITIES["GDPR"][
+                        "handling_requirements"
+                    ],
+                    "jurisdiction_id": "EU",
+                }
+            )
 
         # Add domain-specific regulations based on type
         domain_type = cross_profile.get("domain_type", "")
         if "financial" in domain_type:
-            regulatory_sensitivities.append({
-                "regulation": "PCI-DSS",
-                "sensitivity_description": "Payment card data handling",
-                "handling_requirements": REGULATORY_SENSITIVITIES["PCI-DSS"]["handling_requirements"],
-                "jurisdiction_id": "Global",
-            })
+            regulatory_sensitivities.append(
+                {
+                    "regulation": "PCI-DSS",
+                    "sensitivity_description": "Payment card data handling",
+                    "handling_requirements": REGULATORY_SENSITIVITIES["PCI-DSS"][
+                        "handling_requirements"
+                    ],
+                    "jurisdiction_id": "Global",
+                }
+            )
 
         if regulatory_sensitivities:
             updates["regulatory_sensitivity"] = regulatory_sensitivities
@@ -405,7 +428,7 @@ class DataDomainEnricher(AbstractEnricher):
 
         # Quality targets
         domain_type = cross_profile.get("domain_type", "transactional")
-        template = DOMAIN_TYPE_TEMPLATES.get(domain_type, DOMAIN_TYPE_TEMPLATES["transactional"])
+        DOMAIN_TYPE_TEMPLATES.get(domain_type, DOMAIN_TYPE_TEMPLATES["transactional"])
         quality_targets = {
             "completeness_target_pct": 98.0,
             "accuracy_target_pct": 99.0,
@@ -428,7 +451,9 @@ class DataDomainEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_4(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_4(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 4 (Measured) fields: DCAM maturity assessment."""
         updates = {}
         actions = []
@@ -450,11 +475,13 @@ class DataDomainEnricher(AbstractEnricher):
         for i, dimension in enumerate(DCAM_DIMENSIONS):
             # Vary score slightly per dimension based on asset count
             score = min(5.0, base_maturity + (i % 2) * 0.3)
-            maturity_dimensions.append({
-                "dimension": dimension["name"],
-                "score": score,
-                "assessed_date": datetime.now(UTC).isoformat(),
-            })
+            maturity_dimensions.append(
+                {
+                    "dimension": dimension["name"],
+                    "score": score,
+                    "assessed_date": datetime.now(UTC).isoformat(),
+                }
+            )
 
         updates["maturity_dimensions"] = maturity_dimensions
         actions.append(
@@ -492,7 +519,9 @@ class DataDomainEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_5(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_5(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 5 (Optimized) fields: strategic insights."""
         updates = {}
         actions = []
@@ -502,7 +531,9 @@ class DataDomainEnricher(AbstractEnricher):
         is_critical = cross_profile.get("has_sensitive_assets", False)
 
         monetization_potential = {
-            "potential_type": "Direct Data Product" if assets_count > 10 else "Process Optimization",
+            "potential_type": "Direct Data Product"
+            if assets_count > 10
+            else "Process Optimization",
             "estimated_annual_value": 50000.0 * max(1, assets_count // 5),
             "currency": "USD",
             "confidence": "High" if is_critical else "Medium",
@@ -537,21 +568,25 @@ class DataDomainEnricher(AbstractEnricher):
 
         # Innovation use cases
         assets_count = cross_profile.get("assets_count", 0)
-        policies_count = cross_profile.get("policies_count", 0)
+        cross_profile.get("policies_count", 0)
 
         innovation_cases = []
         if assets_count > 5:
-            innovation_cases.append({
-                "use_case": "Real-time Analytics",
-                "potential_impact": "Enable faster decision-making",
-                "maturity": "Proven",
-            })
+            innovation_cases.append(
+                {
+                    "use_case": "Real-time Analytics",
+                    "potential_impact": "Enable faster decision-making",
+                    "maturity": "Proven",
+                }
+            )
         if not cross_profile.get("has_sensitive_assets", False):
-            innovation_cases.append({
-                "use_case": "AI/ML Model Training",
-                "potential_impact": "Develop predictive capabilities",
-                "maturity": "Experimental",
-            })
+            innovation_cases.append(
+                {
+                    "use_case": "AI/ML Model Training",
+                    "potential_impact": "Develop predictive capabilities",
+                    "maturity": "Experimental",
+                }
+            )
 
         if innovation_cases:
             updates["innovation_use_cases"] = innovation_cases
@@ -602,7 +637,10 @@ class DataDomainEnricher(AbstractEnricher):
                 )
             )
 
-        if not getattr(entity, "data_classification", None) and cross_profile.get("assets_count", 0) > 0:
+        if (
+            not getattr(entity, "data_classification", None)
+            and cross_profile.get("assets_count", 0) > 0
+        ):
             gaps.append(
                 DataGap(
                     field_name="data_classification",

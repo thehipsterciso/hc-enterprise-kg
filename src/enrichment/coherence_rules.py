@@ -13,7 +13,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from graph.knowledge_graph import KnowledgeGraph
@@ -49,9 +49,7 @@ class CoherenceRule(ABC):
         """Check the rule and return any violations found."""
         ...
 
-    def remediate(
-        self, kg: KnowledgeGraph, violation: CoherenceViolation
-    ) -> bool:
+    def remediate(self, kg: KnowledgeGraph, violation: CoherenceViolation) -> bool:
         """Attempt to fix a violation. Returns True if fixed."""
         return False
 
@@ -77,15 +75,14 @@ class PersonSkillsAlignWithRole(CoherenceRule):
             person_dict = person.model_dump() if hasattr(person, "model_dump") else {}
             skills_inv = person_dict.get("skill_inventory") or []
             person_skills = {
-                s.get("skill_name", "").lower()
-                for s in skills_inv
-                if isinstance(s, dict)
+                s.get("skill_name", "").lower() for s in skills_inv if isinstance(s, dict)
             }
             if not person_skills:
                 continue
 
             roles = kg.neighbors(
-                person.id, direction="out",
+                person.id,
+                direction="out",
                 relationship_type=RelationshipType.HAS_ROLE,
             )
             for role in roles:
@@ -97,16 +94,18 @@ class PersonSkillsAlignWithRole(CoherenceRule):
                 }
                 missing = required_names - person_skills
                 if missing and len(missing) > len(required_names) * 0.5:
-                    violations.append(CoherenceViolation(
-                        rule_id=self.RULE_ID,
-                        severity=CoherenceSeverity.WARNING,
-                        affected_entities=[person.id, role.id],
-                        description=(
-                            f"Person '{person.name}' missing >50% of required skills "
-                            f"for role '{role.name}': {missing}"
-                        ),
-                        remediation="Add missing skills to person's skill_inventory",
-                    ))
+                    violations.append(
+                        CoherenceViolation(
+                            rule_id=self.RULE_ID,
+                            severity=CoherenceSeverity.WARNING,
+                            affected_entities=[person.id, role.id],
+                            description=(
+                                f"Person '{person.name}' missing >50% of required skills "
+                                f"for role '{role.name}': {missing}"
+                            ),
+                            remediation="Add missing skills to person's skill_inventory",
+                        )
+                    )
         return violations
 
 
@@ -143,16 +142,18 @@ class SystemCostMatchesCriticality(CoherenceRule):
 
             threshold = self.COST_THRESHOLDS.get(criticality, 0)
             if cost < threshold:
-                violations.append(CoherenceViolation(
-                    rule_id=self.RULE_ID,
-                    severity=CoherenceSeverity.WARNING,
-                    affected_entities=[system.id],
-                    description=(
-                        f"System '{system.name}' has criticality='{criticality}' "
-                        f"but annual_cost=${cost:,.0f} (expected >=${threshold:,.0f})"
-                    ),
-                    remediation=f"Adjust annual_cost to >= ${threshold:,.0f}",
-                ))
+                violations.append(
+                    CoherenceViolation(
+                        rule_id=self.RULE_ID,
+                        severity=CoherenceSeverity.WARNING,
+                        affected_entities=[system.id],
+                        description=(
+                            f"System '{system.name}' has criticality='{criticality}' "
+                            f"but annual_cost=${cost:,.0f} (expected >=${threshold:,.0f})"
+                        ),
+                        remediation=f"Adjust annual_cost to >= ${threshold:,.0f}",
+                    )
+                )
         return violations
 
 
@@ -178,27 +179,30 @@ class VendorRiskMatchesContractValue(CoherenceRule):
             risk_level = (vd.get("risk_level") or vd.get("vendor_risk_tier") or "").lower()
 
             contracts = kg.neighbors(
-                vendor.id, direction="both",
+                vendor.id,
+                direction="both",
                 relationship_type=RelationshipType.CONTRACTS_WITH,
             )
             total_value = 0.0
             for contract in contracts:
                 cd = contract.model_dump() if hasattr(contract, "model_dump") else {}
                 val = cd.get("total_value") or cd.get("contract_value") or 0
-                if isinstance(val, (int, float)):
+                if isinstance(val, int | float):
                     total_value += val
 
             if total_value > 500_000 and risk_level in ("low", "minimal"):
-                violations.append(CoherenceViolation(
-                    rule_id=self.RULE_ID,
-                    severity=CoherenceSeverity.ERROR,
-                    affected_entities=[vendor.id],
-                    description=(
-                        f"Vendor '{vendor.name}' has risk_level='{risk_level}' "
-                        f"but total contract value=${total_value:,.0f}"
-                    ),
-                    remediation="Reassess vendor risk given contract exposure",
-                ))
+                violations.append(
+                    CoherenceViolation(
+                        rule_id=self.RULE_ID,
+                        severity=CoherenceSeverity.ERROR,
+                        affected_entities=[vendor.id],
+                        description=(
+                            f"Vendor '{vendor.name}' has risk_level='{risk_level}' "
+                            f"but total contract value=${total_value:,.0f}"
+                        ),
+                        remediation="Reassess vendor risk given contract exposure",
+                    )
+                )
         return violations
 
 
@@ -228,27 +232,30 @@ class ControlEffectivenessMatchesRiskResidual(CoherenceRule):
                 continue
 
             mitigated_risks = kg.neighbors(
-                control.id, direction="out",
+                control.id,
+                direction="out",
                 relationship_type=RelationshipType.MITIGATES,
             )
             for risk in mitigated_risks:
                 rd = risk.model_dump() if hasattr(risk, "model_dump") else {}
                 residual = (rd.get("residual_risk_level") or "").lower()
                 if self.RISK_ORDERING.get(residual, 0) >= 3:
-                    violations.append(CoherenceViolation(
-                        rule_id=self.RULE_ID,
-                        severity=CoherenceSeverity.WARNING,
-                        affected_entities=[control.id, risk.id],
-                        description=(
-                            f"Control '{control.name}' rated '{effectiveness}' "
-                            f"but mitigated risk '{risk.name}' has "
-                            f"residual_level='{residual}'"
-                        ),
-                        remediation=(
-                            "Either downgrade control effectiveness "
-                            "or re-evaluate risk residual level"
-                        ),
-                    ))
+                    violations.append(
+                        CoherenceViolation(
+                            rule_id=self.RULE_ID,
+                            severity=CoherenceSeverity.WARNING,
+                            affected_entities=[control.id, risk.id],
+                            description=(
+                                f"Control '{control.name}' rated '{effectiveness}' "
+                                f"but mitigated risk '{risk.name}' has "
+                                f"residual_level='{residual}'"
+                            ),
+                            remediation=(
+                                "Either downgrade control effectiveness "
+                                "or re-evaluate risk residual level"
+                            ),
+                        )
+                    )
         return violations
 
 
@@ -268,29 +275,27 @@ class TemporalConsistency(CoherenceRule):
         all_entities = kg.list_entities()
 
         for entity in all_entities:
-            if entity.valid_from and entity.valid_until:
-                if entity.valid_from > entity.valid_until:
-                    violations.append(CoherenceViolation(
+            if entity.valid_from and entity.valid_until and entity.valid_from > entity.valid_until:
+                violations.append(
+                    CoherenceViolation(
                         rule_id=self.RULE_ID,
                         severity=CoherenceSeverity.ERROR,
                         affected_entities=[entity.id],
-                        description=(
-                            f"Entity '{entity.name}' has valid_from > valid_until"
-                        ),
+                        description=(f"Entity '{entity.name}' has valid_from > valid_until"),
                         remediation="Swap valid_from and valid_until",
-                    ))
+                    )
+                )
 
-            if entity.created_at and entity.updated_at:
-                if entity.created_at > entity.updated_at:
-                    violations.append(CoherenceViolation(
+            if entity.created_at and entity.updated_at and entity.created_at > entity.updated_at:
+                violations.append(
+                    CoherenceViolation(
                         rule_id=self.RULE_ID,
                         severity=CoherenceSeverity.WARNING,
                         affected_entities=[entity.id],
-                        description=(
-                            f"Entity '{entity.name}' has created_at > updated_at"
-                        ),
+                        description=(f"Entity '{entity.name}' has created_at > updated_at"),
                         remediation="Set updated_at >= created_at",
-                    ))
+                    )
+                )
         return violations
 
 
@@ -306,12 +311,15 @@ class DataClassificationConsistency(CoherenceRule):
     DESCRIPTION = "Data classification consistent across data flows"
 
     CLASSIFICATION_ORDER = {
-        "public": 1, "internal": 2, "confidential": 3,
-        "restricted": 4, "top_secret": 5,
+        "public": 1,
+        "internal": 2,
+        "confidential": 3,
+        "restricted": 4,
+        "top_secret": 5,
     }
 
     def validate(self, kg: KnowledgeGraph) -> list[CoherenceViolation]:
-        from domain.base import EntityType, RelationshipType
+        from domain.base import EntityType
 
         violations: list[CoherenceViolation] = []
         flows = kg.list_entities(EntityType.DATA_FLOW)
@@ -321,20 +329,19 @@ class DataClassificationConsistency(CoherenceRule):
             flow_classification = (fd.get("classification") or "").lower()
             encryption = fd.get("encryption_in_transit", False)
 
-            if (
-                flow_classification in ("restricted", "confidential")
-                and not encryption
-            ):
-                violations.append(CoherenceViolation(
-                    rule_id=self.RULE_ID,
-                    severity=CoherenceSeverity.ERROR,
-                    affected_entities=[flow.id],
-                    description=(
-                        f"DataFlow '{flow.name}' classified as "
-                        f"'{flow_classification}' but encryption_in_transit=False"
-                    ),
-                    remediation="Enable encryption_in_transit for sensitive flows",
-                ))
+            if flow_classification in ("restricted", "confidential") and not encryption:
+                violations.append(
+                    CoherenceViolation(
+                        rule_id=self.RULE_ID,
+                        severity=CoherenceSeverity.ERROR,
+                        affected_entities=[flow.id],
+                        description=(
+                            f"DataFlow '{flow.name}' classified as "
+                            f"'{flow_classification}' but encryption_in_transit=False"
+                        ),
+                        remediation="Enable encryption_in_transit for sensitive flows",
+                    )
+                )
         return violations
 
 

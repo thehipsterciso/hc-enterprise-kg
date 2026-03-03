@@ -20,16 +20,15 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
-    EnricherRegistry,
     OSINTResults,
 )
-
 
 # Capability level templates
 CAPABILITY_LEVEL_TEMPLATES = {
@@ -168,7 +167,9 @@ class BusinessCapabilityEnricher(AbstractEnricher):
         else:
             cap_level = "Strategic"
 
-        cap_template = CAPABILITY_LEVEL_TEMPLATES.get(cap_level, CAPABILITY_LEVEL_TEMPLATES["Supporting"])
+        cap_template = CAPABILITY_LEVEL_TEMPLATES.get(
+            cap_level, CAPABILITY_LEVEL_TEMPLATES["Supporting"]
+        )
         result.field_updates["capability_level"] = cap_template["level"]
         result.field_updates["strategic_importance"] = cap_template["strategic_importance"]
         result.field_updates["investment_tier"] = cap_template["investment_tier"]
@@ -273,7 +274,9 @@ class BusinessCapabilityEnricher(AbstractEnricher):
         )
 
         # Risk exposure based on system vulnerabilities
-        risk_count = sum(len(context.get_neighbors(RelationshipType.AFFECTS)) for _ in [systems] if systems)
+        risk_count = sum(
+            len(context.get_neighbors(RelationshipType.AFFECTS)) for _ in [systems] if systems
+        )
         risk_exposure = "Low" if risk_count == 0 else "Medium" if risk_count < 3 else "High"
         result.field_updates["risk_exposure"] = risk_exposure
         result.actions.append(
@@ -282,7 +285,7 @@ class BusinessCapabilityEnricher(AbstractEnricher):
                 entity_type=EntityType.BUSINESS_CAPABILITY,
                 fields_enriched=["risk_exposure"],
                 source="Risk correlation analysis",
-                methodology=f"Derived from system risk profiles",
+                methodology="Derived from system risk profiles",
                 confidence=ConfidenceLevel.MEDIUM,
             )
         )
@@ -311,13 +314,15 @@ class BusinessCapabilityEnricher(AbstractEnricher):
             else:
                 score = base_score
 
-            maturity_dimensions.append({
-                "dimension": dim_info["dimension"],
-                "description": dim_info["description"],
-                "score": min(5.0, max(1.0, score)),
-                "assessed_date": datetime.now(UTC).isoformat(),
-                "evidence_reference": f"System assessment for {entity.id}",
-            })
+            maturity_dimensions.append(
+                {
+                    "dimension": dim_info["dimension"],
+                    "description": dim_info["description"],
+                    "score": min(5.0, max(1.0, score)),
+                    "assessed_date": datetime.now(UTC).isoformat(),
+                    "evidence_reference": f"System assessment for {entity.id}",
+                }
+            )
 
         result.field_updates["maturity_dimensions"] = maturity_dimensions
         result.actions.append(
@@ -387,7 +392,9 @@ class BusinessCapabilityEnricher(AbstractEnricher):
 
         # Transformation roadmap
         result.field_updates["transformation_roadmap"] = {
-            "current_state_summary": "Operational with legacy components" if systems else "Initial/minimal automation",
+            "current_state_summary": "Operational with legacy components"
+            if systems
+            else "Initial/minimal automation",
             "target_state_summary": "Modernized cloud-native capability",
             "planned_initiatives": [
                 {

@@ -88,11 +88,10 @@ def enrich(
         hckg enrich --tier 5 --profile financial --graph-path my_graph.json
         hckg enrich --tier 2 --all-tiers --assess-quality
     """
+    from enrichment.quality import assess_enrichment_quality
     from export.json_export import JSONExporter
     from graph.knowledge_graph import KnowledgeGraph
     from ingest.json_ingest import JSONIngestor
-
-    from enrichment.quality import assess_enrichment_quality
 
     # Validate tier
     if tier < 1 or tier > 5:
@@ -118,7 +117,9 @@ def enrich(
         raise SystemExit(1) from None
 
     stats = kg.statistics
-    click.echo(f"Loaded: {stats['entity_count']} entities, {stats['relationship_count']} relationships")
+    click.echo(
+        f"Loaded: {stats['entity_count']} entities, {stats['relationship_count']} relationships"
+    )
 
     # Select enrichment profile
     profile_map = {
@@ -129,7 +130,9 @@ def enrich(
     enrich_profile = profile_map[profile]
     click.echo(f"Using profile: {enrich_profile.name}")
     click.echo(f"Focus areas: {', '.join(enrich_profile.get_focus_areas())}")
-    click.echo(f"Enrichment priority: {', '.join(str(e) for e in enrich_profile.get_enrichment_priority()[:3])}...")
+    click.echo(
+        f"Enrichment priority: {', '.join(str(e) for e in enrich_profile.get_enrichment_priority()[:3])}..."
+    )
 
     if osint_enabled:
         click.echo(f"OSINT sources: {', '.join(enrich_profile.get_osint_sources()[:3])}...")
@@ -152,9 +155,9 @@ def enrich(
         return
 
     # Perform enrichment
-    click.echo(f"\n{'='*60}")
+    click.echo(f"\n{'=' * 60}")
     click.echo(f"Enriching to tier {tier}...")
-    click.echo(f"{'='*60}\n")
+    click.echo(f"{'=' * 60}\n")
 
     try:
         from enrichment.orchestrator import EnrichmentOrchestrator
@@ -173,6 +176,7 @@ def enrich(
                 click.echo(f"Warning: Enrichment for tier {enrich_tier} failed: {exc}", err=True)
                 if verbose:
                     import traceback
+
                     traceback.print_exc()
 
         click.echo("")
@@ -183,6 +187,7 @@ def enrich(
         click.echo(f"Error during enrichment: {exc}", err=True)
         if verbose:
             import traceback
+
             traceback.print_exc()
         raise SystemExit(1) from None
 

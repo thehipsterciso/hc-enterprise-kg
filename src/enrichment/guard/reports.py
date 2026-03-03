@@ -12,14 +12,14 @@ or "what percentage of confidence claims were downgraded?"
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 # UTC timezone (Python 3.11+) or fallback
 try:
     from datetime import UTC
 except ImportError:
-    UTC = timezone.utc
+    UTC = UTC
 
 
 @dataclass
@@ -112,12 +112,8 @@ class QualityValidationReport:
         self.total_contracts_run += 1
         violation_count = len(evaluation.violations)
         self.total_violations += violation_count
-        self.blocking_violations += sum(
-            1 for v in evaluation.violations if v.is_blocking()
-        )
-        self.warning_violations += sum(
-            1 for v in evaluation.violations if not v.is_blocking()
-        )
+        self.blocking_violations += sum(1 for v in evaluation.violations if v.is_blocking())
+        self.warning_violations += sum(1 for v in evaluation.violations if not v.is_blocking())
 
     def get_violations_for_entity(self, entity_id: str) -> list[ContractViolation]:
         """Get all violations for a specific entity."""
@@ -139,9 +135,7 @@ class QualityValidationReport:
         """Get all violations of a specific severity level."""
         violations = []
         for evaluation in self.evaluations:
-            violations.extend(
-                v for v in evaluation.violations if v.severity == severity
-            )
+            violations.extend(v for v in evaluation.violations if v.severity == severity)
         return violations
 
     def pass_rate(self) -> float:
@@ -153,11 +147,7 @@ class QualityValidationReport:
 
     def entity_ids_with_violations(self) -> set[str]:
         """Return set of entity IDs that had at least one violation."""
-        return {
-            e.entity_id
-            for e in self.evaluations
-            if not e.passed
-        }
+        return {e.entity_id for e in self.evaluations if not e.passed}
 
     def summary(self) -> dict[str, Any]:
         """Return a summary dict suitable for logging or reporting."""

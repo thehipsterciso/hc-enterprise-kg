@@ -22,12 +22,11 @@ from typing import TYPE_CHECKING
 from domain.base import BaseEntity, EntityType
 from domain.shared import DataGap, DataQualityScore, ProvenanceAndConfidence
 from enrichment.base import (
+    SOURCE_VALIDITY_WINDOWS,
     AssessmentMethodology,
     ConfidenceLevel,
-    CONFIDENCE_RUBRIC,
     EnrichmentAction,
     FieldCategory,
-    SOURCE_VALIDITY_WINDOWS,
 )
 
 if TYPE_CHECKING:
@@ -142,7 +141,9 @@ class ProvenanceReconciler:
         provenance = ProvenanceAndConfidence(
             primary_data_source=source,
             assessed_by=f"EnrichmentAgency/enricher/v{self.ENRICHMENT_AGENCY_VERSION}",
-            assessment_methodology=methodology.value if isinstance(methodology, AssessmentMethodology) else methodology,
+            assessment_methodology=methodology.value
+            if isinstance(methodology, AssessmentMethodology)
+            else methodology,
             confidence_level=confidence.value,
             last_assessed_date=datetime.now(UTC).isoformat(),
         )
@@ -279,9 +280,7 @@ class ProvenanceReconciler:
             for action in actions:
                 if action.source_date:
                     try:
-                        src_dt = datetime.fromisoformat(
-                            action.source_date.replace("Z", "+00:00")
-                        )
+                        src_dt = datetime.fromisoformat(action.source_date.replace("Z", "+00:00"))
                         days_old = (datetime.now(UTC) - src_dt).days
                         validity = action.validity_window_days or 365
                         if days_old <= validity:
@@ -375,22 +374,22 @@ class ProvenanceReconciler:
             final_confidence = ConfidenceLevel.UNVERIFIED
 
         # --- Apply hard confidence ceilings ---
-        if not has_actions:
+        _cap_low = (ConfidenceLevel.VERIFIED, ConfidenceLevel.HIGH, ConfidenceLevel.MEDIUM)
+        if not has_actions and final_confidence in _cap_low:
             # No enrichment trail — can't exceed LOW
-            if final_confidence in (ConfidenceLevel.VERIFIED, ConfidenceLevel.HIGH, ConfidenceLevel.MEDIUM):
-                final_confidence = ConfidenceLevel.LOW
+            final_confidence = ConfidenceLevel.LOW
 
-        if critical_completeness < 0.25:
-            if final_confidence in (ConfidenceLevel.VERIFIED, ConfidenceLevel.HIGH, ConfidenceLevel.MEDIUM):
-                final_confidence = ConfidenceLevel.LOW
-        elif critical_completeness < 0.50:
-            if final_confidence in (ConfidenceLevel.VERIFIED, ConfidenceLevel.HIGH):
-                final_confidence = ConfidenceLevel.MEDIUM
+        if critical_completeness < 0.25 and final_confidence in _cap_low:
+            final_confidence = ConfidenceLevel.LOW
+        elif critical_completeness < 0.50 and final_confidence in (
+            ConfidenceLevel.VERIFIED,
+            ConfidenceLevel.HIGH,
+        ):
+            final_confidence = ConfidenceLevel.MEDIUM
 
-        if timeliness_numeric == 0.0:
+        if timeliness_numeric == 0.0 and final_confidence in _cap_low:
             # All sources stale — can't exceed LOW
-            if final_confidence in (ConfidenceLevel.VERIFIED, ConfidenceLevel.HIGH, ConfidenceLevel.MEDIUM):
-                final_confidence = ConfidenceLevel.LOW
+            final_confidence = ConfidenceLevel.LOW
 
         # Build data quality score
         data_quality = DataQualityScore(
@@ -550,9 +549,7 @@ class ProvenanceReconciler:
 
         return populated_count / len(tier_fields)
 
-    def identify_data_gaps(
-        self, entity: BaseEntity, tier_fields: list[str]
-    ) -> list[DataGap]:
+    def identify_data_gaps(self, entity: BaseEntity, tier_fields: list[str]) -> list[DataGap]:
         """Identify unfilled fields at the current tier with remediation suggestions.
 
         Returns DataGap entries for all unfilled fields, including priority
@@ -678,9 +675,7 @@ class ProvenanceReconciler:
                 return "High"
 
         # Medium for most other populated fields
-        if any(
-            x in field_lower for x in ["date", "score", "count", "metric", "rate"]
-        ):
+        if any(x in field_lower for x in ["date", "score", "count", "metric", "rate"]):
             return "Medium"
 
         return "Low"
@@ -704,27 +699,19 @@ class ProvenanceReconciler:
         if any(x in field_lower for x in ["date", "timestamp"]):
             return "Check audit logs or system records for temporal data"
 
-        if any(
-            x in field_lower for x in ["location", "address", "geography", "site"]
-        ):
+        if any(x in field_lower for x in ["location", "address", "geography", "site"]):
             return "Cross-reference with Location/Geography entities or external data"
 
-        if any(
-            x in field_lower for x in ["relationship", "dependency", "manages", "role"]
-        ):
+        if any(x in field_lower for x in ["relationship", "dependency", "manages", "role"]):
             return "Analyze graph neighborhood; infer from related entities"
 
-        if any(
-            x in field_lower for x in ["risk", "assessment", "compliance", "status"]
-        ):
+        if any(x in field_lower for x in ["risk", "assessment", "compliance", "status"]):
             return "Conduct risk assessment; consult with domain experts"
 
         if any(x in field_lower for x in ["contact", "owner", "manager", "sponsor"]):
             return "Query organizational data; conduct stakeholder interviews"
 
-        if any(
-            x in field_lower for x in ["financial", "budget", "cost", "spend", "revenue"]
-        ):
+        if any(x in field_lower for x in ["financial", "budget", "cost", "spend", "revenue"]):
             return "Consult financial systems and accounting records"
 
         return "Conduct targeted enrichment and validation with subject matter experts"

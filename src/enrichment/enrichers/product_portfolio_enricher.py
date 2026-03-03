@@ -20,16 +20,15 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
-    EnricherRegistry,
     OSINTResults,
 )
-
 
 PORTFOLIO_TYPE_TEMPLATES = {
     "Enterprise": {
@@ -139,16 +138,16 @@ class ProductPortfolioEnricher(AbstractEnricher):
 
         # Determine portfolio type based on product count
         product_count = len(products)
-        if product_count == 0:
-            portfolio_key = "Product Line"
-        elif product_count < 10:
+        if product_count == 0 or product_count < 10:
             portfolio_key = "Product Line"
         elif product_count < 30:
             portfolio_key = "Business Unit"
         else:
             portfolio_key = "Enterprise"
 
-        portfolio_template = PORTFOLIO_TYPE_TEMPLATES.get(portfolio_key, PORTFOLIO_TYPE_TEMPLATES["Product Line"])
+        portfolio_template = PORTFOLIO_TYPE_TEMPLATES.get(
+            portfolio_key, PORTFOLIO_TYPE_TEMPLATES["Product Line"]
+        )
         result.field_updates["portfolio_type"] = portfolio_template["portfolio_type"]
 
         result.actions.append(
@@ -177,7 +176,7 @@ class ProductPortfolioEnricher(AbstractEnricher):
                 entity_type=EntityType.PRODUCT_PORTFOLIO,
                 fields_enriched=["status"],
                 source="Portfolio composition analysis",
-                methodology=f"Product count lifecycle assessment",
+                methodology="Product count lifecycle assessment",
                 confidence=ConfidenceLevel.MEDIUM,
             )
         )
@@ -360,14 +359,16 @@ class ProductPortfolioEnricher(AbstractEnricher):
         rationalization_list = []
         if len(products) > 10:
             # Candidate for consolidation
-            rationalization_list.append({
-                "product_id": f"candidate-{entity.id[:8]}-1",
-                "product_name": "Legacy Product A",
-                "rationale": "Low growth, declining market share",
-                "recommended_action": "Consolidate into newer offering",
-                "annual_cost_usd": 250000,
-                "strategic_fit": "Low",
-            })
+            rationalization_list.append(
+                {
+                    "product_id": f"candidate-{entity.id[:8]}-1",
+                    "product_name": "Legacy Product A",
+                    "rationale": "Low growth, declining market share",
+                    "recommended_action": "Consolidate into newer offering",
+                    "annual_cost_usd": 250000,
+                    "strategic_fit": "Low",
+                }
+            )
 
         result.field_updates["rationalization_candidates"] = rationalization_list
         result.actions.append(

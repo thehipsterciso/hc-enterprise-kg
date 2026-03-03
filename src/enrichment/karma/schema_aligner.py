@@ -16,7 +16,6 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from domain.base import BaseEntity
 from enrichment.base import EnrichmentResult, ValidationFailure
 from enrichment.karma.base_agent import (
     AbstractKarmaAgent,
@@ -25,6 +24,9 @@ from enrichment.karma.base_agent import (
     MessageType,
     PipelineState,
 )
+
+if typing.TYPE_CHECKING:
+    from domain.base import BaseEntity
 
 logger = logging.getLogger(__name__)
 
@@ -118,11 +120,7 @@ class SchemaAlignerAgent(AbstractKarmaAgent):
     ) -> tuple[Any, ValidationFailure | None]:
         """Validate a single field update against the entity's Pydantic model."""
         entity_class = type(entity)
-        model_fields = (
-            entity_class.model_fields
-            if hasattr(entity_class, "model_fields")
-            else {}
-        )
+        model_fields = entity_class.model_fields if hasattr(entity_class, "model_fields") else {}
 
         if field_name not in model_fields:
             # Will go to __pydantic_extra__ (per ADR-002)
@@ -181,10 +179,7 @@ class SchemaAlignerAgent(AbstractKarmaAgent):
             try:
                 return target_type.model_validate(value)
             except Exception as e:
-                logger.debug(
-                    f"Sub-model coercion failed for "
-                    f"{entity_class_name}.{field_name}: {e}"
-                )
+                logger.debug(f"Sub-model coercion failed for {entity_class_name}.{field_name}: {e}")
                 return None
 
         return value  # Not a sub-model — return as-is
@@ -216,8 +211,7 @@ class SchemaAlignerAgent(AbstractKarmaAgent):
                     return [item_type.model_validate(item) for item in value]
                 except Exception as e:
                     logger.debug(
-                        f"List sub-model coercion failed for "
-                        f"{entity_class_name}.{field_name}: {e}"
+                        f"List sub-model coercion failed for {entity_class_name}.{field_name}: {e}"
                     )
                     return None
 

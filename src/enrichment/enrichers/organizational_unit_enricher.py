@@ -15,32 +15,28 @@ Tier 5: strategic_scenario_modeling, transformation_readiness, innovation_index
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 from domain.base import BaseEntity, EntityType, RelationshipType
 from domain.entities.organizational_unit import (
-    EmployeeCount,
-    EmployeeCountByLocation,
-    GeographicPresence,
-    OrgHealthScore,
-    OrgHealthDimension,
     AttritionRate,
+    EmployeeCount,
+    GeographicPresence,
+    OrgHealthDimension,
+    OrgHealthScore,
 )
-from domain.shared import DataGap, DataQualityScore, ProvenanceAndConfidence
-
+from domain.shared import DataQualityScore, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
-    ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
     OSINTResults,
-    EnricherRegistry,
 )
-
 
 # Coordinated organizational health templates
 ORG_HEALTH_TEMPLATES = {
@@ -190,7 +186,7 @@ class OrganizationalUnitEnricher(AbstractEnricher):
                     timeliness_score="Current",
                     consistency_score="Consistent",
                 ),
-                last_assessed_date=datetime.now(timezone.utc).isoformat(),
+                last_assessed_date=datetime.now(UTC).isoformat(),
             )
 
         return result
@@ -220,9 +216,14 @@ class OrganizationalUnitEnricher(AbstractEnricher):
         desc = getattr(entity, "description", "").lower()
         combined = f"{name} {desc}"
 
-        if any(keyword in combined for keyword in ["engineering", "technology", "platform", "infrastructure"]):
+        if any(
+            keyword in combined
+            for keyword in ["engineering", "technology", "platform", "infrastructure"]
+        ):
             return "engineering"
-        elif any(keyword in combined for keyword in ["finance", "accounting", "treasury", "controller"]):
+        elif any(
+            keyword in combined for keyword in ["finance", "accounting", "treasury", "controller"]
+        ):
             return "finance"
         elif any(keyword in combined for keyword in ["compliance", "risk", "audit", "governance"]):
             return "compliance"
@@ -230,7 +231,9 @@ class OrganizationalUnitEnricher(AbstractEnricher):
             return "sales"
         elif any(keyword in combined for keyword in ["human resources", "talent", "people", "hr"]):
             return "hr"
-        elif any(keyword in combined for keyword in ["operations", "supply chain", "manufacturing"]):
+        elif any(
+            keyword in combined for keyword in ["operations", "supply chain", "manufacturing"]
+        ):
             return "operations"
         else:
             return "operations"
@@ -257,7 +260,7 @@ class OrganizationalUnitEnricher(AbstractEnricher):
             contractor=contractor_count,
             vendor_fte=vendor_fte,
             total=fte_count + contractor_count + vendor_fte,
-            as_of_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            as_of_date=datetime.now(UTC).strftime("%Y-%m-%d"),
         )
 
         # geographic_presence — from location neighbors
@@ -330,12 +333,18 @@ class OrganizationalUnitEnricher(AbstractEnricher):
         regulatory_domains = {
             "finance": ["SOX 404", "BSA/AML", "Consumer Protection"],
             "compliance": ["SOX 404", "Internal Audit Standards", "COSO Framework"],
-            "engineering": ["Data Protection", "Accessibility Standards", "Cybersecurity Framework"],
+            "engineering": [
+                "Data Protection",
+                "Accessibility Standards",
+                "Cybersecurity Framework",
+            ],
             "operations": ["Labor Laws", "Safety Regulations", "Environmental Regulations"],
             "sales": ["Antitrust", "Consumer Protection", "Data Privacy"],
         }
 
-        updates["regulatory_environment"] = regulatory_domains.get(org_domain, ["General Enterprise Regulations"])
+        updates["regulatory_environment"] = regulatory_domains.get(
+            org_domain, ["General Enterprise Regulations"]
+        )
 
         # leadership_team composition
         updates["leadership_team"] = {
@@ -381,7 +390,7 @@ class OrganizationalUnitEnricher(AbstractEnricher):
             score=health_template["score"],
             methodology="McKinsey OHI Composite",
             dimensions=[OrgHealthDimension(**d) for d in health_template["dimensions"]],
-            assessed_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            assessed_date=datetime.now(UTC).strftime("%Y-%m-%d"),
             sample_size=max(10, len(people) // 2),
             response_rate_pct=75.0,
         )
@@ -400,9 +409,11 @@ class OrganizationalUnitEnricher(AbstractEnricher):
         # revenue_attribution (for applicable domains)
         if org_domain in ("sales", "engineering", "operations"):
             updates["revenue_attribution"] = {
-                "attributed_revenue": 50000000 if len(people) > 50 else (10000000 if len(people) > 10 else 1000000),
+                "attributed_revenue": 50000000
+                if len(people) > 50
+                else (10000000 if len(people) > 10 else 1000000),
                 "attribution_methodology": "Cost Allocation & Headcount Proportion",
-                "assessed_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                "assessed_date": datetime.now(UTC).strftime("%Y-%m-%d"),
             }
 
         # cost_structure breakdown

@@ -13,11 +13,11 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
-    EnricherRegistry,
     EntityContext,
     OSINTResults,
 )
@@ -197,7 +197,7 @@ class RegulationEnricher(AbstractEnricher):
         if regulation_name in self.REAL_REGULATIONS:
             key_reqs = self.REAL_REGULATIONS[regulation_name]["key_requirements"]
             result.field_updates["key_requirements"] = [
-                {"requirement_id": f"REQ-{regulation_name}-{i+1:03d}", "requirement_text": req}
+                {"requirement_id": f"REQ-{regulation_name}-{i + 1:03d}", "requirement_text": req}
                 for i, req in enumerate(key_reqs)
             ]
         else:

@@ -16,10 +16,8 @@ Severity: WARNING (downgrades confidence but doesn't block the update)
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any
-
-from domain.base import BaseEntity
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 from enrichment.base import (
     CONFIDENCE_RUBRIC,
@@ -30,11 +28,14 @@ from enrichment.base import (
 from enrichment.guard.contract import ContractSeverity, QualityContract
 from enrichment.guard.reports import ContractViolation
 
+if TYPE_CHECKING:
+    from domain.base import BaseEntity
+
 # UTC timezone (Python 3.11+) or fallback
 try:
     from datetime import UTC
 except ImportError:
-    UTC = timezone.utc
+    UTC = UTC
 
 
 class StalenessContract(QualityContract):
@@ -79,9 +80,7 @@ class StalenessContract(QualityContract):
                 continue
 
             try:
-                source_dt = datetime.fromisoformat(
-                    action.source_date.replace("Z", "+00:00")
-                )
+                source_dt = datetime.fromisoformat(action.source_date.replace("Z", "+00:00"))
             except (ValueError, TypeError):
                 continue
 
@@ -136,9 +135,7 @@ class StalenessContract(QualityContract):
         return None
 
     @staticmethod
-    def downgrade_confidence(
-        current: ConfidenceLevel, days_old: int
-    ) -> ConfidenceLevel:
+    def downgrade_confidence(current: ConfidenceLevel, days_old: int) -> ConfidenceLevel:
         """Determine the appropriate confidence level given source age.
 
         Walks down the confidence ladder until finding a level whose

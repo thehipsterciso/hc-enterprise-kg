@@ -7,8 +7,10 @@ focusing on industry-specific concerns and providing OSINT sources for that prof
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from domain.base import EntityType
+if TYPE_CHECKING:
+    from domain.base import EntityType
 
 
 class EnrichmentProfile(ABC):
@@ -22,6 +24,11 @@ class EnrichmentProfile(ABC):
 
     Subclasses implement tech, financial, healthcare profiles.
     """
+
+    # Enrichment level sentinels used as default parameter values.
+    MINIMAL: str = "minimal"
+    STANDARD: str = "standard"
+    COMPREHENSIVE: str = "comprehensive"
 
     name: str = "Base Profile"
 

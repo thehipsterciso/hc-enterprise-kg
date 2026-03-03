@@ -323,11 +323,6 @@ MITRE_ATTACK_TECHNIQUES = {
         "technique": "External Remote Services",
         "description": "Adversaries leverage external remote services to gain initial access.",
     },
-    "T1200": {
-        "tactic": "Execution",
-        "technique": "Command and Scripting Interpreter",
-        "description": "Adversaries use command and scripting interpreters to execute code.",
-    },
     "T1059": {
         "tactic": "Execution",
         "technique": "Command and Scripting Interpreter",

@@ -18,7 +18,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import StrEnum
 from typing import Any
 
@@ -26,7 +26,7 @@ from typing import Any
 try:
     from datetime import UTC
 except ImportError:
-    UTC = timezone.utc
+    UTC = UTC
 
 logger = logging.getLogger(__name__)
 
@@ -190,13 +190,11 @@ class AbstractKarmaAgent(ABC):
         """
         ...
 
-    def on_pipeline_start(self, state: PipelineState) -> None:
+    def on_pipeline_start(self, state: PipelineState) -> None:  # noqa: B027
         """Hook called when the pipeline starts. Override for initialization."""
-        pass
 
-    def on_pipeline_end(self, state: PipelineState) -> None:
+    def on_pipeline_end(self, state: PipelineState) -> None:  # noqa: B027
         """Hook called when the pipeline completes. Override for cleanup."""
-        pass
 
     def create_message(
         self,

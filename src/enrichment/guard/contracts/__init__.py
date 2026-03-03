@@ -14,11 +14,11 @@ Contracts:
 
 from __future__ import annotations
 
-from enrichment.guard.contracts.plausibility import PlausibilityContract
-from enrichment.guard.contracts.staleness import StalenessContract
-from enrichment.guard.contracts.confidence_rubric import ConfidenceRubricContract
 from enrichment.guard.contracts.coherence import CoherenceContract
 from enrichment.guard.contracts.completeness import CompletenessContract
+from enrichment.guard.contracts.confidence_rubric import ConfidenceRubricContract
+from enrichment.guard.contracts.plausibility import PlausibilityContract
+from enrichment.guard.contracts.staleness import StalenessContract
 
 __all__ = [
     "PlausibilityContract",

@@ -14,7 +14,7 @@ Tier 5: career_scenarios, innovation_contributions, collaboration_index
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 from domain.base import BaseEntity, EntityType, RelationshipType
@@ -25,20 +25,17 @@ from domain.entities.person import (
     SkillInventoryItem,
     TrainingCompleted,
 )
-from domain.shared import DataGap, DataQualityScore, ProvenanceAndConfidence
-
+from domain.shared import DataQualityScore, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
-    ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
     OSINTResults,
-    EnricherRegistry,
 )
-
 
 # Coordinated template dicts for skills
 SKILL_TEMPLATES = {
@@ -66,28 +63,56 @@ SKILL_TEMPLATES = {
     "compliance": [
         {"name": "Risk Management", "category": "Regulatory & Compliance", "level": "Expert"},
         {"name": "Audit Procedures", "category": "Regulatory & Compliance", "level": "Expert"},
-        {"name": "Regulatory Framework", "category": "Regulatory & Compliance", "level": "Practitioner"},
+        {
+            "name": "Regulatory Framework",
+            "category": "Regulatory & Compliance",
+            "level": "Practitioner",
+        },
         {"name": "Documentation", "category": "Communication & Influence", "level": "Expert"},
     ],
     "leadership": [
         {"name": "Strategic Planning", "category": "Strategic & Business", "level": "Expert"},
         {"name": "Team Management", "category": "Leadership & Management", "level": "Expert"},
-        {"name": "Budget Planning", "category": "Analytical & Quantitative", "level": "Practitioner"},
-        {"name": "Stakeholder Management", "category": "Communication & Influence", "level": "Expert"},
+        {
+            "name": "Budget Planning",
+            "category": "Analytical & Quantitative",
+            "level": "Practitioner",
+        },
+        {
+            "name": "Stakeholder Management",
+            "category": "Communication & Influence",
+            "level": "Expert",
+        },
     ],
 }
 
 CERTIFICATION_TEMPLATES = {
     "engineering": [
-        {"name": "AWS Solutions Architect", "issuing_body": "Amazon Web Services", "status": "Active"},
+        {
+            "name": "AWS Solutions Architect",
+            "issuing_body": "Amazon Web Services",
+            "status": "Active",
+        },
         {"name": "Kubernetes Administrator (CKA)", "issuing_body": "CNCF", "status": "Active"},
     ],
     "data": [
-        {"name": "Google Cloud Professional Data Engineer", "issuing_body": "Google Cloud", "status": "Active"},
-        {"name": "Microsoft Certified Data Analyst", "issuing_body": "Microsoft", "status": "Active"},
+        {
+            "name": "Google Cloud Professional Data Engineer",
+            "issuing_body": "Google Cloud",
+            "status": "Active",
+        },
+        {
+            "name": "Microsoft Certified Data Analyst",
+            "issuing_body": "Microsoft",
+            "status": "Active",
+        },
     ],
     "product": [
-        {"name": "Pragmatic Marketing Certified", "issuing_body": "Pragmatic Institute", "status": "Active"},
+        {
+            "name": "Pragmatic Marketing Certified",
+            "issuing_body": "Pragmatic Institute",
+            "status": "Active",
+        },
     ],
     "compliance": [
         {"name": "Certified Internal Auditor (CIA)", "issuing_body": "IIA", "status": "Active"},
@@ -96,10 +121,30 @@ CERTIFICATION_TEMPLATES = {
 }
 
 TRAINING_TEMPLATES = [
-    {"name": "Leadership Foundations", "category": "Leadership", "hours": 16, "provider": "Internal Learning"},
-    {"name": "Data Privacy & GDPR", "category": "Compliance / Regulatory", "hours": 4, "provider": "RISE"},
-    {"name": "Unconscious Bias", "category": "Professional Development", "hours": 2, "provider": "Catalyst"},
-    {"name": "Agile & Scrum Essentials", "category": "Professional Development", "hours": 8, "provider": "Pluralsight"},
+    {
+        "name": "Leadership Foundations",
+        "category": "Leadership",
+        "hours": 16,
+        "provider": "Internal Learning",
+    },
+    {
+        "name": "Data Privacy & GDPR",
+        "category": "Compliance / Regulatory",
+        "hours": 4,
+        "provider": "RISE",
+    },
+    {
+        "name": "Unconscious Bias",
+        "category": "Professional Development",
+        "hours": 2,
+        "provider": "Catalyst",
+    },
+    {
+        "name": "Agile & Scrum Essentials",
+        "category": "Professional Development",
+        "hours": 8,
+        "provider": "Pluralsight",
+    },
 ]
 
 PERFORMANCE_TEMPLATES = [
@@ -191,7 +236,7 @@ class PersonEnricher(AbstractEnricher):
                     timeliness_score="Current",
                     consistency_score="Consistent",
                 ),
-                last_assessed_date=datetime.now(timezone.utc).isoformat(),
+                last_assessed_date=datetime.now(UTC).isoformat(),
             )
 
         return result
@@ -203,7 +248,9 @@ class PersonEnricher(AbstractEnricher):
         else:
             role_name = entity.title.lower() if hasattr(entity, "title") else ""
 
-        if any(keyword in role_name for keyword in ["engineer", "developer", "architect", "devops"]):
+        if any(
+            keyword in role_name for keyword in ["engineer", "developer", "architect", "devops"]
+        ):
             return "engineering"
         elif any(keyword in role_name for keyword in ["data", "analyst", "scientist"]):
             return "data"
@@ -236,7 +283,7 @@ class PersonEnricher(AbstractEnricher):
                 skill_category=t["category"],
                 proficiency_level_actual=t["level"],
                 proficiency_source="Role Context Analysis",
-                last_validated_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                last_validated_date=datetime.now(UTC).strftime("%Y-%m-%d"),
             )
             for t in skill_templates
         ]
@@ -298,7 +345,7 @@ class PersonEnricher(AbstractEnricher):
                 training_category=t["category"],
                 hours=t["hours"],
                 provider=t["provider"],
-                completion_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                completion_date=datetime.now(UTC).strftime("%Y-%m-%d"),
             )
             for t in TRAINING_TEMPLATES
         ]
@@ -314,7 +361,9 @@ class PersonEnricher(AbstractEnricher):
 
         # access_privileges from graph context
         neighbors = context.get_all_neighbors()
-        system_count = len([n for n in neighbors if getattr(n, "entity_type", None) == EntityType.SYSTEM])
+        system_count = len(
+            [n for n in neighbors if getattr(n, "entity_type", None) == EntityType.SYSTEM]
+        )
 
         access_privileges = []
         if system_count > 0:
@@ -322,7 +371,7 @@ class PersonEnricher(AbstractEnricher):
                 AccessPrivilege(
                     system_name="Enterprise Directory",
                     access_level="Standard",
-                    last_access_review_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                    last_access_review_date=datetime.now(UTC).strftime("%Y-%m-%d"),
                     next_review_date="2026-09-03",
                     access_justified=True,
                 )
@@ -332,7 +381,7 @@ class PersonEnricher(AbstractEnricher):
                     AccessPrivilege(
                         system_name="Code Repository",
                         access_level="Privileged",
-                        last_access_review_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                        last_access_review_date=datetime.now(UTC).strftime("%Y-%m-%d"),
                         access_justified=True,
                     )
                 )
@@ -376,13 +425,15 @@ class PersonEnricher(AbstractEnricher):
         updates["performance_trajectory"] = "Solid Performer"
 
         # flight_risk based on role family and context
-        updates["flight_risk"] = "Low" if role_family in ("compliance", "leadership") else "Moderate"
+        updates["flight_risk"] = (
+            "Low" if role_family in ("compliance", "leadership") else "Moderate"
+        )
 
         # potential_assessment
         updates["potential_assessment"] = {
             "potential_level": "Growth Potential",
             "assessment_methodology": "Manager Assessment",
-            "assessed_date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "assessed_date": datetime.now(UTC).strftime("%Y-%m-%d"),
         }
 
         return updates

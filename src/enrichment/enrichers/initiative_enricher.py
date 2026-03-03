@@ -20,16 +20,15 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
-    EnricherRegistry,
     OSINTResults,
 )
-
 
 INITIATIVE_TYPE_TEMPLATES = {
     "Technology": {
@@ -135,7 +134,7 @@ class InitiativeEnricher(AbstractEnricher):
         """Tier 2: Basic initiative assessment."""
         systems = context.get_neighbors(RelationshipType.IMPACTS)
         risks = context.get_neighbors(RelationshipType.DRIVES)
-        people = context.get_neighbors(RelationshipType.STAFFED_BY)
+        context.get_neighbors(RelationshipType.STAFFED_BY)
 
         # Determine initiative type based on system impact scope
         system_count = len(systems)
@@ -148,7 +147,9 @@ class InitiativeEnricher(AbstractEnricher):
         else:
             init_key = "Strategic"
 
-        init_template = INITIATIVE_TYPE_TEMPLATES.get(init_key, INITIATIVE_TYPE_TEMPLATES["Technology"])
+        init_template = INITIATIVE_TYPE_TEMPLATES.get(
+            init_key, INITIATIVE_TYPE_TEMPLATES["Technology"]
+        )
         result.field_updates["initiative_type"] = init_template["initiative_type"]
 
         result.actions.append(
@@ -263,7 +264,9 @@ class InitiativeEnricher(AbstractEnricher):
         )
 
         # Key milestones
-        start_date = datetime.fromisoformat(result.field_updates.get("start_date", datetime.now(UTC).isoformat()))
+        start_date = datetime.fromisoformat(
+            result.field_updates.get("start_date", datetime.now(UTC).isoformat())
+        )
         result.field_updates["key_milestones"] = [
             {
                 "milestone_name": "Requirements and Planning",
@@ -444,7 +447,9 @@ class InitiativeEnricher(AbstractEnricher):
                 "Vendor delivery timeline",
                 "Third-party integrations",
                 "Regulatory approval",
-            ] if len(systems) > 5 else [],
+            ]
+            if len(systems) > 5
+            else [],
             "internal_dependencies": [
                 "Competing IT priorities",
                 "Resource availability",
@@ -486,7 +491,10 @@ class InitiativeEnricher(AbstractEnricher):
                     "status": "Projected",
                 },
             ],
-            "value_realization_risks": ["Market conditions impact", "Organizational change fatigue"],
+            "value_realization_risks": [
+                "Market conditions impact",
+                "Organizational change fatigue",
+            ],
         }
         result.actions.append(
             EnrichmentAction(

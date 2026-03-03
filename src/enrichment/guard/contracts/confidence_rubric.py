@@ -14,10 +14,8 @@ Severity: WARNING (downgrades confidence; doesn't block the update)
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any
-
-from domain.base import BaseEntity
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 from enrichment.base import (
     CONFIDENCE_RUBRIC,
@@ -28,11 +26,14 @@ from enrichment.guard.contract import ContractSeverity, QualityContract
 from enrichment.guard.contracts.staleness import StalenessContract
 from enrichment.guard.reports import ContractViolation
 
+if TYPE_CHECKING:
+    from domain.base import BaseEntity
+
 # UTC timezone
 try:
     from datetime import UTC
 except ImportError:
-    UTC = timezone.utc
+    UTC = UTC
 
 
 class ConfidenceRubricContract(QualityContract):
@@ -86,15 +87,11 @@ class ConfidenceRubricContract(QualityContract):
             # Check staleness-based downgrade
             if action.source_date and max_staleness > 0:
                 try:
-                    source_dt = datetime.fromisoformat(
-                        action.source_date.replace("Z", "+00:00")
-                    )
+                    source_dt = datetime.fromisoformat(action.source_date.replace("Z", "+00:00"))
                     days_old = (datetime.now(UTC) - source_dt).days
 
                     if days_old > max_staleness:
-                        downgraded = StalenessContract.downgrade_confidence(
-                            claimed, days_old
-                        )
+                        downgraded = StalenessContract.downgrade_confidence(claimed, days_old)
                         if downgraded != claimed:
                             violations.append(
                                 ContractViolation(

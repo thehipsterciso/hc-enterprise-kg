@@ -23,16 +23,16 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import StrEnum
-from typing import Any
-
-from domain.base import BaseEntity
+from typing import TYPE_CHECKING, Any
 
 from enrichment.guard.contract import ContractSeverity, QualityContract
 from enrichment.guard.reports import (
     ContractEvaluation,
-    ContractViolation,
     QualityValidationReport,
 )
+
+if TYPE_CHECKING:
+    from domain.base import BaseEntity
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +137,4 @@ class AbstractGuardian(ABC):
 
     def __repr__(self) -> str:
         contract_ids = [c.contract_id for c in self.contracts]
-        return (
-            f"<{self.__class__.__name__} phase={self.phase.value} "
-            f"contracts={contract_ids}>"
-        )
+        return f"<{self.__class__.__name__} phase={self.phase.value} contracts={contract_ids}>"

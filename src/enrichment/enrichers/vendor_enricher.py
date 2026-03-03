@@ -20,16 +20,15 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
-    EnricherRegistry,
     OSINTResults,
 )
-
 
 VENDOR_TYPE_TEMPLATES = {
     "Technology": {
@@ -56,7 +55,12 @@ VENDOR_TYPE_TEMPLATES = {
 
 VENDOR_STATUS_OPTIONS = ["Active", "Preferred", "Strategic", "At Risk", "Under Review", "Inactive"]
 
-VENDOR_RISK_TIERS = ["Tier 1 (Low Risk)", "Tier 2 (Medium Risk)", "Tier 3 (High Risk)", "Tier 4 (Critical Risk)"]
+VENDOR_RISK_TIERS = [
+    "Tier 1 (Low Risk)",
+    "Tier 2 (Medium Risk)",
+    "Tier 3 (High Risk)",
+    "Tier 4 (Critical Risk)",
+]
 
 
 @EnricherRegistry.register
@@ -213,8 +217,8 @@ class VendorEnricher(AbstractEnricher):
     ) -> None:
         """Tier 3: Risk and performance assessment."""
         systems = context.get_neighbors(RelationshipType.SUPPLIED_BY)
-        contracts = context.get_neighbors(RelationshipType.CONTRACTS_WITH)
-        risks = context.get_neighbors(RelationshipType.MITIGATES)
+        context.get_neighbors(RelationshipType.CONTRACTS_WITH)
+        context.get_neighbors(RelationshipType.MITIGATES)
 
         # Risk profile (tier, inherent_risk, data_access_level)
         system_count = len(systems)
@@ -257,16 +261,24 @@ class VendorEnricher(AbstractEnricher):
 
         # Cybersecurity assessment
         result.field_updates["cybersecurity_assessment"] = {
-            "security_posture_rating": "Strong" if system_count < 3 else "Adequate" if system_count < 8 else "Requires Attention",
+            "security_posture_rating": "Strong"
+            if system_count < 3
+            else "Adequate"
+            if system_count < 8
+            else "Requires Attention",
             "certifications": [
                 "SOC 2 Type II",
                 "ISO 27001",
-            ] if system_count > 0 else [],
+            ]
+            if system_count > 0
+            else [],
             "last_security_audit_date": datetime.now(UTC).isoformat(),
             "security_audit_frequency": "Annual",
             "vulnerability_disclosure_policy": True,
             "incident_response_plan": True,
-            "data_breach_history": "No incidents in past 3 years" if system_count < 5 else "1 minor incident",
+            "data_breach_history": "No incidents in past 3 years"
+            if system_count < 5
+            else "1 minor incident",
             "pending_security_items": [] if system_count < 5 else ["Implement MFA"],
         }
         result.actions.append(
@@ -323,7 +335,11 @@ class VendorEnricher(AbstractEnricher):
         result.field_updates["financial_stability"] = {
             "estimated_annual_revenue_usd": vendor_revenue,
             "currency": "USD",
-            "credit_rating": "A" if vendor_revenue > 500_000_000 else "BBB+" if vendor_revenue > 100_000_000 else "BBB",
+            "credit_rating": "A"
+            if vendor_revenue > 500_000_000
+            else "BBB+"
+            if vendor_revenue > 100_000_000
+            else "BBB",
             "financial_health_assessment": "Strong" if vendor_revenue > 500_000_000 else "Adequate",
             "bankruptcy_risk": "Low",
             "recent_financial_changes": "Stable",
@@ -358,7 +374,11 @@ class VendorEnricher(AbstractEnricher):
             EnrichmentAction(
                 entity_id=entity.id,
                 entity_type=EntityType.VENDOR,
-                fields_enriched=["total_annual_spend_usd", "spend_by_category", "spend_trend_yoy_pct"],
+                fields_enriched=[
+                    "total_annual_spend_usd",
+                    "spend_by_category",
+                    "spend_trend_yoy_pct",
+                ],
                 source="Spend analysis",
                 methodology="Contract and system-based spend estimation",
                 confidence=ConfidenceLevel.LOW,
@@ -369,12 +389,16 @@ class VendorEnricher(AbstractEnricher):
         result.field_updates["substitutability_score"] = {
             "score": max(3, 10 - len(systems)),
             "scale": "1-10 (10 = easily replaceable)",
-            "rationale": "High lock-in due to system dependencies" if len(systems) > 5 else "Moderate substitutability",
+            "rationale": "High lock-in due to system dependencies"
+            if len(systems) > 5
+            else "Moderate substitutability",
             "key_switching_costs": [
                 "Data migration complexity",
                 "Integration redesign",
                 "Staff retraining",
-            ] if len(systems) > 3 else ["Minimal switching costs"],
+            ]
+            if len(systems) > 3
+            else ["Minimal switching costs"],
             "alternative_vendors_available": len(systems) > 5,
         }
 
@@ -411,8 +435,14 @@ class VendorEnricher(AbstractEnricher):
             "value_drivers": value_drivers,
             "core_vs_noncore": "Core" if system_count > 5 else "Non-core",
             "competitive_differentiation": "Differentiating" if system_count > 6 else "Enabling",
-            "investment_priority": "High" if strategic_value == "High" else "Medium" if strategic_value == "Medium" else "Low",
-            "account_investment_level": "Executive engagement" if strategic_value == "High" else "Standard management",
+            "investment_priority": "High"
+            if strategic_value == "High"
+            else "Medium"
+            if strategic_value == "Medium"
+            else "Low",
+            "account_investment_level": "Executive engagement"
+            if strategic_value == "High"
+            else "Standard management",
         }
         result.actions.append(
             EnrichmentAction(
@@ -427,16 +457,26 @@ class VendorEnricher(AbstractEnricher):
 
         # Innovation partnership potential
         result.field_updates["innovation_partnership_potential"] = {
-            "partnership_potential": "High" if system_count > 5 else "Medium" if system_count > 2 else "Low",
-            "shared_roadmap_alignment": True if system_count > 3 else False,
+            "partnership_potential": "High"
+            if system_count > 5
+            else "Medium"
+            if system_count > 2
+            else "Low",
+            "shared_roadmap_alignment": system_count > 3,
             "joint_capability_development": "Possible" if system_count > 4 else "Limited",
-            "co_marketing_opportunity": "Strong" if system_count > 6 else "Moderate" if system_count > 2 else "Limited",
+            "co_marketing_opportunity": "Strong"
+            if system_count > 6
+            else "Moderate"
+            if system_count > 2
+            else "Limited",
             "preferred_partner_status": "Yes" if system_count > 5 else "No",
             "innovation_areas": [
                 "AI/ML capabilities",
                 "Cloud modernization",
                 "Automation",
-            ] if system_count > 4 else [],
+            ]
+            if system_count > 4
+            else [],
             "investment_in_joint_innovation": annual_spend * 0.15 if system_count > 4 else 0,
         }
         result.actions.append(
@@ -452,14 +492,30 @@ class VendorEnricher(AbstractEnricher):
 
         # Vendor dependency depth
         result.field_updates["vendor_dependency_depth"] = {
-            "dependency_level": "Critical" if system_count > 8 else "High" if system_count > 5 else "Medium" if system_count > 2 else "Low",
+            "dependency_level": "Critical"
+            if system_count > 8
+            else "High"
+            if system_count > 5
+            else "Medium"
+            if system_count > 2
+            else "Low",
             "critical_systems_dependent": system_count,
             "alternative_options_available": max(0, 5 - system_count),
-            "switching_feasibility": "Difficult" if system_count > 7 else "Moderate" if system_count > 3 else "Feasible",
-            "single_point_of_failure": True if system_count > 6 else False,
-            "mitigation_strategy": "Diversification" if system_count > 5 else "Standard vendor management",
-            "contingency_planning": True if system_count > 4 else False,
-            "business_continuity_impact": "Severe" if system_count > 8 else "Significant" if system_count > 5 else "Moderate",
+            "switching_feasibility": "Difficult"
+            if system_count > 7
+            else "Moderate"
+            if system_count > 3
+            else "Feasible",
+            "single_point_of_failure": system_count > 6,
+            "mitigation_strategy": "Diversification"
+            if system_count > 5
+            else "Standard vendor management",
+            "contingency_planning": system_count > 4,
+            "business_continuity_impact": "Severe"
+            if system_count > 8
+            else "Significant"
+            if system_count > 5
+            else "Moderate",
         }
         result.actions.append(
             EnrichmentAction(

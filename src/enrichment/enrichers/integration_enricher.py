@@ -16,21 +16,20 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import ClassVar
 
+from domain.base import BaseEntity, EntityType, RelationshipType
+from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
+    ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
-    EnrichmentResult,
-    EntityContext,
-    EnricherRegistry,
-    EnrichmentTier,
     EnrichmentProfile,
-    ConfidenceLevel,
+    EnrichmentResult,
+    EnrichmentTier,
+    EntityContext,
     OSINTResults,
 )
-from domain.base import BaseEntity, EntityType, RelationshipType
-from domain.shared import ProvenanceAndConfidence, DataGap
-
 
 PROTOCOL_TEMPLATES = {
     "REST": {
@@ -256,9 +255,13 @@ class IntegrationEnricher(AbstractEnricher):
         description = getattr(data_flow, "description", "").lower()
 
         critical_keywords = ["payment", "restricted", "confidential", "regulated", "sensitive"]
-        return any(keyword in classification or keyword in description for keyword in critical_keywords)
+        return any(
+            keyword in classification or keyword in description for keyword in critical_keywords
+        )
 
-    def _populate_tier_2(self, entity: BaseEntity, context: EntityContext, integration_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_2(
+        self, entity: BaseEntity, context: EntityContext, integration_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 2 (Managed) fields: core operational."""
         updates = {}
         actions = []
@@ -275,11 +278,17 @@ class IntegrationEnricher(AbstractEnricher):
             if len(connected) >= 2:
                 if not source_systems:
                     updates["source_systems"] = [
-                        {"system_id": connected[0].id, "system_name": getattr(connected[0], "name", "")}
+                        {
+                            "system_id": connected[0].id,
+                            "system_name": getattr(connected[0], "name", ""),
+                        }
                     ]
                 if not target_systems:
                     updates["target_systems"] = [
-                        {"system_id": connected[-1].id, "system_name": getattr(connected[-1], "name", "")}
+                        {
+                            "system_id": connected[-1].id,
+                            "system_name": getattr(connected[-1], "name", ""),
+                        }
                     ]
                 actions.append(
                     EnrichmentAction(
@@ -338,7 +347,9 @@ class IntegrationEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_3(self, entity: BaseEntity, context: EntityContext, integration_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_3(
+        self, entity: BaseEntity, context: EntityContext, integration_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 3 (Defined) fields: cross-entity coherence."""
         updates = {}
         actions = []
@@ -430,7 +441,9 @@ class IntegrationEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_4(self, entity: BaseEntity, context: EntityContext, integration_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_4(
+        self, entity: BaseEntity, context: EntityContext, integration_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 4 (Measured) fields: quantitative metrics."""
         updates = {}
         actions = []
@@ -504,7 +517,9 @@ class IntegrationEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_5(self, entity: BaseEntity, context: EntityContext, integration_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_5(
+        self, entity: BaseEntity, context: EntityContext, integration_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 5 (Optimized) fields: modernization & technical debt."""
         updates = {}
         actions = []
@@ -516,25 +531,31 @@ class IntegrationEnricher(AbstractEnricher):
         debt_indicators = []
 
         if integration_type == "File Transfer":
-            debt_indicators.append({
-                "indicator_type": "Legacy File Transfer",
-                "severity": "Medium",
-                "description": "File transfer integrations are being replaced with API-based solutions",
-            })
+            debt_indicators.append(
+                {
+                    "indicator_type": "Legacy File Transfer",
+                    "severity": "Medium",
+                    "description": "File transfer integrations are being replaced with API-based solutions",
+                }
+            )
 
         if integration_type == "SOAP":
-            debt_indicators.append({
-                "indicator_type": "SOAP Web Services",
-                "severity": "High",
-                "description": "SOAP is deprecated; migrate to REST or gRPC",
-            })
+            debt_indicators.append(
+                {
+                    "indicator_type": "SOAP Web Services",
+                    "severity": "High",
+                    "description": "SOAP is deprecated; migrate to REST or gRPC",
+                }
+            )
 
         if not is_critical:
-            debt_indicators.append({
-                "indicator_type": "Monitoring Gap",
-                "severity": "Low",
-                "description": "Consider upgrading to full monitoring",
-            })
+            debt_indicators.append(
+                {
+                    "indicator_type": "Monitoring Gap",
+                    "severity": "Low",
+                    "description": "Consider upgrading to full monitoring",
+                }
+            )
 
         updates["technical_debt_indicators"] = debt_indicators
         actions.append(
@@ -552,28 +573,34 @@ class IntegrationEnricher(AbstractEnricher):
         modernization = []
 
         if integration_type == "File Transfer":
-            modernization.append({
-                "candidate": "RESTful API wrapper",
-                "rationale": "Event-driven, lower latency",
-                "effort": "High",
-                "savings": 30000,
-            })
+            modernization.append(
+                {
+                    "candidate": "RESTful API wrapper",
+                    "rationale": "Event-driven, lower latency",
+                    "effort": "High",
+                    "savings": 30000,
+                }
+            )
 
         if integration_type == "SOAP":
-            modernization.append({
-                "candidate": "REST with API gateway",
-                "rationale": "Easier to manage, better ecosystem",
-                "effort": "Medium",
-                "savings": 50000,
-            })
+            modernization.append(
+                {
+                    "candidate": "REST with API gateway",
+                    "rationale": "Easier to manage, better ecosystem",
+                    "effort": "Medium",
+                    "savings": 50000,
+                }
+            )
 
         if is_critical and not debt_indicators:
-            modernization.append({
-                "candidate": "Implement service mesh (Istio)",
-                "rationale": "Enhanced reliability and observability",
-                "effort": "High",
-                "savings": 0,
-            })
+            modernization.append(
+                {
+                    "candidate": "Implement service mesh (Istio)",
+                    "rationale": "Enhanced reliability and observability",
+                    "effort": "High",
+                    "savings": 0,
+                }
+            )
 
         updates["modernization_candidates"] = modernization
         actions.append(
@@ -594,7 +621,10 @@ class IntegrationEnricher(AbstractEnricher):
         gaps = []
 
         # Check for missing key attributes
-        if not getattr(entity, "source_systems", None) or len(getattr(entity, "source_systems", [])) == 0:
+        if (
+            not getattr(entity, "source_systems", None)
+            or len(getattr(entity, "source_systems", [])) == 0
+        ):
             gaps.append(
                 DataGap(
                     field_name="source_systems",
@@ -604,7 +634,10 @@ class IntegrationEnricher(AbstractEnricher):
                 )
             )
 
-        if not getattr(entity, "target_systems", None) or len(getattr(entity, "target_systems", [])) == 0:
+        if (
+            not getattr(entity, "target_systems", None)
+            or len(getattr(entity, "target_systems", [])) == 0
+        ):
             gaps.append(
                 DataGap(
                     field_name="target_systems",

@@ -20,16 +20,15 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
-    EnricherRegistry,
     OSINTResults,
 )
-
 
 CONTRACT_TYPE_TEMPLATES = {
     "MSA": {
@@ -58,7 +57,13 @@ CONTRACT_TYPE_TEMPLATES = {
     },
 }
 
-CONTRACT_STATUS_OPTIONS = ["Active", "Renewal Pending", "Expired", "Under Negotiation", "Terminated"]
+CONTRACT_STATUS_OPTIONS = [
+    "Active",
+    "Renewal Pending",
+    "Expired",
+    "Under Negotiation",
+    "Terminated",
+]
 
 
 @EnricherRegistry.register
@@ -144,7 +149,9 @@ class ContractEnricher(AbstractEnricher):
         else:
             contract_key = "License"
 
-        contract_template = CONTRACT_TYPE_TEMPLATES.get(contract_key, CONTRACT_TYPE_TEMPLATES["Subscription"])
+        contract_template = CONTRACT_TYPE_TEMPLATES.get(
+            contract_key, CONTRACT_TYPE_TEMPLATES["Subscription"]
+        )
         result.field_updates["contract_type"] = contract_template["contract_type"]
 
         result.actions.append(
@@ -159,7 +166,7 @@ class ContractEnricher(AbstractEnricher):
         )
 
         # Contract status based on effective dates
-        current_date = datetime.now(UTC)
+        datetime.now(UTC)
         # Default assumption: active contracts
         status = "Active"
         result.field_updates["status"] = status
@@ -176,7 +183,9 @@ class ContractEnricher(AbstractEnricher):
 
         # Effective dates
         effective_date = datetime.now(UTC)
-        expiration_date = effective_date + timedelta(days=365 * (contract_template["typical_duration_months"] // 12))
+        expiration_date = effective_date + timedelta(
+            days=365 * (contract_template["typical_duration_months"] // 12)
+        )
 
         result.field_updates["effective_date"] = effective_date.isoformat()
         result.field_updates["expiration_date"] = expiration_date.isoformat()
@@ -214,8 +223,8 @@ class ContractEnricher(AbstractEnricher):
         profile: EnrichmentProfile,
     ) -> None:
         """Tier 3: Legal and operational provisions."""
-        vendors = context.get_neighbors(RelationshipType.CONTRACTS_WITH)
-        systems = context.get_neighbors(RelationshipType.IMPACTS)
+        context.get_neighbors(RelationshipType.CONTRACTS_WITH)
+        context.get_neighbors(RelationshipType.IMPACTS)
 
         # SLA entries
         result.field_updates["sla_entries"] = [

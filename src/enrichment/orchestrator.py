@@ -15,30 +15,24 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 # UTC timezone (Python 3.11+) or fallback for compatibility
 try:
     from datetime import UTC
 except ImportError:
-    UTC = timezone.utc
+    UTC = UTC
 
 from domain.base import EntityType
 from enrichment.base import (
-    AbstractEnricher,
     AdversarialValidator,
-    ConfidenceLevel,
-    EnrichmentContext,
-    EnrichmentProfile,
+    EnricherRegistry,
     EnrichmentResult,
     EnrichmentStats,
     EnrichmentTier,
-    EnricherRegistry,
-    OSINTResults,
-    ValidationFailure,
 )
-from enrichment.coherence_rules import ALL_COHERENCE_RULES, CoherenceSeverity, validate_all_rules
+from enrichment.coherence_rules import CoherenceSeverity, validate_all_rules
 from enrichment.graph_context import GraphContextEngine
 from enrichment.provenance_reconciler import ProvenanceReconciler
 from synthetic.orchestrator import GENERATION_ORDER
@@ -394,7 +388,7 @@ class EnrichmentOrchestrator:
             return controller.run_pipeline(tier_level)
 
         overall_stats = EnrichmentStats()
-        start_time = datetime.now(UTC)
+        datetime.now(UTC)
 
         logger.info(f"Starting enrichment to {TIER_NAMES.get(tier_level, f'Tier {tier_level}')}")
 
@@ -403,9 +397,7 @@ class EnrichmentOrchestrator:
             tier_stats = self._enrich_tier(current_tier)
             overall_stats.total_entities_enriched += tier_stats.total_entities_enriched
             overall_stats.total_fields_enriched += tier_stats.total_fields_enriched
-            overall_stats.total_relationships_suggested += (
-                tier_stats.total_relationships_suggested
-            )
+            overall_stats.total_relationships_suggested += tier_stats.total_relationships_suggested
             overall_stats.total_gaps_identified += tier_stats.total_gaps_identified
             overall_stats.total_fields_attempted += tier_stats.total_fields_attempted
             overall_stats.total_validation_failures += tier_stats.total_validation_failures
@@ -453,10 +445,10 @@ class EnrichmentOrchestrator:
         """
         tier_stats = EnrichmentStats()
         tier_enum = TIER_LEVEL_MAP.get(tier_level, EnrichmentTier.BASIC)
-        profile_enum = EnrichmentProfile.STANDARD  # Could vary by orchestrator config
+        profile_enum = self._profile_name  # Set at construction time via CLI or API
 
         # Get expected tier fields
-        tier_fields = self._get_tier_fields(tier_level)
+        self._get_tier_fields(tier_level)
 
         logger.info(
             f"Enriching entities to {TIER_NAMES.get(tier_level, f'Tier {tier_level}')} "
@@ -542,7 +534,7 @@ class EnrichmentOrchestrator:
             logger.debug("Running relationship enricher")
             try:
                 rel_enricher_class = EnricherRegistry.get("relationship")
-                rel_enricher = rel_enricher_class()
+                rel_enricher_class()
                 # Relationship enricher operates on the full graph, not per-entity
                 rels = self._kg.list_relationships(limit=500)
                 for rel in rels:
@@ -551,8 +543,10 @@ class EnrichmentOrchestrator:
                         target = self._kg.get_entity(rel.target_id)
                         if source and target:
                             # Recalculate relationship confidence based on entity confidences
-                            new_confidence = self._provenance_reconciler.recalculate_relationship_confidence(
-                                source, target
+                            new_confidence = (
+                                self._provenance_reconciler.recalculate_relationship_confidence(
+                                    source, target
+                                )
                             )
                             # Only update if confidence has changed
                             if abs(new_confidence - (rel.confidence or 0.75)) > 0.05:
@@ -587,9 +581,7 @@ class EnrichmentOrchestrator:
         tier_stats.end_time = datetime.now(UTC)
         return tier_stats
 
-    def _apply_enrichment_result(
-        self, entity_id: str, result: EnrichmentResult
-    ) -> None:
+    def _apply_enrichment_result(self, entity_id: str, result: EnrichmentResult) -> None:
         """Apply field updates and provenance to an entity.
 
         Args:
@@ -630,9 +622,7 @@ class EnrichmentOrchestrator:
                 try:
                     self._kg.update_entity(entity_id, **{provenance_field: provenance})
                 except Exception as e:
-                    logger.error(
-                        f"Error updating provenance for {entity_id}: {e}", exc_info=True
-                    )
+                    logger.error(f"Error updating provenance for {entity_id}: {e}", exc_info=True)
 
     def _get_tier_fields(self, tier_level: int) -> dict[EntityType, list[str]]:
         """Get expected fields for a tier level.

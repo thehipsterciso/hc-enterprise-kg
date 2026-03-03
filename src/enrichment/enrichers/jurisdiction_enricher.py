@@ -14,11 +14,11 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
-    EnricherRegistry,
     EntityContext,
     OSINTResults,
 )
@@ -217,9 +217,7 @@ class JurisdictionEnricher(AbstractEnricher):
         if profile_data:
             result.field_updates["legal_system_type"] = profile_data["legal_system_type"]
             result.field_updates["regulatory_intensity"] = profile_data["regulatory_intensity"]
-            result.field_updates["primary_data_privacy_framework"] = profile_data[
-                "data_privacy"
-            ]
+            result.field_updates["primary_data_privacy_framework"] = profile_data["data_privacy"]
         else:
             result.field_updates["legal_system_type"] = "Common Law"
             result.field_updates["regulatory_intensity"] = "Moderate"
@@ -229,13 +227,15 @@ class JurisdictionEnricher(AbstractEnricher):
         agencies = REGULATORY_AGENCIES.get(
             jur_name if jur_name in JURISDICTION_PROFILES else "US", []
         )
-        result.field_updates["key_regulatory_agencies"] = [
-            a["agency_name"] for a in agencies
-        ]
+        result.field_updates["key_regulatory_agencies"] = [a["agency_name"] for a in agencies]
         result.field_updates["supervisory_authorities_count"] = len(agencies)
 
         # Regulatory framework summary.
-        result.field_updates["regulatory_framework_complexity"] = "High" if "Heavy" in result.field_updates.get("regulatory_intensity", "Moderate") else "Moderate"
+        result.field_updates["regulatory_framework_complexity"] = (
+            "High"
+            if "Heavy" in result.field_updates.get("regulatory_intensity", "Moderate")
+            else "Moderate"
+        )
 
     def _enrich_tier4(
         self,
@@ -255,7 +255,7 @@ class JurisdictionEnricher(AbstractEnricher):
                 break
 
         # Data residency requirements.
-        has_requirements = profile_data and "required" in profile_data.get("data_privacy", "").lower()
+        profile_data and "required" in profile_data.get("data_privacy", "").lower()
         result.field_updates["data_residency_required"] = (
             profile_data["data_residency_required"] if profile_data else False
         )
@@ -287,19 +287,13 @@ class JurisdictionEnricher(AbstractEnricher):
             result.field_updates["notice_period_days"] = 30
 
         result.field_updates["severance_requirements"] = "Statutory severance applies"
-        result.field_updates["works_council_required"] = (
-            "EU" in jur_name or "Germany" in jur_name
-        )
-        result.field_updates["union_prevalence"] = (
-            "Moderate" if "EU" in jur_name else "Low"
-        )
+        result.field_updates["works_council_required"] = "EU" in jur_name or "Germany" in jur_name
+        result.field_updates["union_prevalence"] = "Moderate" if "EU" in jur_name else "Low"
         result.field_updates["maximum_weekly_hours"] = "48"
 
         # Tax regime.
         if profile_data:
-            result.field_updates["corporate_income_tax_rate"] = profile_data[
-                "corporate_tax_rate"
-            ]
+            result.field_updates["corporate_income_tax_rate"] = profile_data["corporate_tax_rate"]
             result.field_updates["vat_gst_rate"] = profile_data["vat_gst_rate"]
         else:
             result.field_updates["corporate_income_tax_rate"] = 21.0
@@ -393,13 +387,9 @@ class JurisdictionEnricher(AbstractEnricher):
         is_sanctioned = "China" in jur_name or "Russia" in jur_name or "Iran" in jur_name
         result.field_updates["subject_to_sanctions"] = is_sanctioned
         result.field_updates["sanctioning_bodies"] = (
-            ["OFAC", "EU Sanctions"]
-            if is_sanctioned
-            else []
+            ["OFAC", "EU Sanctions"] if is_sanctioned else []
         )
-        result.field_updates["sanction_type"] = (
-            "Comprehensive" if is_sanctioned else "None"
-        )
+        result.field_updates["sanction_type"] = "Comprehensive" if is_sanctioned else "None"
         result.field_updates["last_sanctions_review"] = "2026-02-28"
 
         # Export control requirements.

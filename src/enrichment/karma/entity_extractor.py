@@ -13,12 +13,10 @@ for each entity type.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
 
 from domain.base import EntityType
 from enrichment.base import (
     EnricherRegistry,
-    EnrichmentProfile,
     EnrichmentTier,
 )
 from enrichment.karma.base_agent import (
@@ -129,8 +127,7 @@ class EntityExtractorAgent(AbstractKarmaAgent):
 
         except Exception as e:
             logger.error(
-                f"EntityExtractorAgent error for {entity_type_str} "
-                f"{entity.id}: {e}",
+                f"EntityExtractorAgent error for {entity_type_str} {entity.id}: {e}",
                 exc_info=True,
             )
             state.entities_failed += 1

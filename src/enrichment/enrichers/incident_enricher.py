@@ -13,11 +13,11 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
-    EnricherRegistry,
     EntityContext,
     OSINTResults,
 )
@@ -182,7 +182,9 @@ class IncidentEnricher(AbstractEnricher):
 
         # Attribution (if threat actor identified).
         if threat_actors:
-            result.field_updates["attributed_threat_actor"] = threat_actors[0].name if threat_actors else None
+            result.field_updates["attributed_threat_actor"] = (
+                threat_actors[0].name if threat_actors else None
+            )
             result.field_updates["attribution_confidence"] = "Medium"
 
     def _enrich_tier4(

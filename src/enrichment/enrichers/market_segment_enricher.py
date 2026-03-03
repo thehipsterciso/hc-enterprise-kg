@@ -20,16 +20,15 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
     EntityContext,
-    EnricherRegistry,
     OSINTResults,
 )
-
 
 SEGMENT_TYPE_TEMPLATES = {
     "Enterprise": {
@@ -151,7 +150,9 @@ class MarketSegmentEnricher(AbstractEnricher):
         else:
             segment_key = "Enterprise"
 
-        segment_template = SEGMENT_TYPE_TEMPLATES.get(segment_key, SEGMENT_TYPE_TEMPLATES["Vertical"])
+        segment_template = SEGMENT_TYPE_TEMPLATES.get(
+            segment_key, SEGMENT_TYPE_TEMPLATES["Vertical"]
+        )
         result.field_updates["segment_type"] = segment_template["segment_type"]
 
         result.actions.append(
@@ -173,8 +174,12 @@ class MarketSegmentEnricher(AbstractEnricher):
                 "Healthcare",
                 "Technology",
             ],
-            "typical_decision_maker_title": "CIO" if "Enterprise" in segment_template["segment_type"] else "IT Director",
-            "buying_behavior": "Deliberate" if "Enterprise" in segment_template["segment_type"] else "Pragmatic",
+            "typical_decision_maker_title": "CIO"
+            if "Enterprise" in segment_template["segment_type"]
+            else "IT Director",
+            "buying_behavior": "Deliberate"
+            if "Enterprise" in segment_template["segment_type"]
+            else "Pragmatic",
             "typical_deal_size_usd": segment_template["typical_deal_size"],
             "typical_sales_cycle_months": segment_template["sales_cycle_months"],
         }
@@ -233,7 +238,9 @@ class MarketSegmentEnricher(AbstractEnricher):
                 "Superior product feature set",
                 "Stronger customer relationships",
                 "Better pricing model",
-            ] if len(products) > 3 else [
+            ]
+            if len(products) > 3
+            else [
                 "Innovative approach",
                 "Niche specialization",
             ],
@@ -369,7 +376,7 @@ class MarketSegmentEnricher(AbstractEnricher):
         profile: EnrichmentProfile,
     ) -> None:
         """Tier 5: Predictive trends and emerging opportunities."""
-        products = context.get_neighbors(RelationshipType.SERVES)
+        context.get_neighbors(RelationshipType.SERVES)
 
         # Predictive trends
         result.field_updates["predictive_trends"] = {

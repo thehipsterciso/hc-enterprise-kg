@@ -13,11 +13,11 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
-    EnricherRegistry,
     EntityContext,
     OSINTResults,
 )
@@ -105,7 +105,7 @@ class RiskEnricher(AbstractEnricher):
 
         # Enrich risk_category and inherent_likelihood from threats.
         if threats:
-            threat_names = [t.name for t in threats]
+            [t.name for t in threats]
             result.field_updates["risk_category"] = "Cybersecurity"
             result.field_updates["risk_source"] = "External"
             result.field_updates["inherent_likelihood"] = "Likely"
@@ -125,7 +125,7 @@ class RiskEnricher(AbstractEnricher):
     ) -> None:
         """Tier 3: Control effectiveness, interconnections, tolerance."""
         systems = context.get_neighbors(RelationshipType.AFFECTS)
-        org_units = context.get_neighbors(RelationshipType.IMPACTS)
+        context.get_neighbors(RelationshipType.IMPACTS)
 
         # Assess control effectiveness rating.
         if "control_effectiveness_on_risk" not in result.field_updates:
@@ -150,7 +150,7 @@ class RiskEnricher(AbstractEnricher):
                 {
                     "related_risk_id": f"RSK-{i:05d}",
                     "relationship_type": "Causes",
-                    "description": f"May trigger operational disruption risk",
+                    "description": "May trigger operational disruption risk",
                 }
                 for i in range(1, min(len(systems) + 1, 4))
             ]

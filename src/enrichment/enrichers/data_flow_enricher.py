@@ -17,9 +17,12 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import ClassVar
 
+from domain.base import BaseEntity, EntityType
+from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
@@ -27,11 +30,7 @@ from enrichment.base import (
     EnrichmentTier,
     EntityContext,
     OSINTResults,
-    EnricherRegistry,
 )
-from domain.base import BaseEntity, EntityType, RelationshipType
-from domain.shared import ProvenanceAndConfidence, DataGap
-
 
 # Data format profiles
 DATA_FORMAT_PROFILES = [
@@ -39,7 +38,12 @@ DATA_FORMAT_PROFILES = [
     {"format": "CSV", "compression": "gzip", "schema_compatible": False, "splittable": True},
     {"format": "JSON", "compression": "gzip", "schema_compatible": False, "splittable": False},
     {"format": "Avro", "compression": "Snappy", "schema_compatible": True, "splittable": True},
-    {"format": "Protocol Buffers", "compression": "None", "schema_compatible": True, "splittable": False},
+    {
+        "format": "Protocol Buffers",
+        "compression": "None",
+        "schema_compatible": True,
+        "splittable": False,
+    },
 ]
 
 # Flow frequency templates
@@ -75,7 +79,10 @@ TRANSFORMATION_COMPLEXITY_LEVELS = {
     "simple": {"description": "Pass-through or field rename", "estimated_cpu": "Low"},
     "moderate": {"description": "Single-source aggregation/join", "estimated_cpu": "Medium"},
     "complex": {"description": "Multi-source join with lookups", "estimated_cpu": "High"},
-    "very_complex": {"description": "Iterative transformations with state", "estimated_cpu": "Very High"},
+    "very_complex": {
+        "description": "Iterative transformations with state",
+        "estimated_cpu": "Very High",
+    },
 }
 
 # Encryption in transit standards
@@ -188,8 +195,12 @@ class DataFlowEnricher(AbstractEnricher):
 
         # Determine if cross-border flow
         crosses_border = False
-        if hasattr(entity, "crosses_jurisdiction") and getattr(entity, "crosses_jurisdiction", None):
-            crosses_border = getattr(entity, "crosses_jurisdiction", {}).get("crosses_border", False)
+        if hasattr(entity, "crosses_jurisdiction") and getattr(
+            entity, "crosses_jurisdiction", None
+        ):
+            crosses_border = getattr(entity, "crosses_jurisdiction", {}).get(
+                "crosses_border", False
+            )
 
         profile = {
             "flow_id": entity.id,
@@ -203,7 +214,9 @@ class DataFlowEnricher(AbstractEnricher):
         }
         return profile
 
-    def _populate_tier_2(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_2(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 2 (Managed) fields: core operational."""
         updates = {}
         actions = []
@@ -306,7 +319,9 @@ class DataFlowEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_3(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_3(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 3 (Defined) fields: cross-entity coherence."""
         updates = {}
         actions = []
@@ -407,7 +422,9 @@ class DataFlowEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_4(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_4(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 4 (Measured) fields: quantitative metrics."""
         updates = {}
         actions = []
@@ -504,7 +521,9 @@ class DataFlowEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_5(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_5(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 5 (Optimized) fields: strategic optimization."""
         updates = {}
         actions = []
@@ -512,22 +531,26 @@ class DataFlowEnricher(AbstractEnricher):
         # Optimization opportunities
         opportunities = []
         frequency = getattr(entity, "frequency", "Daily").lower()
-        if "daily" in frequency and not "real" in frequency:
-            opportunities.append({
-                "opportunity_description": "Migrate to near-real-time streaming",
-                "estimated_annual_savings": 5000.0,
-                "effort_level": "High",
-                "status": "Identified",
-            })
+        if "daily" in frequency and "real" not in frequency:
+            opportunities.append(
+                {
+                    "opportunity_description": "Migrate to near-real-time streaming",
+                    "estimated_annual_savings": 5000.0,
+                    "effort_level": "High",
+                    "status": "Identified",
+                }
+            )
 
         source_assets = getattr(entity, "source_assets", [])
         if len(source_assets) > 3:
-            opportunities.append({
-                "opportunity_description": "Consolidate redundant source assets",
-                "estimated_annual_savings": 10000.0,
-                "effort_level": "Medium",
-                "status": "Identified",
-            })
+            opportunities.append(
+                {
+                    "opportunity_description": "Consolidate redundant source assets",
+                    "estimated_annual_savings": 10000.0,
+                    "effort_level": "Medium",
+                    "status": "Identified",
+                }
+            )
 
         if opportunities:
             updates["optimization_opportunities"] = opportunities
@@ -551,7 +574,9 @@ class DataFlowEnricher(AbstractEnricher):
         real_time_candidate = {
             "is_candidate": is_migration_candidate,
             "business_criticality": "High" if business_criticality else "Medium",
-            "technical_feasibility": "High" if not cross_profile.get("crosses_border", False) else "Medium",
+            "technical_feasibility": "High"
+            if not cross_profile.get("crosses_border", False)
+            else "Medium",
             "estimated_effort": "Very High",
             "priority": "High" if is_migration_candidate and business_criticality else "Medium",
             "timeline_months": 6 if is_migration_candidate else 12,
@@ -563,7 +588,7 @@ class DataFlowEnricher(AbstractEnricher):
                 entity_type=EntityType.DATA_FLOW,
                 fields_enriched=["real_time_migration_candidate"],
                 source="Strategic modernization assessment",
-                methodology=f"Evaluated frequency, criticality, and jurisdiction crossing",
+                methodology="Evaluated frequency, criticality, and jurisdiction crossing",
                 confidence=ConfidenceLevel.LOW,
             )
         )

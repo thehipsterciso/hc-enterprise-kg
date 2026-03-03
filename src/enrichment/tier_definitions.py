@@ -14,12 +14,6 @@ Tier levels represent maturity progression:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from domain.base import EntityType
-
-
 # Tier metadata
 TIER_NAMES = {
     1: "Initial",
@@ -1009,9 +1003,7 @@ TIER_FIELDS: dict[str, dict[int, list[str]]] = {
 # ============================================================================
 
 
-def get_tier_fields(
-    entity_type: str, tier: int
-) -> list[str]:
+def get_tier_fields(entity_type: str, tier: int) -> list[str]:
     """Get all field names to enrich for a specific entity type at a given tier.
 
     Args:
@@ -1030,9 +1022,7 @@ def get_tier_fields(
     return TIER_FIELDS[entity_type].get(tier, [])
 
 
-def get_cumulative_fields(
-    entity_type: str, max_tier: int
-) -> list[str]:
+def get_cumulative_fields(entity_type: str, max_tier: int) -> list[str]:
     """Get all field names to enrich cumulatively up to and including max_tier.
 
     This returns the union of all fields from tier 1 through max_tier,

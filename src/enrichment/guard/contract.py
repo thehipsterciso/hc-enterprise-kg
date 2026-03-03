@@ -19,11 +19,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import StrEnum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from domain.base import BaseEntity
-
-from enrichment.guard.reports import ContractViolation
+if TYPE_CHECKING:
+    from domain.base import BaseEntity
+    from enrichment.guard.reports import ContractViolation
 
 
 class ContractSeverity(StrEnum):

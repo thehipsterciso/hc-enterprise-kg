@@ -15,22 +15,22 @@ Severity: WARNING (reports insufficient completeness; doesn't block)
 
 from __future__ import annotations
 
-from typing import Any
-
-from domain.base import BaseEntity
+from typing import TYPE_CHECKING, Any
 
 from enrichment.base import FieldCategory
 from enrichment.guard.contract import ContractSeverity, QualityContract
 from enrichment.guard.reports import ContractViolation
 
+if TYPE_CHECKING:
+    from domain.base import BaseEntity
 
 # Minimum weighted completeness thresholds per tier (percentage)
 TIER_COMPLETENESS_THRESHOLDS: dict[int, float] = {
-    1: 0.10,   # Tier 1: 10% — identity fields only
-    2: 0.30,   # Tier 2: 30% — operational fields populated
-    3: 0.50,   # Tier 3: 50% — cross-entity coherence
-    4: 0.70,   # Tier 4: 70% — quantitative metrics
-    5: 0.85,   # Tier 5: 85% — full fidelity (some gaps acceptable)
+    1: 0.10,  # Tier 1: 10% — identity fields only
+    2: 0.30,  # Tier 2: 30% — operational fields populated
+    3: 0.50,  # Tier 3: 50% — cross-entity coherence
+    4: 0.70,  # Tier 4: 70% — quantitative metrics
+    5: 0.85,  # Tier 5: 85% — full fidelity (some gaps acceptable)
 }
 
 # Field category weights for completeness calculation
@@ -76,9 +76,7 @@ class CompletenessContract(QualityContract):
         """
         tier: int = kwargs.get("tier", 2)
         tier_fields: list[str] = kwargs.get("tier_fields", [])
-        field_categories: dict[str, FieldCategory] = kwargs.get(
-            "field_categories", {}
-        )
+        field_categories: dict[str, FieldCategory] = kwargs.get("field_categories", {})
 
         if not tier_fields:
             return []
@@ -87,9 +85,7 @@ class CompletenessContract(QualityContract):
 
         # Calculate weighted completeness considering both existing
         # entity fields and proposed updates
-        entity_dict = (
-            entity.model_dump() if hasattr(entity, "model_dump") else {}
-        )
+        entity_dict = entity.model_dump() if hasattr(entity, "model_dump") else {}
 
         # Merge existing values with proposed updates
         merged = {}
@@ -121,7 +117,8 @@ class CompletenessContract(QualityContract):
         if completeness < threshold:
             # Find missing critical fields
             missing_critical = [
-                f for f in tier_fields
+                f
+                for f in tier_fields
                 if field_categories.get(f) == FieldCategory.CRITICAL
                 and merged.get(f) in (None, "", [])
             ]

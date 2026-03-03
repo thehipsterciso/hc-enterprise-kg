@@ -13,7 +13,6 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from enrichment.base import EntityContext, OSINTResults
 from enrichment.karma.base_agent import (
     AbstractKarmaAgent,
     AgentMessage,
@@ -23,6 +22,7 @@ from enrichment.karma.base_agent import (
 )
 
 if TYPE_CHECKING:
+    from enrichment.base import OSINTResults
     from enrichment.graph_context import GraphContextEngine
     from enrichment.osint_agent import OSINTResearchAgent
     from graph.knowledge_graph import KnowledgeGraph

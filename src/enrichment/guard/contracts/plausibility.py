@@ -15,12 +15,13 @@ Severity: ERROR (blocks the update — implausible values never reach the graph)
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
-
-from domain.base import BaseEntity
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from enrichment.guard.contract import ContractSeverity, QualityContract
 from enrichment.guard.reports import ContractViolation
+
+if TYPE_CHECKING:
+    from domain.base import BaseEntity
 
 
 class PlausibilityContract(QualityContract):
@@ -85,7 +86,7 @@ class PlausibilityContract(QualityContract):
         for field_name, value in field_updates.items():
             if field_name not in bounds:
                 continue
-            if not isinstance(value, (int, float)):
+            if not isinstance(value, int | float):
                 continue
 
             low, high = bounds[field_name]
@@ -103,9 +104,7 @@ class PlausibilityContract(QualityContract):
                         ),
                         attempted_value=value,
                         expected_range=f"[{low}, {high}]",
-                        remediation=(
-                            f"Ensure {field_name} is between {low} and {high}"
-                        ),
+                        remediation=(f"Ensure {field_name} is between {low} and {high}"),
                     )
                 )
 

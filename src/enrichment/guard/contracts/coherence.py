@@ -17,10 +17,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from domain.base import BaseEntity
-
 from enrichment.coherence_rules import (
-    ALL_COHERENCE_RULES,
     CoherenceSeverity,
     CoherenceViolation,
     validate_all_rules,
@@ -29,6 +26,7 @@ from enrichment.guard.contract import ContractSeverity, QualityContract
 from enrichment.guard.reports import ContractViolation as GGViolation
 
 if TYPE_CHECKING:
+    from domain.base import BaseEntity
     from graph.knowledge_graph import KnowledgeGraph
 
 

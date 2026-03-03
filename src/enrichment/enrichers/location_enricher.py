@@ -14,11 +14,11 @@ from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentContext,
     EnrichmentProfile,
     EnrichmentResult,
     EnrichmentTier,
-    EnricherRegistry,
     EntityContext,
     OSINTResults,
 )
@@ -148,20 +148,14 @@ class LocationEnricher(AbstractEnricher):
 
         if hasattr(entity, "country") and entity.country:
             result.field_updates["country_code"] = entity.country
-            result.field_updates["country_name"] = self._country_code_to_name(
-                entity.country
-            )
+            result.field_updates["country_name"] = self._country_code_to_name(entity.country)
 
         # Assign timezone based on country/region.
-        timezone = TIMEZONE_MAP.get(
-            getattr(entity, "country", "US"), "America/New_York"
-        )
+        timezone = TIMEZONE_MAP.get(getattr(entity, "country", "US"), "America/New_York")
         result.field_updates["timezone"] = timezone
 
         # Infer security level from location type.
-        location_type = (
-            getattr(entity, "location_type", "").lower() or "standard"
-        )
+        location_type = getattr(entity, "location_type", "").lower() or "standard"
         security_level = SECURITY_LEVEL_INFERENCE.get(location_type, "standard")
         result.field_updates["security_classification"] = security_level
 

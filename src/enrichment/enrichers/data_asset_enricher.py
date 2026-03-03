@@ -18,9 +18,12 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import ClassVar
 
+from domain.base import BaseEntity, EntityType, RelationshipType
+from domain.shared import DataGap, ProvenanceAndConfidence
 from enrichment.base import (
     AbstractEnricher,
     ConfidenceLevel,
+    EnricherRegistry,
     EnrichmentAction,
     EnrichmentContext,
     EnrichmentProfile,
@@ -28,11 +31,7 @@ from enrichment.base import (
     EnrichmentTier,
     EntityContext,
     OSINTResults,
-    EnricherRegistry,
 )
-from domain.base import BaseEntity, EntityType, RelationshipType
-from domain.shared import ProvenanceAndConfidence, DataGap
-
 
 # Classification levels and associated handling requirements
 CLASSIFICATION_LEVELS = [
@@ -211,7 +210,9 @@ class DataAssetEnricher(AbstractEnricher):
         }
         return profile
 
-    def _populate_tier_2(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_2(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 2 (Managed) fields: core operational."""
         updates = {}
         actions = []
@@ -231,7 +232,9 @@ class DataAssetEnricher(AbstractEnricher):
                 entity_type=EntityType.DATA_ASSET,
                 fields_enriched=["classification"],
                 source="Domain context analysis",
-                methodology=f"Inherited from {len(domains)} related DataDomains" if domains else "Default policy",
+                methodology=f"Inherited from {len(domains)} related DataDomains"
+                if domains
+                else "Default policy",
                 confidence=ConfidenceLevel.HIGH if domains else ConfidenceLevel.MEDIUM,
             )
         )
@@ -269,7 +272,9 @@ class DataAssetEnricher(AbstractEnricher):
         elif "archive" in asset_type:
             retention_key = "archival"
 
-        retention_policy = RETENTION_POLICIES.get(retention_key, RETENTION_POLICIES["transactional"])
+        retention_policy = RETENTION_POLICIES.get(
+            retention_key, RETENTION_POLICIES["transactional"]
+        )
         updates["retention_policy"] = retention_policy
         actions.append(
             EnrichmentAction(
@@ -320,7 +325,9 @@ class DataAssetEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_3(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_3(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 3 (Defined) fields: cross-entity coherence."""
         updates = {}
         actions = []
@@ -349,7 +356,8 @@ class DataAssetEnricher(AbstractEnricher):
         # Lineage upstream (source flows)
         inbound_flows = context.get_neighbors(RelationshipType.ORIGINATES_FROM)
         lineage_upstream = [
-            {"flow_id": flow.id, "flow_name": getattr(flow, "name", "")} for flow in inbound_flows[:5]
+            {"flow_id": flow.id, "flow_name": getattr(flow, "name", "")}
+            for flow in inbound_flows[:5]
         ]
         updates["lineage_upstream"] = lineage_upstream
         actions.append(
@@ -366,7 +374,8 @@ class DataAssetEnricher(AbstractEnricher):
         # Lineage downstream (consumer flows)
         outbound_flows = context.get_neighbors(RelationshipType.FLOWS_TO)
         lineage_downstream = [
-            {"flow_id": flow.id, "flow_name": getattr(flow, "name", "")} for flow in outbound_flows[:5]
+            {"flow_id": flow.id, "flow_name": getattr(flow, "name", "")}
+            for flow in outbound_flows[:5]
         ]
         updates["lineage_downstream"] = lineage_downstream
         actions.append(
@@ -381,7 +390,9 @@ class DataAssetEnricher(AbstractEnricher):
         )
 
         # Catalog status
-        catalog_status = "Cataloged - Complete" if cross_profile.get("domains_count", 0) > 0 else "Uncataloged"
+        catalog_status = (
+            "Cataloged - Complete" if cross_profile.get("domains_count", 0) > 0 else "Uncataloged"
+        )
         updates["catalog_status"] = catalog_status
         actions.append(
             EnrichmentAction(
@@ -421,7 +432,9 @@ class DataAssetEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_4(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_4(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 4 (Measured) fields: quantitative metrics."""
         updates = {}
         actions = []
@@ -516,7 +529,9 @@ class DataAssetEnricher(AbstractEnricher):
 
         return updates, actions
 
-    def _populate_tier_5(self, entity: BaseEntity, context: EntityContext, cross_profile: dict) -> tuple[dict, list]:
+    def _populate_tier_5(
+        self, entity: BaseEntity, context: EntityContext, cross_profile: dict
+    ) -> tuple[dict, list]:
         """Populate Tier 5 (Optimized) fields: full fidelity & predictive."""
         updates = {}
         actions = []
@@ -596,7 +611,11 @@ class DataAssetEnricher(AbstractEnricher):
             "overall_score": fitness_score,
             "primary_purpose": getattr(entity, "asset_type", "Unknown"),
             "secondary_uses": len(outbound_flows),
-            "fitness_assessment": "High" if fitness_score > 80 else "Medium" if fitness_score > 60 else "Low",
+            "fitness_assessment": "High"
+            if fitness_score > 80
+            else "Medium"
+            if fitness_score > 60
+            else "Low",
             "improvement_areas": ["Data quality"] if fitness_score < 80 else [],
         }
         actions.append(
@@ -636,7 +655,10 @@ class DataAssetEnricher(AbstractEnricher):
                 )
             )
 
-        if cross_profile.get("outbound_flows_count", 0) == 0 and cross_profile.get("inbound_flows_count", 0) == 0:
+        if (
+            cross_profile.get("outbound_flows_count", 0) == 0
+            and cross_profile.get("inbound_flows_count", 0) == 0
+        ):
             gaps.append(
                 DataGap(
                     field_name="data_flows",
