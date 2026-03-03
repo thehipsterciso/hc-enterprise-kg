@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [0.32.0] - 2026-03-03
+## [0.31.2] - 2026-03-03
 
 ### Added
 - **Intelligence-driven enrichment agency** (ADR-013) — 30 entity-type enrichers with context-aware graph traversal, OSINT grounding, provenance/confidence tracking, and 5 maturity tiers aligned to CMMI/DCAM standards
