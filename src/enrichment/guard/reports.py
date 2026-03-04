@@ -133,7 +133,7 @@ class QualityValidationReport:
 
     def get_violations_by_severity(self, severity: str) -> list[ContractViolation]:
         """Get all violations of a specific severity level."""
-        violations = []
+        violations: list[ContractViolation] = []
         for evaluation in self.evaluations:
             violations.extend(v for v in evaluation.violations if v.severity == severity)
         return violations

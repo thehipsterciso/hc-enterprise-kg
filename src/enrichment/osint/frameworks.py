@@ -400,7 +400,7 @@ MITRE_ATTACK_TECHNIQUES = {
 # ---------------------------------------------------------------------------
 
 
-def get_all_frameworks() -> dict[str, dict[str, object]]:
+def get_all_frameworks() -> dict[str, object]:
     """Return all framework reference data as a combined dict."""
     return {
         "nist_800_53": NIST_800_53_CONTROLS,

@@ -275,11 +275,11 @@ class JurisdictionEnricher(AbstractEnricher):
         # Labor law summary.
         if profile_data:
             result.field_updates["labor_law_regime"] = profile_data["labor_law_regime"]
-            result.field_updates["employment_at_will"] = (
-                "At-will" in profile_data["labor_law_regime"]
+            result.field_updates["employment_at_will"] = "At-will" in str(
+                profile_data["labor_law_regime"]
             )
             result.field_updates["notice_period_days"] = (
-                30 if "weak" in profile_data["labor_law_regime"].lower() else 60
+                30 if "weak" in str(profile_data["labor_law_regime"]).lower() else 60
             )
         else:
             result.field_updates["labor_law_regime"] = "Standard employment law"

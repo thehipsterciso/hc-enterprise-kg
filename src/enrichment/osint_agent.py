@@ -342,7 +342,7 @@ class OSINTResearchAgent:
         Returns:
             List of matching technique dicts.
         """
-        matches = []
+        matches: list[dict[str, Any]] = []
         search_lower = description.lower()
 
         for _technique_id, technique_data in MITRE_ATTACK_TECHNIQUES.items():

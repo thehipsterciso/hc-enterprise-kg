@@ -471,7 +471,7 @@ class DataDomainEnricher(AbstractEnricher):
         if cross_profile.get("has_sensitive_assets", False):
             base_maturity += 0.5
 
-        maturity_dimensions = []
+        maturity_dimensions: list[dict[str, object]] = []
         for i, dimension in enumerate(DCAM_DIMENSIONS):
             # Vary score slightly per dimension based on asset count
             score = min(5.0, base_maturity + (i % 2) * 0.3)
@@ -496,7 +496,9 @@ class DataDomainEnricher(AbstractEnricher):
         )
 
         # Maturity level (overall)
-        overall_score = sum(d["score"] for d in maturity_dimensions) / len(maturity_dimensions)
+        overall_score = sum([float(d["score"]) for d in maturity_dimensions]) / len(
+            maturity_dimensions
+        )  # type: ignore[misc]
         maturity_level_map = {
             1: "L00 Initial",
             2: "L01 Managed",

@@ -184,7 +184,7 @@ class ContractEnricher(AbstractEnricher):
         # Effective dates
         effective_date = datetime.now(UTC)
         expiration_date = effective_date + timedelta(
-            days=365 * (contract_template["typical_duration_months"] // 12)
+            days=365 * (int(contract_template["typical_duration_months"]) // 12)
         )
 
         result.field_updates["effective_date"] = effective_date.isoformat()
@@ -201,7 +201,7 @@ class ContractEnricher(AbstractEnricher):
         )
 
         # Total contract value
-        total_value = contract_template["typical_value"] * max(1, vendor_count)
+        total_value = float(contract_template["typical_value"]) * max(1, vendor_count)
         result.field_updates["total_value_usd"] = total_value
         result.field_updates["currency"] = "USD"
         result.actions.append(

@@ -297,12 +297,7 @@ class OrganizationalUnitEnricher(AbstractEnricher):
         # span_of_control
         updates["span_of_control"] = {
             "direct_reports": len(child_units),
-            "indirect_reports": sum(
-                len(c.neighbors_by_type.get(RelationshipType.STAFFED_BY, []))
-                if isinstance(c, EntityContext)
-                else 0
-                for c in []
-            ),
+            "indirect_reports": 0,  # future: traverse child entity contexts
             "matrix_relationships": max(0, len(child_units) // 3),
         }
 

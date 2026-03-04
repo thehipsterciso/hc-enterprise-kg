@@ -206,7 +206,7 @@ class InitiativeEnricher(AbstractEnricher):
         # Timeline
         start_date = datetime.now(UTC)
         duration_months = init_template["typical_duration_months"]
-        target_end_date = start_date + timedelta(days=30 * duration_months)
+        target_end_date = start_date + timedelta(days=30 * int(duration_months))
 
         result.field_updates["start_date"] = start_date.isoformat()
         result.field_updates["target_end_date"] = target_end_date.isoformat()

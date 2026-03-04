@@ -204,7 +204,7 @@ class VendorEnricher(AbstractEnricher):
         # Industry classification
         result.field_updates["industry_classification"] = {
             "classification_standard": "NAICS",
-            "code": "511210" if "Technology" in vendor_template["vendor_type"] else "541611",
+            "code": "511210" if "Technology" in str(vendor_template["vendor_type"]) else "541611",
             "description": vendor_template["industry_focus"],
         }
 
@@ -358,7 +358,7 @@ class VendorEnricher(AbstractEnricher):
         )
 
         # Total annual spend
-        annual_spend = base_template["typical_annual_spend"] * max(1, len(systems) / 2)
+        annual_spend = float(base_template["typical_annual_spend"]) * max(1, len(systems) / 2)
 
         result.field_updates["total_annual_spend_usd"] = annual_spend
         result.field_updates["spend_by_category"] = {

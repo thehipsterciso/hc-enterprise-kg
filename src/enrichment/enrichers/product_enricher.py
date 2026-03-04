@@ -300,7 +300,7 @@ class ProductEnricher(AbstractEnricher):
 
         result.field_updates["financial_summary"] = {
             "annual_revenue_usd": total_revenue,
-            "annual_cost_usd": total_revenue * (100 - margin_pct) / 100,
+            "annual_cost_usd": total_revenue * (100 - int(margin_pct)) / 100,
             "gross_margin_pct": margin_pct,
             "currency": "USD",
             "fiscal_year": "2025",

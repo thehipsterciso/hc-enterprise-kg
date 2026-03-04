@@ -337,7 +337,7 @@ class DataAssetEnricher(AbstractEnricher):
         for dimension_name, template in QUALITY_DIMENSION_TEMPLATES.items():
             quality_dims[dimension_name] = {
                 "target": template["target"],
-                "current": template["target"] - 1.5,  # Slightly below target
+                "current": float(template["target"]) - 1.5,  # Slightly below target
                 "scoring_method": template["scoring_method"],
             }
 

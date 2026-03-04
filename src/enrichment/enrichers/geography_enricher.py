@@ -146,7 +146,7 @@ class GeographyEnricher(AbstractEnricher):
     ) -> None:
         """Tier 2: Analyze sites in geography."""
         sites = context.get_neighbors(RelationshipType.CONTAINS)
-        jurisdictions = context.get_neighbors(RelationshipType.OVERLAPS)
+        jurisdictions = context.get_neighbors(RelationshipType.LOCATED_IN)
 
         result.field_updates["sites_count"] = len(sites)
         result.field_updates["jurisdictions_overlapping_count"] = len(jurisdictions)
@@ -192,8 +192,8 @@ class GeographyEnricher(AbstractEnricher):
                 getattr(entity, "countries_included", [])
             )
             result.field_updates["timezone_coverage"] = market_info.get("timezone_coverage", [])
-            result.field_updates["primary_timezone"] = market_info.get(
-                "timezone_coverage", ["UTC"]
+            result.field_updates["primary_timezone"] = list(
+                market_info.get("timezone_coverage") or ["UTC"]  # type: ignore[arg-type]
             )[0]
         else:
             result.field_updates["countries_included_count"] = len(

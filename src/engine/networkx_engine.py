@@ -28,7 +28,7 @@ class NetworkXGraphEngine(AbstractGraphEngine):
     """
 
     def __init__(self) -> None:
-        self._graph = nx.MultiDiGraph()
+        self._graph: nx.MultiDiGraph = nx.MultiDiGraph()
         self._relationship_index: dict[str, tuple[str, str, str]] = {}
 
     # --- Entity CRUD ---
@@ -231,7 +231,7 @@ class NetworkXGraphEngine(AbstractGraphEngine):
         # Rebuild relationship index for the subgraph
         for src, tgt, key, data in sub_nx.edges(keys=True, data=True):
             rel_id = data.get("id", key)
-            sub._relationship_index[rel_id] = (src, tgt, key)
+            sub._relationship_index[rel_id] = (src, tgt, key)  # type: ignore[index]
         return sub
 
     # --- Analytics ---

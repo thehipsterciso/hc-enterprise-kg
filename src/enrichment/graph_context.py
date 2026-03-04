@@ -449,7 +449,7 @@ class GraphContextEngine:
         for target_type in EntityType:
             neighbors = self.kg.neighbors(entity_id, direction="both", entity_type=target_type)
             if neighbors:
-                neighbors_by_type[target_type.value] = len(neighbors)
+                neighbors_by_type[target_type] = len(neighbors)
 
         # Count relationships by type
         relationships = self.kg.get_relationships(entity_id, direction="both")

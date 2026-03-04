@@ -175,10 +175,10 @@ class MarketSegmentEnricher(AbstractEnricher):
                 "Technology",
             ],
             "typical_decision_maker_title": "CIO"
-            if "Enterprise" in segment_template["segment_type"]
+            if "Enterprise" in str(segment_template["segment_type"])
             else "IT Director",
             "buying_behavior": "Deliberate"
-            if "Enterprise" in segment_template["segment_type"]
+            if "Enterprise" in str(segment_template["segment_type"])
             else "Pragmatic",
             "typical_deal_size_usd": segment_template["typical_deal_size"],
             "typical_sales_cycle_months": segment_template["sales_cycle_months"],

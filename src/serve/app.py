@@ -61,7 +61,7 @@ def _compact_relationship(rel: Any) -> dict[str, Any]:
 
 def _json_response(data: Any, status: int = 200) -> Any:
     """Return a Flask Response with application/json content type."""
-    from flask import Response
+    from flask import Response  # type: ignore[import-not-found]
 
     body = json.dumps(data, default=str, indent=2)
     return Response(body, status=status, content_type="application/json")
@@ -542,8 +542,8 @@ def create_app(graph_path: str | None = None) -> Any:
         A Flask app instance.
     """
     try:
-        from flask import Flask
-        from flask import request as flask_request
+        from flask import Flask  # type: ignore[import-not-found]
+        from flask import request as flask_request  # type: ignore[import-not-found]
     except ImportError as exc:
         raise ImportError(
             "Flask is required for the REST API server. Install it with:\n"

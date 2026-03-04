@@ -176,7 +176,7 @@ class CoherenceEnricher:
             return
 
         # Get relationships between persons and roles.
-        person_roles = {}
+        person_roles: dict[str, str] = {}
         if hasattr(kg, "get_relationships"):
             for rel in kg.get_relationships():
                 if (
@@ -278,7 +278,7 @@ class CoherenceEnricher:
             return
 
         # Map vendors to their contracts.
-        vendor_contracts = {}
+        vendor_contracts: dict[str, str] = {}
         if hasattr(kg, "get_relationships"):
             for rel in kg.get_relationships():
                 if (
@@ -328,7 +328,7 @@ class CoherenceEnricher:
             return
 
         # Map controls to risks they mitigate.
-        control_mitigations = {}
+        control_mitigations: dict[str, str] = {}
         if hasattr(kg, "get_relationships"):
             for rel in kg.get_relationships():
                 if (

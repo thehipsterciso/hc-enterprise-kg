@@ -31,7 +31,9 @@ class EmbeddingLinker(AbstractLinker):
     def _load_model(self) -> Any:
         if self._model is None:
             try:
-                from sentence_transformers import SentenceTransformer
+                from sentence_transformers import (  # type: ignore[import-not-found]
+                    SentenceTransformer,
+                )
 
                 self._model = SentenceTransformer(self._model_name)
             except ImportError as err:

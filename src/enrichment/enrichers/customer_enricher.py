@@ -151,10 +151,10 @@ class CustomerEnricher(AbstractEnricher):
             customer_key = "Enterprise"
             status = "Active"
 
-        customer_template = CUSTOMER_TYPE_TEMPLATES.get(
+        customer_template: dict[str, object] = CUSTOMER_TYPE_TEMPLATES.get(
             customer_key, CUSTOMER_TYPE_TEMPLATES["SMB"]
         )
-        result.field_updates["customer_type"] = customer_template["customer_type"]
+        result.field_updates["customer_type"] = customer_template["customer_type"]  # type: ignore[index]
         result.field_updates["status"] = status
 
         result.actions.append(
@@ -186,7 +186,7 @@ class CustomerEnricher(AbstractEnricher):
         )
 
         # Customer tier
-        tier_mapping = customer_template["tier"]
+        tier_mapping = customer_template["tier"]  # type: ignore[index]
         result.field_updates["customer_tier"] = tier_mapping
         result.actions.append(
             EnrichmentAction(
@@ -319,9 +319,11 @@ class CustomerEnricher(AbstractEnricher):
 
         # Financial summary
         customer_type = result.field_updates.get("customer_type", "SMB")
-        base_template = CUSTOMER_TYPE_TEMPLATES.get(customer_type, CUSTOMER_TYPE_TEMPLATES["SMB"])
+        base_template: dict[str, object] = CUSTOMER_TYPE_TEMPLATES.get(
+            customer_type, CUSTOMER_TYPE_TEMPLATES["SMB"]
+        )
 
-        annual_revenue = base_template["annual_spend"] * max(1, len(products) / 2)
+        annual_revenue = float(base_template["annual_spend"]) * max(1, len(products) / 2)
         lifetime_value = annual_revenue * 3  # 3-year contract assumption
 
         result.field_updates["financial_summary"] = {

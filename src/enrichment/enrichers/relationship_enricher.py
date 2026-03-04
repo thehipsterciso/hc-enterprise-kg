@@ -276,7 +276,7 @@ class RelationshipEnricher:
         tier: EnrichmentTier,
     ) -> dict[str, object]:
         """Populate temporal fields based on entity lifecycles."""
-        updates = {}
+        updates: dict[str, object] = {}
 
         if tier == EnrichmentTier.BASIC:
             return updates
@@ -310,7 +310,7 @@ class RelationshipEnricher:
         profile: EnrichmentProfile,
     ) -> dict[str, object]:
         """Add contextual properties based on relationship type semantics."""
-        props = {}
+        props: dict[str, object] = {}
 
         rel_type = rel.relationship_type
         type_props = self.RELATIONSHIP_PROPERTIES.get(rel_type)

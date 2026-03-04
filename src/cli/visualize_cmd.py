@@ -251,7 +251,7 @@ def visualize_cmd(
         hckg visualize graph.json --no-physics --height 1200px
     """
     try:
-        from pyvis.network import Network
+        from pyvis.network import Network  # type: ignore[import-untyped]
     except ImportError as err:
         raise click.ClickException(
             "Visualization requires pyvis. Install it with:\n  poetry install --extras viz"
@@ -373,7 +373,7 @@ def _inject_custom_ui(html_path: Path, stats: dict, theme: str) -> None:
     filter_items_html = "\n".join(
         f'<label class="kg-fi" title="{info["label"]} \u2014 {info["count"]} nodes">'
         f'<input type="checkbox" class="kg-cb" data-type="{etype}" checked '
-        f'onchange="window.kgToggleType(\'{etype}\', this.checked)">'
+        f"onchange=\"window.kgToggleType('{etype}', this.checked)\">"
         f'<span class="kg-dot" style="background:{info["color"]}"></span>'
         f'<span class="kg-fn">{info["label"]}</span>'
         f'<span class="kg-fc">{info["count"]}</span>'
@@ -466,10 +466,10 @@ def _inject_custom_ui(html_path: Path, stats: dict, theme: str) -> None:
 </style>"""
 
     title_panel = (
-        f'<div id="kg-tp" class="kg-panel">'
+        f'<div id="kg-tp" class="kg-panel kg-legend">'
         f'<div class="kg-title">hc-enterprise-kg</div>'
         f'<div class="kg-stats">'
-        f'{entity_count:,} entities &middot; {rel_count:,} relationships</div>'
+        f"{entity_count:,} entities &middot; {rel_count:,} relationships</div>"
         f'<div class="kg-sw">'
         f'<input id="kg-s" type="text" placeholder="Search entities\u2026"'
         f' autocomplete="off" spellcheck="false">'
@@ -580,4 +580,51 @@ def _inject_custom_ui(html_path: Path, stats: dict, theme: str) -> None:
         return
     injection = css + "\n" + title_panel + "\n" + filter_panel + "\n" + js + "\n"
     content = content.replace("</body>", injection + "</body>")
+    html_path.write_text(content)
+
+
+def _inject_legend(html_path: Path, stats: dict, theme: str = "dark") -> None:
+    """Inject a static HTML legend panel into the visualization HTML.
+
+    This is a lightweight legend (class ``kg-legend``) that lists each entity
+    type present in *stats* together with its node count.  It is intentionally
+    kept simple so it remains easy to unit-test independently of the full
+    interactive UI injected by :func:`_inject_custom_ui`.
+
+    The function is a no-op (and does not modify the file) when the HTML
+    does not contain a ``</body>`` tag.
+    """
+    content = html_path.read_text()
+    if "</body>" not in content:
+        return
+
+    entity_types = stats.get("entity_types", {})
+    entity_count = stats.get("entity_count", 0)
+    rel_count = stats.get("relationship_count", 0)
+
+    _default_color = "#cccccc"
+    items_html = "\n".join(
+        f'<div class="kg-legend-item">'
+        f'<span class="kg-legend-dot"'
+        f' style="background:{ENTITY_COLORS.get(etype, _default_color)}"></span>'
+        f'<span class="kg-legend-label">'
+        f"{etype.replace('_', ' ').title()} ({count})</span>"
+        f"</div>"
+        for etype, count in sorted(entity_types.items(), key=lambda x: x[1], reverse=True)
+        if etype in ENTITY_COLORS
+    )
+
+    legend_html = (
+        f'<div class="kg-legend" id="kg-legend-panel" '
+        f'style="position:fixed;bottom:12px;left:12px;z-index:9998;'
+        f"background:rgba(26,26,46,0.92);border:1px solid #333;border-radius:8px;"
+        f'padding:10px 14px;color:#e0e0e0;font-family:system-ui,sans-serif;font-size:12px;">'
+        f'<div style="font-weight:700;margin-bottom:6px;">hc-enterprise-kg</div>'
+        f'<div style="font-size:11px;color:#aaa;margin-bottom:8px;">'
+        f"{entity_count:,} entities &middot; {rel_count:,} relationships</div>"
+        f"{items_html}"
+        f"</div>\n"
+    )
+
+    content = content.replace("</body>", legend_html + "</body>")
     html_path.write_text(content)

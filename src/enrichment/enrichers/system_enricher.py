@@ -265,7 +265,7 @@ class SystemEnricher(AbstractEnricher):
         # Authentication mechanism from context
         is_critical = cross_profile.get("critical_data_stored", False)
         auth_template = AUTHENTICATION_TEMPLATES[-1 if is_critical else 0]
-        updates["authentication_mechanisms"] = [auth_template]
+        updates["authentication_mechanisms"] = [auth_template]  # type: ignore[list-item]
         actions.append(
             EnrichmentAction(
                 entity_id=entity.id,

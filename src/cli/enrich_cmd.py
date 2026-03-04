@@ -91,7 +91,7 @@ def enrich(
     from enrichment.quality import assess_enrichment_quality
     from export.json_export import JSONExporter
     from graph.knowledge_graph import KnowledgeGraph
-    from ingest.json_ingest import JSONIngestor
+    from ingest.json_ingestor import JSONIngestor
 
     # Validate tier
     if tier < 1 or tier > 5:
@@ -111,7 +111,9 @@ def enrich(
     kg = KnowledgeGraph()
     try:
         ingestor = JSONIngestor()
-        ingestor.ingest(kg, graph_path_obj)
+        result = ingestor.ingest(graph_path_obj)
+        kg.add_entities_bulk(result.entities)
+        kg.add_relationships_bulk(result.relationships)
     except Exception as exc:
         click.echo(f"Error loading graph: {exc}", err=True)
         raise SystemExit(1) from None

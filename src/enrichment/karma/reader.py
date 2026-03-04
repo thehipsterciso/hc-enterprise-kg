@@ -95,7 +95,7 @@ class ReaderAgent(AbstractKarmaAgent):
                 osint: OSINTResults | None = None
                 if self._osint_agent:
                     try:
-                        osint = self._osint_agent.research(entity)
+                        osint = self._osint_agent.research(entity, context)
                     except Exception as e:
                         logger.debug(f"OSINT research failed for {entity_id}: {e}")
 
