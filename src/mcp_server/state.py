@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 
 from export.file_lock import GraphFileLock
+from graph.audit import AuditLogger, derive_audit_path
 from graph.knowledge_graph import KnowledgeGraph
 from ingest.json_ingestor import JSONIngestor
 
@@ -45,6 +46,11 @@ def load_graph(path: str) -> dict:
         kg.add_entities_bulk(result.entities)
     if result.relationships:
         kg.add_relationships_bulk(result.relationships)
+
+    # Subscribe audit logger before assigning to module state
+    audit_path = derive_audit_path(Path(path).resolve())
+    audit_logger = AuditLogger(audit_path)
+    kg.subscribe(audit_logger)
 
     _kg = kg
     resolved = str(Path(path).resolve())
