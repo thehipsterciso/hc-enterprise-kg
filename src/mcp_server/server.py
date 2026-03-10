@@ -20,6 +20,9 @@ register_tools(mcp)
 
 def main() -> None:
     """Run the MCP server over stdio transport."""
+    from cli.logging_config import configure_logging
+
+    configure_logging(json_format=True)
     auto_load_default_graph()
     mcp.run(transport="stdio")
 
