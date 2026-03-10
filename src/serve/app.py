@@ -559,7 +559,10 @@ def create_app(graph_path: str | None = None) -> Any:
     configure_logging()
 
     import logging
+    import os
     import time
+
+    _app_start_time = time.monotonic()
 
     _logger = logging.getLogger("hckg.serve")
 
@@ -620,16 +623,43 @@ def create_app(graph_path: str | None = None) -> Any:
 
     @app.route("/health", methods=["GET"])
     def health():  # type: ignore[no-untyped-def]
+        from importlib.metadata import PackageNotFoundError
+        from importlib.metadata import version as pkg_version
+
+        try:
+            __version__ = pkg_version("hc-enterprise-kg")
+        except PackageNotFoundError:
+            __version__ = "0.0.0"
+
         has_graph = _kg is not None
         stats = _kg.statistics if _kg else {}
-        return _json_response(
-            {
-                "status": "ok",
-                "graph_loaded": has_graph,
-                "entity_count": stats.get("entity_count", 0),
-                "relationship_count": stats.get("relationship_count", 0),
-            }
-        )
+        uptime_s = round(time.monotonic() - _app_start_time, 1)
+
+        response: dict[str, Any] = {
+            "status": "ok",
+            "version": __version__,
+            "uptime_seconds": uptime_s,
+            "graph_loaded": has_graph,
+            "entity_count": stats.get("entity_count", 0),
+            "relationship_count": stats.get("relationship_count", 0),
+        }
+
+        if has_graph:
+            response["entity_types"] = stats.get("entity_types", {})
+            response["relationship_types"] = stats.get("relationship_types", {})
+
+            # Graph file metadata
+            graph_path = os.environ.get("HCKG_DEFAULT_GRAPH")
+            if graph_path and Path(graph_path).exists():
+                p = Path(graph_path)
+                stat = p.stat()
+                response["graph_file"] = {
+                    "path": str(p),
+                    "size_bytes": stat.st_size,
+                    "modified": stat.st_mtime,
+                }
+
+        return _json_response(response)
 
     @app.route("/statistics", methods=["GET"])
     def statistics():  # type: ignore[no-untyped-def]
