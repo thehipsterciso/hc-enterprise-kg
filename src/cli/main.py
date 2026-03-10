@@ -8,9 +8,22 @@ import click
 @click.group()
 @click.version_option(package_name="hc-enterprise-kg")
 @click.option("--backend", default="networkx", help="Graph backend to use.")
+@click.option("--log-level", default=None, help="Logging level (DEBUG, INFO, WARNING, ERROR).")
+@click.option(
+    "--log-format",
+    type=click.Choice(["text", "json"]),
+    default=None,
+    help="Log output format.",
+)
 @click.pass_context
-def cli(ctx: click.Context, backend: str) -> None:
+def cli(ctx: click.Context, backend: str, log_level: str | None, log_format: str | None) -> None:
     """hckg — Enterprise Knowledge Graph CLI"""
+    from cli.logging_config import configure_logging
+
+    configure_logging(
+        level=log_level,
+        json_format=log_format == "json" if log_format else None,
+    )
     ctx.ensure_object(dict)
     ctx.obj["backend"] = backend
 

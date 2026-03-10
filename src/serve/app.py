@@ -553,6 +553,38 @@ def create_app(graph_path: str | None = None) -> Any:
 
     app = Flask(__name__)
 
+    # --- Logging ---
+    from cli.logging_config import configure_logging
+
+    configure_logging()
+
+    import logging
+    import time
+
+    _logger = logging.getLogger("hckg.serve")
+
+    @app.before_request
+    def _start_timer() -> None:  # type: ignore[no-untyped-def]
+        flask_request._start_time = time.monotonic()  # type: ignore[attr-defined]
+
+    @app.after_request
+    def _log_request(response):  # type: ignore[no-untyped-def]
+        start = getattr(flask_request, "_start_time", None)
+        duration_ms = round((time.monotonic() - start) * 1000, 1) if start else None
+        _logger.info(
+            "%s %s %s",
+            flask_request.method,
+            flask_request.path,
+            response.status_code,
+            extra={
+                "method": flask_request.method,
+                "path": flask_request.path,
+                "status": response.status_code,
+                "duration_ms": duration_ms,
+            },
+        )
+        return response
+
     if graph_path:
         with app.app_context():
             result = load_graph_from_path(graph_path)
