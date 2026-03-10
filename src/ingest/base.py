@@ -20,6 +20,7 @@ class IngestResult:
     relationships: list[BaseRelationship] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
+    schema_version: str | None = None
 
     @property
     def entity_count(self) -> int:
