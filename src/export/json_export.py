@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING, Any
 
-from export.base import AbstractExporter
+from export.base import AbstractExporter, atomic_write_text
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -26,8 +26,7 @@ class JSONExporter(AbstractExporter):
 
     def export(self, engine: AbstractGraphEngine, output_path: Path, **kwargs: Any) -> None:
         content = self.export_string(engine, **kwargs)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(content)
+        atomic_write_text(output_path, content)
 
     def export_string(self, engine: AbstractGraphEngine, **kwargs: Any) -> str:
         entities = engine.list_entities()
