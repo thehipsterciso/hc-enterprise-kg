@@ -607,6 +607,14 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
                 raise RuntimeError(f"Failed to load graph: {result['error']}")
 
     # --- Routes ---
+    from flask import Blueprint  # type: ignore[import-not-found]
+
+    v1 = Blueprint("v1", __name__, url_prefix="/v1")
+
+    @v1.after_request
+    def _add_api_version(response):  # type: ignore[no-untyped-def]
+        response.headers["X-API-Version"] = "1"
+        return response
 
     @app.route("/", methods=["GET"])
     def index():  # type: ignore[no-untyped-def]
@@ -617,19 +625,23 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
                 "endpoints": [
                     "GET  /               — This index",
                     "GET  /health         — Health check",
-                    "GET  /statistics     — Graph statistics",
-                    "GET  /entities       — List entities",
-                    "GET  /entities/<id>  — Entity by ID",
-                    "GET  /entities/<id>/neighbors — Neighbors",
-                    "GET  /path/<src>/<tgt> — Shortest path",
-                    "GET  /blast-radius/<id> — Blast radius",
-                    "GET  /centrality     — Centrality scores",
-                    "GET  /search         — Fuzzy search",
-                    "POST /ask            — GraphRAG Q&A",
-                    "GET  /openai/tools   — OpenAI tool defs",
-                    "POST /openai/call    — Execute a tool",
-                    "POST /load           — Load a graph file",
+                    "GET  /v1/statistics  — Graph statistics",
+                    "GET  /v1/entities    — List entities",
+                    "GET  /v1/entities/<id> — Entity by ID",
+                    "GET  /v1/entities/<id>/neighbors — Neighbors",
+                    "GET  /v1/path/<src>/<tgt> — Shortest path",
+                    "GET  /v1/blast-radius/<id> — Blast radius",
+                    "GET  /v1/centrality  — Centrality scores",
+                    "GET  /v1/search      — Fuzzy search",
+                    "POST /v1/ask         — GraphRAG Q&A",
+                    "GET  /v1/openai/tools — OpenAI tool defs",
+                    "POST /v1/openai/call — Execute a tool",
+                    "POST /v1/load        — Load a graph file",
                 ],
+                "deprecation_notice": (
+                    "Root-level API routes (e.g. /statistics) are deprecated. "
+                    "Use /v1/ prefix (e.g. /v1/statistics) instead."
+                ),
             }
         )
 
@@ -673,14 +685,14 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
 
         return _json_response(response)
 
-    @app.route("/statistics", methods=["GET"])
+    @v1.route("/statistics", methods=["GET"])
     def statistics():  # type: ignore[no-untyped-def]
         try:
             return _json_response(handle_statistics())
         except _NoGraphError:
             return _error("No graph loaded. POST to /load first.", 409)
 
-    @app.route("/entities", methods=["GET"])
+    @v1.route("/entities", methods=["GET"])
     def list_entities_route():  # type: ignore[no-untyped-def]
         try:
             entity_type = flask_request.args.get("type", "")
@@ -689,7 +701,7 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
-    @app.route("/entities/<entity_id>", methods=["GET"])
+    @v1.route("/entities/<entity_id>", methods=["GET"])
     def get_entity_route(entity_id: str):  # type: ignore[no-untyped-def]
         if not _is_safe_id(entity_id):
             return _error("Invalid entity ID format.", 400)
@@ -701,7 +713,7 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
-    @app.route("/entities/<entity_id>/neighbors", methods=["GET"])
+    @v1.route("/entities/<entity_id>/neighbors", methods=["GET"])
     def get_neighbors_route(entity_id: str):  # type: ignore[no-untyped-def]
         if not _is_safe_id(entity_id):
             return _error("Invalid entity ID format.", 400)
@@ -712,7 +724,7 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
-    @app.route("/path/<source_id>/<target_id>", methods=["GET"])
+    @v1.route("/path/<source_id>/<target_id>", methods=["GET"])
     def shortest_path_route(source_id: str, target_id: str):  # type: ignore[no-untyped-def]
         if not _is_safe_id(source_id) or not _is_safe_id(target_id):
             return _error("Invalid entity ID format.", 400)
@@ -724,7 +736,7 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
-    @app.route("/blast-radius/<entity_id>", methods=["GET"])
+    @v1.route("/blast-radius/<entity_id>", methods=["GET"])
     def blast_radius_route(entity_id: str):  # type: ignore[no-untyped-def]
         if not _is_safe_id(entity_id):
             return _error("Invalid entity ID format.", 400)
@@ -737,7 +749,7 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
-    @app.route("/centrality", methods=["GET"])
+    @v1.route("/centrality", methods=["GET"])
     def centrality_route():  # type: ignore[no-untyped-def]
         try:
             metric = flask_request.args.get("metric", "degree")
@@ -746,7 +758,7 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
-    @app.route("/search", methods=["GET"])
+    @v1.route("/search", methods=["GET"])
     def search_route():  # type: ignore[no-untyped-def]
         try:
             q = flask_request.args.get("q", "")
@@ -758,7 +770,7 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
-    @app.route("/ask", methods=["POST"])
+    @v1.route("/ask", methods=["POST"])
     def ask_route():  # type: ignore[no-untyped-def]
         try:
             data = flask_request.get_json(silent=True) or {}
@@ -770,7 +782,7 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
         except _NoGraphError:
             return _error("No graph loaded.", 409)
 
-    @app.route("/load", methods=["POST"])
+    @v1.route("/load", methods=["POST"])
     def load_route():  # type: ignore[no-untyped-def]
         data = flask_request.get_json(silent=True) or {}
         path = data.get("path", "")
@@ -783,11 +795,11 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
 
     # --- OpenAI-compatible endpoints ---
 
-    @app.route("/openai/tools", methods=["GET"])
+    @v1.route("/openai/tools", methods=["GET"])
     def openai_tools():  # type: ignore[no-untyped-def]
         return _json_response(OPENAI_TOOLS)
 
-    @app.route("/openai/call", methods=["POST"])
+    @v1.route("/openai/call", methods=["POST"])
     def openai_call():  # type: ignore[no-untyped-def]
         """Execute a tool by name with arguments — for function-calling agents."""
         try:
@@ -832,5 +844,49 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
             return _error("No graph loaded. POST to /load first.", 409)
         except KeyError:
             return _error("Missing required argument in tool call.")
+
+    # Register v1 Blueprint
+    app.register_blueprint(v1)
+
+    # --- Deprecated root aliases (backward compatibility) ---
+    # These proxy to the v1 handlers and add a Deprecation header.
+
+    def _make_deprecated(view_func):  # type: ignore[no-untyped-def]
+        """Wrap a view function to add a Deprecation header."""
+        from functools import wraps
+
+        @wraps(view_func)
+        def wrapper(*args, **kwargs):  # type: ignore[no-untyped-def]
+            resp = app.make_response(view_func(*args, **kwargs))
+            resp.headers["Deprecation"] = "true"
+            resp.headers["Sunset"] = "2027-01-01"
+            resp.headers["Link"] = f'</v1{flask_request.path}>; rel="successor-version"'
+            return resp
+
+        return wrapper
+
+    _all_deprecated = [
+        ("/statistics", "statistics", ["GET"]),
+        ("/entities", "list_entities_route", ["GET"]),
+        ("/entities/<entity_id>", "get_entity_route", ["GET"]),
+        ("/entities/<entity_id>/neighbors", "get_neighbors_route", ["GET"]),
+        ("/path/<source_id>/<target_id>", "shortest_path_route", ["GET"]),
+        ("/blast-radius/<entity_id>", "blast_radius_route", ["GET"]),
+        ("/centrality", "centrality_route", ["GET"]),
+        ("/search", "search_route", ["GET"]),
+        ("/ask", "ask_route", ["POST"]),
+        ("/load", "load_route", ["POST"]),
+        ("/openai/tools", "openai_tools", ["GET"]),
+        ("/openai/call", "openai_call", ["POST"]),
+    ]
+    for path, endpoint_name, methods in _all_deprecated:
+        view_fn = app.view_functions.get(f"v1.{endpoint_name}")
+        if view_fn:
+            app.add_url_rule(
+                path,
+                endpoint=f"deprecated_{endpoint_name}",
+                view_func=_make_deprecated(view_fn),
+                methods=methods,
+            )
 
     return app
