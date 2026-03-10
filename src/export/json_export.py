@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from engine.abstract import AbstractGraphEngine
 
 DEFAULT_MAX_BACKUPS = 3
+SCHEMA_VERSION = "1.0.0"
 
 
 def _rotate_backups(path: Path, max_backups: int = DEFAULT_MAX_BACKUPS) -> None:
@@ -70,6 +71,7 @@ class JSONExporter(AbstractExporter):
                         rel_dicts.append(rel.model_dump(mode="json"))
 
         data = {
+            "schema_version": SCHEMA_VERSION,
             "entities": entity_dicts,
             "relationships": rel_dicts,
             "statistics": engine.get_statistics(),
