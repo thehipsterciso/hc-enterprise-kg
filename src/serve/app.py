@@ -532,11 +532,13 @@ OPENAI_TOOLS: list[dict] = [
 # ---------------------------------------------------------------------------
 
 
-def create_app(graph_path: str | None = None) -> Any:
+def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any:
     """Create and configure the Flask application.
 
     Args:
         graph_path: Optional path to a JSON graph file to load on startup.
+        api_key: Optional API key for bearer-token auth.  Falls back to
+            ``HCKG_API_KEY`` env var.  If neither is set, auth is disabled.
 
     Returns:
         A Flask app instance.
@@ -552,6 +554,11 @@ def create_app(graph_path: str | None = None) -> Any:
         ) from exc
 
     app = Flask(__name__)
+
+    # --- Authentication ---
+    from serve.auth import init_auth
+
+    init_auth(app, api_key=api_key)
 
     # --- Logging ---
     from cli.logging_config import configure_logging
