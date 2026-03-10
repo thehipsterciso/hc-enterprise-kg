@@ -23,12 +23,19 @@ import click
     default=False,
     help="Enable auto-reload for development.",
 )
+@click.option(
+    "--api-key",
+    default=None,
+    envvar="HCKG_API_KEY",
+    help="API key for bearer-token auth. Also reads HCKG_API_KEY env var.",
+)
 def serve_cmd(
     source: str,
     host: str,
     port: int,
     use_stdio: bool,
     use_reload: bool,
+    api_key: str | None,
 ) -> None:
     """Start the knowledge graph server.
 
@@ -56,7 +63,7 @@ def serve_cmd(
     if use_stdio:
         _run_stdio(source)
     else:
-        _run_rest(source, host, port, use_reload)
+        _run_rest(source, host, port, use_reload, api_key)
 
 
 def _run_stdio(source: str) -> None:
@@ -81,7 +88,9 @@ def _run_stdio(source: str) -> None:
     mcp.run(transport="stdio")
 
 
-def _run_rest(source: str, host: str, port: int, use_reload: bool) -> None:
+def _run_rest(
+    source: str, host: str, port: int, use_reload: bool, api_key: str | None = None
+) -> None:
     """Start the REST API server."""
     try:
         from serve.app import create_app
@@ -95,7 +104,7 @@ def _run_rest(source: str, host: str, port: int, use_reload: bool) -> None:
         raise SystemExit(1) from None
 
     click.echo(f"Loading graph from {source}...")
-    app = create_app(graph_path=source)
+    app = create_app(graph_path=source, api_key=api_key)
 
     click.echo(
         f"\n"
