@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from typing import TYPE_CHECKING, Any
 
 from export.base import AbstractExporter, atomic_write_text
@@ -12,6 +13,25 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from engine.abstract import AbstractGraphEngine
+
+DEFAULT_MAX_BACKUPS = 3
+
+
+def _rotate_backups(path: Path, max_backups: int = DEFAULT_MAX_BACKUPS) -> None:
+    """Rotate ``path`` → ``path.1`` → ``path.2`` → … before overwrite.
+
+    Does nothing if *max_backups* is 0 or the file does not yet exist.
+    """
+    if max_backups <= 0 or not path.exists():
+        return
+    # Shift existing backups: .3 → deleted, .2 → .3, .1 → .2
+    for i in range(max_backups, 1, -1):
+        src = path.with_name(f"{path.name}.{i - 1}")
+        dst = path.with_name(f"{path.name}.{i}")
+        if src.exists():
+            shutil.copy2(src, dst)
+    # Current file becomes .1
+    shutil.copy2(path, path.with_name(f"{path.name}.1"))
 
 
 class JSONExporter(AbstractExporter):
@@ -27,7 +47,9 @@ class JSONExporter(AbstractExporter):
 
     def export(self, engine: AbstractGraphEngine, output_path: Path, **kwargs: Any) -> None:
         content = self.export_string(engine, **kwargs)
+        max_backups = kwargs.get("max_backups", DEFAULT_MAX_BACKUPS)
         with GraphFileLock(output_path, exclusive=True):
+            _rotate_backups(output_path, max_backups)
             atomic_write_text(output_path, content)
 
     def export_string(self, engine: AbstractGraphEngine, **kwargs: Any) -> str:
