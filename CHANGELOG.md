@@ -4,6 +4,40 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.31.8] - 2026-03-10
+
+### Added
+- **API versioning with `/v1/` prefix** — All REST API routes available under `/v1/` Blueprint with `X-API-Version: 1` response header. Root routes preserved as deprecated aliases with `Deprecation`, `Sunset`, and `Link` headers. `/` and `/health` not deprecated. (#290, PR #291)
+
+## [0.31.7] - 2026-03-10
+
+### Added
+- **In-memory token-bucket rate limiting** — Per-IP rate limiting via `TokenBucket` + `RateLimiter` classes in `src/serve/rate_limit.py`. Configurable via `HCKG_RATE_LIMIT` (req/s, default 10) and `HCKG_RATE_BURST` (default 20). Returns 429 with `Retry-After` header when exceeded. Disable with `HCKG_RATE_LIMIT=0`. (#288, PR #289)
+
+## [0.31.6] - 2026-03-10
+
+### Added
+- **Bearer token authentication for REST API** — `src/serve/auth.py` with `hmac.compare_digest` timing-safe comparison. Enabled via `HCKG_API_KEY` env var or `--api-key` CLI flag. `/` and `/health` always exempt. Returns 401 (missing/malformed) or 403 (invalid key). Backward compatible — no key = open access. (#286, PR #287)
+
+## [0.31.5] - 2026-03-10
+
+### Added
+- **Enhanced `/health` endpoint** — Returns package version, server uptime, entity/relationship type breakdowns, graph file path and size, audit log status. Uses `importlib.metadata.version()` for package version. (#284, PR #285)
+
+## [0.31.4] - 2026-03-10
+
+### Added
+- **Persistent JSONL audit log** — `src/graph/audit.py` with `AuditLogger` class subscribed to `EventBus`. Appends graph mutation events as JSONL to `graph.audit.jsonl` (path derived from graph file). File-locked writes via `GraphFileLock`. Integrated in MCP server via `state.py`. (#282, PR #283)
+
+## [0.31.3] - 2026-03-10
+
+### Added
+- **Atomic file writes** — `JSONExporter` and `GraphMLExporter` now use `tempfile.mkstemp()` + `os.replace()` to prevent corruption from mid-write crashes. (#272, PR #273)
+- **Advisory file locking** — `GraphFileLock` context manager in `src/export/file_lock.py` using `fcntl.flock()` (POSIX) with `msvcrt` fallback (Windows). Shared locks for reads, exclusive for writes, with configurable timeout. (#274, PR #275)
+- **Backup-on-write rotation** — `graph.json` → `graph.json.1` → `graph.json.2` → `graph.json.3` before each overwrite for recovery from logical errors. (#276, PR #277)
+- **Structured logging** — `src/cli/logging_config.py` with `configure_logging()` using `dictConfig`. JSON formatter option. `HCKG_LOG_LEVEL`, `HCKG_LOG_FORMAT` (json|text), `HCKG_LOG_FILE` env vars. Request logging middleware in REST API. (#278, PR #279)
+- **Schema version in JSON export** — `schema_version: "1.0.0"` field in exported JSON. Import validates major version compatibility and warns on mismatch. Versionless files import without warning (backward compatible). (#280, PR #281)
+
 ## [0.31.2] - 2026-03-03
 
 ### Added
