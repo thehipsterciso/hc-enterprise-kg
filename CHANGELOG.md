@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.32.0] - 2026-03-10
+
+### Removed
+- **Enrichment module** (src/enrichment/) — The KARMA multi-agent enrichment pipeline, 30 entity-type enrichers, AdversarialValidator, ProvenanceReconciler, GraphContextEngine, and all associated GraphGuard contracts have been removed from hc-enterprise-kg. AI-powered enrichment is now the exclusive domain of [hc-enterprise-kg-enrich](https://github.com/thehipsterciso/hc-enterprise-kg-enrich), which provides the canonical 7-agent pipeline with LLM reasoning, web search grounding, T1–T4 confidence tiers, 8 GraphGuard contracts, provenance audit trail, and Prometheus-compatible observability.
+- **hckg enrich command** — Replaced with a redirect stub pointing to hc-enterprise-kg-enrich.
+
+### Changed
+- **hc-enterprise-kg scope** — Platform now focuses exclusively on: synthetic graph generation, graph engine and facade, MCP server, REST API, export/import, analysis, and visualization. hc-enterprise-kg is the demo and import platform. hc-enterprise-kg-enrich is the real-world enrichment platform.
+
 ## [0.31.8] - 2026-03-10
 
 ### Added

@@ -1,6 +1,6 @@
 [project]
 name = "hc-enterprise-kg"
-version = "0.31.9"
+version = "0.32.0"
 description = "Enterprise knowledge graph platform for rapid organizational modelling, scenario analysis, and data & AI leadership"
 readme = "README.md"
 license = {text = "MIT"}
@@ -128,10 +128,6 @@ select = ["E", "F", "I", "N", "W", "UP", "B", "SIM", "TCH", "S"]
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S108"]
 "src/synthetic/**" = ["S311"]
-# Enrichment module contains data-heavy string literals (OSINT framework data,
-# enricher template dicts) that exceed 100 chars and cannot be auto-wrapped.
-"src/enrichment/**" = ["E501"]
-"src/cli/enrich_cmd.py" = ["E501"]
 
 [tool.coverage.run]
 source = ["src"]

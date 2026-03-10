@@ -1,8 +1,11 @@
 # ADR-015: GraphGuard Quality Contract Framework for Enrichment Validation
 
-**Status:** Accepted
+**Status:** Superseded — Moved to hc-enterprise-kg-enrich
 **Date:** 2026-03-03
+**Superseded:** 2026-03-10 (v0.32.0)
 **Context:** Enrichment data quality validation architecture
+
+> **NOTICE (v0.32.0):** The GraphGuard contracts documented in this ADR have been removed from `hc-enterprise-kg` and relocated to [`hc-enterprise-kg-enrich`](https://github.com/thehipsterciso/hc-enterprise-kg-enrich). `hc-enterprise-kg-enrich` now ships 9 GraphGuard contracts (see `hckg_enrich.guard.contracts`). The decisions below are preserved for historical reference.
 
 ---
 

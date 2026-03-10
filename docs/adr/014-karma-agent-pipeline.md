@@ -1,8 +1,11 @@
 # ADR-014: KARMA Multi-Agent Pipeline for Enrichment Orchestration
 
-**Status:** Accepted
+**Status:** Superseded — Moved to hc-enterprise-kg-enrich
 **Date:** 2026-03-03
+**Superseded:** 2026-03-10 (v0.32.0)
 **Context:** Enrichment pipeline architecture refactor
+
+> **NOTICE (v0.32.0):** The KARMA pipeline documented in this ADR has been removed from `hc-enterprise-kg` and relocated to [`hc-enterprise-kg-enrich`](https://github.com/thehipsterciso/hc-enterprise-kg-enrich). `hc-enterprise-kg-enrich` implements a 7-agent variant of this architecture (PrioritizationAgent, ContextAgent, SearchAgent, ReasoningAgent, ConfidenceAgent, CoherenceAgent, CommitAgent). The decisions below are preserved for historical reference.
 
 ---
 

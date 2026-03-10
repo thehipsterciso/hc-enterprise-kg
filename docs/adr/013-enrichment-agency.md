@@ -1,8 +1,11 @@
 # ADR-013: Intelligence-Driven Knowledge Graph Enrichment Agency
 
-**Status:** Accepted
+**Status:** Superseded — Moved to hc-enterprise-kg-enrich
 **Date:** 2026-03-03
+**Superseded:** 2026-03-10 (v0.32.0)
 **Context:** Enterprise knowledge graph entity enrichment and data maturity
+
+> **NOTICE (v0.32.0):** The enrichment module documented in this ADR has been removed from `hc-enterprise-kg` and relocated to [`hc-enterprise-kg-enrich`](https://github.com/thehipsterciso/hc-enterprise-kg-enrich). The `hckg enrich` command now redirects to that package. The architecture decisions below are preserved for historical reference; the canonical implementation lives in `hc-enterprise-kg-enrich`.
 
 ---
 
