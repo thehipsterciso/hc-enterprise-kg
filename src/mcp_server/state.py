@@ -10,6 +10,7 @@ import logging
 import os
 from pathlib import Path
 
+from export.file_lock import GraphFileLock
 from graph.knowledge_graph import KnowledgeGraph
 from ingest.json_ingestor import JSONIngestor
 
@@ -33,7 +34,8 @@ def load_graph(path: str) -> dict:
     global _kg, _loaded_path, _loaded_mtime  # noqa: PLW0603
 
     ingestor = JSONIngestor()
-    result = ingestor.ingest(path)
+    with GraphFileLock(path, exclusive=False):
+        result = ingestor.ingest(path)
 
     if not result.entities and result.errors:
         return {"error": f"Failed to load graph: {'; '.join(result.errors)}"}

@@ -6,6 +6,7 @@ import json
 from typing import TYPE_CHECKING, Any
 
 from export.base import AbstractExporter, atomic_write_text
+from export.file_lock import GraphFileLock
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -26,7 +27,8 @@ class JSONExporter(AbstractExporter):
 
     def export(self, engine: AbstractGraphEngine, output_path: Path, **kwargs: Any) -> None:
         content = self.export_string(engine, **kwargs)
-        atomic_write_text(output_path, content)
+        with GraphFileLock(output_path, exclusive=True):
+            atomic_write_text(output_path, content)
 
     def export_string(self, engine: AbstractGraphEngine, **kwargs: Any) -> str:
         entities = engine.list_entities()
