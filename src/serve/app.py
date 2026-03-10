@@ -560,6 +560,11 @@ def create_app(graph_path: str | None = None, api_key: str | None = None) -> Any
 
     init_auth(app, api_key=api_key)
 
+    # --- Rate limiting ---
+    from serve.rate_limit import init_rate_limit
+
+    init_rate_limit(app)
+
     # --- Logging ---
     from cli.logging_config import configure_logging
 
