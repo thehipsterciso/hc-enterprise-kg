@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 import networkx as nx
 
-from export.base import AbstractExporter
+from export.base import AbstractExporter, atomic_write_text
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -23,9 +23,8 @@ class GraphMLExporter(AbstractExporter):
     """
 
     def export(self, engine: AbstractGraphEngine, output_path: Path, **kwargs: Any) -> None:
-        g = self._prepare_graph(engine)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        nx.write_graphml(g, str(output_path))
+        content = self.export_string(engine, **kwargs)
+        atomic_write_text(output_path, content)
 
     def export_string(self, engine: AbstractGraphEngine, **kwargs: Any) -> str:
         import io
