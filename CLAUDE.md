@@ -18,6 +18,9 @@ poetry run hckg charts               # Generate analytics charts (default: tech,
 poetry run hckg charts --full        # All 3 profiles, 6 scales
 poetry run hckg enrich --tier 3      # Enrich graph to tier 3 (default: tech profile, legacy pipeline)
 poetry run hckg enrich --tier 4 --profile financial --pipeline karma  # KARMA pipeline
+poetry run hckg serve                    # Start REST API (default port 5000)
+poetry run hckg serve --api-key SECRET   # Start with bearer token auth
+HCKG_API_KEY=SECRET poetry run hckg serve  # Auth via env var
 ```
 
 ## Architecture
@@ -26,11 +29,11 @@ poetry run hckg enrich --tier 4 --profile financial --pipeline karma  # KARMA pi
 src/
   domain/       # Pydantic v2 entity models (30 types), BaseEntity (ADR-002), EntityType/RelationshipType enums
   engine/       # AbstractGraphEngine → NetworkXGraphEngine (ADR-003, pluggable backend)
-  graph/        # KnowledgeGraph facade (ADR-004), event bus, QueryBuilder
+  graph/        # KnowledgeGraph facade (ADR-004), event bus, QueryBuilder, audit logger
   synthetic/    # Profile-driven generators (ADR-001, ADR-006) + relationship weaving (ADR-008) + quality scoring
   auto/         # Auto KG from CSV/text (rule-based + optional LLM)
   ingest/       # CSVIngestor, JSONIngestor, validator, mapping_loader
-  export/       # JSONExporter (ADR-012), GraphMLExporter
+  export/       # JSONExporter (ADR-012), GraphMLExporter, atomic writes, file locking, backup rotation
   analysis/     # Centrality, risk scoring, attack paths, blast radius, benchmarking, charts
   rag/          # GraphRAG retrieval pipeline
   enrichment/   # Enrichment agency (ADR-013): 30 enrichers, OSINT, provenance, coherence, quality
@@ -38,7 +41,7 @@ src/
   enrichment/guard/   # GraphGuard quality contracts (ADR-015): 5 contracts, 3 guardians
   cli/          # Click CLI (demo, generate, inspect, auto, serve, install, visualize, export, benchmark, charts, enrich)
   mcp_server/   # MCP server for Claude Desktop (ADR-009, ADR-010: state.py, helpers.py, tools.py, server.py)
-  serve/        # REST API server (Flask)
+  serve/        # REST API server (Flask), auth, rate limiting, API versioning (/v1/)
 ```
 
 ## Layer Build Order (Synthetic Generation) — [ADR-005](docs/adr/005-layered-generation-order.md)
@@ -106,6 +109,26 @@ The MCP server (`src/mcp_server/`) provides 16 tools for Claude Desktop:
 
 **Visualization (v0.31.1):** `hckg visualize` supports `--theme dark|light`. Custom interactive filter panel sources colors from `ENTITY_COLORS` directly (pyvis `filter_menu`/`select_menu` removed — they used vis.js's internal palette, mismatching node colors). Edge `label=` removed (hover `title=` only). Node search in title panel. `_build_vis_options(physics, theme)` helper.
 
+## REST API (v0.31.3–v0.31.8)
+
+The REST API (`src/serve/`) is a Flask server with enterprise hardening:
+
+**Persistence reliability:**
+- **Atomic writes** — `tempfile.mkstemp()` + `os.replace()` prevents corruption from mid-write crashes
+- **Advisory file locking** — `GraphFileLock` in `src/export/file_lock.py` (`fcntl.flock` POSIX, `msvcrt` Windows). Shared locks for reads, exclusive for writes
+- **Backup rotation** — `graph.json.1` → `.2` → `.3` before each overwrite
+- **Schema version** — `schema_version: "1.0.0"` in exported JSON. Major version validated on import
+
+**Observability:**
+- **Structured logging** — `src/cli/logging_config.py` with JSON formatter. Env vars: `HCKG_LOG_LEVEL`, `HCKG_LOG_FORMAT` (json|text), `HCKG_LOG_FILE`
+- **Persistent audit log** — `src/graph/audit.py`, JSONL append alongside graph file (`graph.audit.jsonl`). Subscribed to `EventBus`
+- **Enhanced `/health`** — Returns version, uptime, entity/relationship type breakdowns, graph file metadata
+
+**API hardening:**
+- **Authentication** — `src/serve/auth.py`, bearer token via `HCKG_API_KEY` env var or `--api-key` CLI flag. `/` and `/health` exempt. `hmac.compare_digest` for timing safety
+- **Rate limiting** — `src/serve/rate_limit.py`, per-IP token bucket. `HCKG_RATE_LIMIT` (req/s, default 10), `HCKG_RATE_BURST` (default 20). Disable with `HCKG_RATE_LIMIT=0`
+- **API versioning** — `/v1/` Blueprint prefix with `X-API-Version: 1` header. Root routes preserved as deprecated aliases with `Deprecation`/`Sunset`/`Link` headers
+
 ## Architecture Decision Records
 
 All major design choices are formally documented in `docs/adr/`. Before proposing changes to any of these areas, read the relevant ADR for context, trade-offs, and re-evaluation triggers.
@@ -160,4 +183,15 @@ All major design choices are formally documented in `docs/adr/`. Before proposin
 - Schema inference tests in `tests/unit/auto/test_schema_inference.py`
 - MCP validation tests in `tests/unit/mcp_server/test_mcp_validation.py`
 - MCP write tool tests in `tests/unit/mcp_server/test_write_tools.py`
+- REST API tests in `tests/unit/serve/test_rest_api.py`
+- API auth tests in `tests/unit/serve/test_auth.py`
+- Rate limiting tests in `tests/unit/serve/test_rate_limit.py`
+- API versioning tests in `tests/unit/serve/test_api_versioning.py`
+- Health endpoint tests in `tests/unit/serve/test_health.py`
+- Audit log tests in `tests/unit/graph/test_audit.py`
+- Schema version tests in `tests/unit/ingest/test_schema_version.py`
+- Atomic write tests in `tests/unit/export/test_atomic_write.py`
+- File locking tests in `tests/unit/export/test_file_lock.py`
+- Backup rotation tests in `tests/unit/export/test_backup.py`
+- Structured logging tests in `tests/unit/cli/test_logging_config.py`
 - Global conftest fixture `_no_claude_sync` redirects HOME during tests to prevent overwriting the real Claude Desktop config. Tests that exercise sync should mock `_detect_claude_config_path` to a temp-dir config.
