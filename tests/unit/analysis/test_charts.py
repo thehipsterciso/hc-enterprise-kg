@@ -170,17 +170,17 @@ class TestChartConfig:
 
 
 class TestTheme:
-    def test_entity_colors_has_30_types(self):
-        assert len(ENTITY_COLORS) == 30
+    def test_entity_colors_has_33_types(self):
+        assert len(ENTITY_COLORS) == 33
 
     def test_profile_colors_has_3_profiles(self):
         assert set(PROFILE_COLORS.keys()) == {"tech", "financial", "healthcare"}
 
-    def test_entity_type_groups_cover_all_30_types(self):
+    def test_entity_type_groups_cover_all_33_types(self):
         all_types = set()
         for types in ENTITY_TYPE_GROUPS.values():
             all_types.update(types)
-        assert len(all_types) == 30
+        assert len(all_types) == 33
         # Every type should have a color
         for t in all_types:
             assert t in ENTITY_COLORS, f"{t} missing from ENTITY_COLORS"

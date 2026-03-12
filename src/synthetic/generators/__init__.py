@@ -3,6 +3,11 @@
 Importing this module registers all generators with the GeneratorRegistry.
 """
 
+from synthetic.generators.cdaio import (
+    AIModelGenerator,
+    DataPipelineGenerator,
+    DataProductGenerator,
+)
 from synthetic.generators.data_assets import DataAssetGenerator
 from synthetic.generators.departments import DepartmentGenerator
 from synthetic.generators.enterprise import (
@@ -36,6 +41,10 @@ from synthetic.generators.systems import SystemGenerator
 from synthetic.generators.vendors import VendorGenerator
 
 __all__ = [
+    # CDAIO generators
+    "AIModelGenerator",
+    "DataPipelineGenerator",
+    "DataProductGenerator",
     # v0.1 generators
     "DataAssetGenerator",
     "DepartmentGenerator",

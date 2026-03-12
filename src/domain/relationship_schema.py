@@ -117,6 +117,7 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
             EntityType.BUSINESS_CAPABILITY,
             EntityType.DEPARTMENT,
             EntityType.INTEGRATION,
+            EntityType.AI_MODEL,
         },
         {
             EntityType.BUSINESS_CAPABILITY,
@@ -126,7 +127,7 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
         },
     ),
     RelationshipType.BELONGS_TO: (
-        {EntityType.DATA_FLOW, EntityType.PRODUCT, EntityType.SYSTEM},
+        {EntityType.DATA_FLOW, EntityType.PRODUCT, EntityType.SYSTEM, EntityType.DATA_PRODUCT},
         {EntityType.DATA_DOMAIN, EntityType.PRODUCT_PORTFOLIO, EntityType.ORGANIZATIONAL_UNIT},
     ),
     RelationshipType.STAFFED_BY: (
@@ -316,6 +317,39 @@ RELATIONSHIP_SCHEMA: dict[RelationshipType, tuple[set[EntityType], set[EntityTyp
     RelationshipType.FUNDED_BY: (
         {EntityType.INITIATIVE},
         {EntityType.DEPARTMENT, EntityType.ORGANIZATIONAL_UNIT},
+    ),
+    # --- CDAIO: AI/ML & Data Product relationships ---
+    RelationshipType.TRAINED_ON: (
+        {EntityType.AI_MODEL},
+        {EntityType.DATA_ASSET, EntityType.DATA_PRODUCT},
+    ),
+    RelationshipType.DEPLOYED_IN: (
+        {EntityType.AI_MODEL},
+        {EntityType.SYSTEM},
+    ),
+    RelationshipType.PRODUCES: (
+        {EntityType.DATA_PIPELINE, EntityType.AI_MODEL},
+        {EntityType.DATA_ASSET, EntityType.DATA_PRODUCT},
+    ),
+    RelationshipType.CONSUMES: (
+        {EntityType.DATA_PIPELINE, EntityType.AI_MODEL, EntityType.DATA_PRODUCT},
+        {EntityType.DATA_ASSET, EntityType.DATA_PRODUCT},
+    ),
+    RelationshipType.CREATES_VALUE_FOR: (
+        {EntityType.INITIATIVE, EntityType.DATA_PRODUCT, EntityType.AI_MODEL},
+        {EntityType.BUSINESS_CAPABILITY, EntityType.DATA_DOMAIN, EntityType.DEPARTMENT},
+    ),
+    RelationshipType.MONITORS: (
+        {EntityType.SYSTEM, EntityType.DATA_PIPELINE},
+        {EntityType.AI_MODEL, EntityType.DATA_PIPELINE, EntityType.SYSTEM},
+    ),
+    RelationshipType.PUBLISHES: (
+        {EntityType.DATA_PIPELINE, EntityType.SYSTEM},
+        {EntityType.DATA_PRODUCT},
+    ),
+    RelationshipType.ORCHESTRATES: (
+        {EntityType.SYSTEM},
+        {EntityType.DATA_PIPELINE},
     ),
 }
 

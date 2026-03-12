@@ -1,0 +1,44 @@
+{
+  "entities": [
+    {
+      "id": "aim-001",
+      "entity_type": "ai_model",
+      "name": "Customer Churn Predictor",
+      "description": "Classification model predicting customer churn probability",
+      "ai_model_id": "AIM-001",
+      "model_type": "classification",
+      "model_framework": "xgboost",
+      "model_status": "production",
+      "model_category": "traditional_ml",
+      "eu_ai_act_risk_category": "limited",
+      "functional_domain": "Sales & Marketing"
+    },
+    {
+      "id": "aim-002",
+      "entity_type": "ai_model",
+      "name": "Fraud Detection System",
+      "description": "Real-time fraud scoring model for transactions",
+      "ai_model_id": "AIM-002",
+      "model_type": "classification",
+      "model_framework": "tensorflow",
+      "model_status": "production",
+      "model_category": "deep_learning",
+      "eu_ai_act_risk_category": "high",
+      "functional_domain": "Finance"
+    },
+    {
+      "id": "aim-003",
+      "entity_type": "ai_model",
+      "name": "Enterprise ChatBot",
+      "description": "Generative AI assistant for internal knowledge queries",
+      "ai_model_id": "AIM-003",
+      "model_type": "generative",
+      "model_framework": "anthropic",
+      "model_status": "staging",
+      "model_category": "llm",
+      "is_generative": true,
+      "eu_ai_act_risk_category": "limited",
+      "functional_domain": "Operations"
+    }
+  ]
+}

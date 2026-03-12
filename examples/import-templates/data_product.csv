@@ -1,0 +1,6 @@
+name,description,data_product_id,data_product_type,data_product_tier,maturity,functional_area,domain,update_frequency
+Customer 360 Dataset,Unified customer view combining CRM and billing data,DPR-001,dataset,gold,ga,Sales & Marketing,Customer Data,daily
+Real-Time Revenue Dashboard,Live revenue metrics and KPIs,DPR-002,dashboard,gold,ga,Finance,Financial Data,near_real_time
+Employee Skills API,REST API serving employee competency data,DPR-003,api,silver,ga,HR,Employee Data,daily
+Vendor Risk Score Feed,Streaming vendor risk assessment scores,DPR-004,stream,gold,ga,Risk & Compliance,Risk Data,real_time
+ML Feature Store — Customer,Curated feature store for customer ML models,DPR-005,feature_store,gold,beta,Technology,Customer Data,hourly

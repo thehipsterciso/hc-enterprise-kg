@@ -108,4 +108,8 @@ def mid_size_tech_company(employee_count: int = 500) -> OrgProfile:
         customer_count_range=s(c.customers, 5, 5000),
         contract_count_range=s(c.contracts, 5, 5000),
         initiative_count_range=s(c.initiatives, 3, 200),
+        # CDAIO
+        ai_model_count_range=s(c.ai_models, 3, 300),
+        data_product_count_range=s(c.data_products, 4, 500),
+        data_pipeline_count_range=s(c.data_pipelines, 5, 800),
     )

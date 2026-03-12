@@ -62,12 +62,15 @@ class EntityRegistry:
             Vendor,
             Vulnerability,
         )
+        from domain.entities.ai_model import AIModel
         from domain.entities.business_capability import BusinessCapability
         from domain.entities.contract import Contract
         from domain.entities.control import Control
         from domain.entities.customer import Customer
         from domain.entities.data_domain import DataDomain
         from domain.entities.data_flow import DataFlow
+        from domain.entities.data_pipeline import DataPipeline
+        from domain.entities.data_product import DataProduct
         from domain.entities.geography import Geography
         from domain.entities.initiative import Initiative
         from domain.entities.integration import Integration
@@ -123,5 +126,9 @@ class EntityRegistry:
             Contract,
             # L11: Strategic Initiatives (full implementations)
             Initiative,
+            # CDAIO Expansion (Modules 4-16)
+            AIModel,
+            DataProduct,
+            DataPipeline,
         ]:
             cls.register(entity_class.ENTITY_TYPE, entity_class)

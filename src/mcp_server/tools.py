@@ -14,7 +14,15 @@ from domain.base import BaseEntity, BaseRelationship, EntityType, RelationshipTy
 from domain.registry import EntityRegistry
 from mcp_server.helpers import compact_entity, compact_relationship
 from mcp_server.state import NoGraphError, load_graph, persist_graph, require_graph
-from mcp_server.validation import validate_entity_input, validate_relationship_input
+from mcp_server.validation import (
+    MAX_BLAST_RADIUS_DEPTH,
+    MAX_LIST_LIMIT,
+    clamp_float,
+    sanitize_properties,
+    sanitize_updates,
+    validate_entity_input,
+    validate_relationship_input,
+)
 
 
 def register_tools(mcp):  # noqa: ANN001
@@ -70,6 +78,9 @@ def register_tools(mcp):  # noqa: ANN001
             kg = require_graph()
         except NoGraphError:
             return [{"error": "No graph loaded. Call load_graph first."}]
+
+        # Clamp limit to valid range
+        limit = max(1, min(MAX_LIST_LIMIT, limit))
 
         et: EntityType | None = None
         if entity_type:
@@ -213,6 +224,9 @@ def register_tools(mcp):  # noqa: ANN001
 
         if kg.get_entity(entity_id) is None:
             return {"error": f"Entity '{entity_id}' not found."}
+
+        # Clamp depth to prevent runaway BFS on large graphs
+        max_depth = max(1, min(MAX_BLAST_RADIUS_DEPTH, max_depth))
 
         by_depth = kg.blast_radius(entity_id, max_depth)
         serialised: dict[str, list[dict]] = {}
@@ -360,6 +374,132 @@ def register_tools(mcp):  # noqa: ANN001
         return results[:limit]
 
     # ------------------------------------------------------------------ #
+    #  Provenance / data-quality tools                                    #
+    # ------------------------------------------------------------------ #
+
+    @mcp.tool()
+    def get_provenance_summary(entity_type: str = "") -> dict:
+        """Return a summary of provenance and data-quality tracking across the graph.
+
+        Every entity in the knowledge graph carries a provenance block
+        (defined by ProvenanceAndConfidence in the domain schema) with
+        fields: primary_data_source, last_assessed_date, assessed_by,
+        assessment_methodology, confidence_level, attestation_status,
+        known_data_gaps, and a data_quality_score sub-object
+        (completeness_pct, accuracy_confidence, timeliness_score,
+        consistency_score).
+
+        This tool scans all entities (optionally filtered by type) and
+        reports how many have populated provenance fields, confidence
+        level distribution, data source distribution, and entities with
+        the most known data gaps.
+
+        Args:
+            entity_type: Optional filter (e.g. "system", "data_asset").
+                Leave empty to scan all entity types.
+
+        Returns:
+            A dict with provenance coverage statistics, confidence
+            distribution, data source counts, and top entities by
+            gap count.
+        """
+        try:
+            kg = require_graph()
+        except NoGraphError:
+            return {"error": "No graph loaded. Call load_graph first."}
+
+        et: EntityType | None = None
+        if entity_type:
+            try:
+                et = EntityType(entity_type)
+            except ValueError:
+                valid = [e.value for e in EntityType]
+                return {"error": f"Unknown entity_type '{entity_type}'. Valid types: {valid}"}
+
+        entities = kg.list_entities(entity_type=et)
+        total = len(entities)
+        if total == 0:
+            return {"total_entities": 0, "message": "No entities found."}
+
+        has_provenance_field = 0
+        has_assessed_by = 0
+        has_data_source = 0
+        has_confidence = 0
+        has_gaps = 0
+        total_gaps = 0
+        confidence_dist: dict[str, int] = {}
+        source_dist: dict[str, int] = {}
+        top_gap_entities: list[dict] = []
+
+        for entity in entities:
+            raw = entity.model_dump(mode="json")
+            prov = raw.get("provenance") or raw.get("provenance_and_confidence")
+            if prov is None:
+                continue
+            has_provenance_field += 1
+
+            assessed_by = prov.get("assessed_by", "")
+            if assessed_by:
+                has_assessed_by += 1
+
+            source = prov.get("primary_data_source", "")
+            if source:
+                has_data_source += 1
+                source_dist[source] = source_dist.get(source, 0) + 1
+
+            conf = prov.get("confidence_level", "")
+            if conf:
+                has_confidence += 1
+                confidence_dist[conf] = confidence_dist.get(conf, 0) + 1
+
+            gaps = prov.get("known_data_gaps", [])
+            if gaps:
+                has_gaps += 1
+                total_gaps += len(gaps)
+                top_gap_entities.append(
+                    {
+                        "id": entity.id,
+                        "name": entity.name,
+                        "entity_type": entity.entity_type.value,
+                        "gap_count": len(gaps),
+                        "gap_summaries": [g.get("attribute_name", "") for g in gaps[:5]],
+                    }
+                )
+
+        top_gap_entities.sort(key=lambda x: x["gap_count"], reverse=True)
+
+        return {
+            "total_entities_scanned": total,
+            "entities_with_provenance_block": has_provenance_field,
+            "provenance_coverage_pct": round(100 * has_provenance_field / total, 1),
+            "entities_with_assessed_by": has_assessed_by,
+            "entities_with_data_source": has_data_source,
+            "entities_with_confidence_level": has_confidence,
+            "entities_with_known_data_gaps": has_gaps,
+            "total_known_data_gaps": total_gaps,
+            "confidence_level_distribution": confidence_dist,
+            "data_source_distribution": source_dist,
+            "top_entities_by_gap_count": top_gap_entities[:20],
+            "provenance_schema": {
+                "description": "Every entity carries a provenance block (ProvenanceAndConfidence) "
+                "defined in domain/shared.py with the following fields.",
+                "fields": [
+                    "primary_data_source",
+                    "last_assessed_date",
+                    "assessed_by",
+                    "assessment_methodology",
+                    "confidence_level",
+                    "attestation_status",
+                    "known_data_gaps",
+                    "data_quality_score.completeness_pct",
+                    "data_quality_score.accuracy_confidence",
+                    "data_quality_score.timeliness_score",
+                    "data_quality_score.consistency_score",
+                ],
+            },
+        }
+
+    # ------------------------------------------------------------------ #
     #  Write tools                                                        #
     # ------------------------------------------------------------------ #
 
@@ -405,9 +545,9 @@ def register_tools(mcp):  # noqa: ANN001
         if not ok:
             return {"error": reason}
 
-        # Clamp weight/confidence to valid range
-        weight = max(0.0, min(1.0, weight))
-        confidence = max(0.0, min(1.0, confidence))
+        # Clamp weight/confidence to valid range (handles NaN/Inf)
+        weight = clamp_float(weight)
+        confidence = clamp_float(confidence)
 
         # Create and add
         rel = BaseRelationship(
@@ -466,6 +606,10 @@ def register_tools(mcp):  # noqa: ANN001
         # Phase 1: validate all
         errors: list[dict] = []
         for i, item in enumerate(relationships):
+            if not isinstance(item, dict):
+                errors.append({"index": i, "error": f"Expected dict, got {type(item).__name__}."})
+                continue
+
             rel_type = item.get("relationship_type", "")
             src = item.get("source_id", "")
             tgt = item.get("target_id", "")
@@ -490,8 +634,8 @@ def register_tools(mcp):  # noqa: ANN001
         # Phase 2: commit all
         created: list[dict] = []
         for item in relationships:
-            weight = max(0.0, min(1.0, float(item.get("weight", 1.0))))
-            confidence = max(0.0, min(1.0, float(item.get("confidence", 1.0))))
+            weight = clamp_float(float(item.get("weight", 1.0)))
+            confidence = clamp_float(float(item.get("confidence", 1.0)))
             rel = BaseRelationship(
                 relationship_type=RelationshipType(item["relationship_type"]),
                 source_id=item["source_id"],
@@ -589,7 +733,8 @@ def register_tools(mcp):  # noqa: ANN001
         if description:
             kwargs["description"] = description
         if properties:
-            kwargs.update(properties)
+            clean, stripped = sanitize_properties(properties)
+            kwargs.update(clean)
 
         try:
             entity = entity_cls(**kwargs)
@@ -602,11 +747,14 @@ def register_tools(mcp):  # noqa: ANN001
         if err:
             return err
 
-        return {
+        result = {
             "status": "ok",
             "entity_id": entity_id,
             "entity": compact_entity(entity),
         }
+        if properties and stripped:
+            result["warning"] = f"Reserved fields ignored: {stripped}"
+        return result
 
     @mcp.tool()
     def update_entity_tool(
@@ -633,6 +781,13 @@ def register_tools(mcp):  # noqa: ANN001
         if not updates:
             return {"error": "No updates provided."}
 
+        # Strip immutable fields (id, entity_type, created_at)
+        updates, stripped = sanitize_updates(updates)
+        if not updates:
+            return {
+                "error": f"All provided fields are immutable: {stripped}",
+            }
+
         existing = kg.get_entity(entity_id)
         if existing is None:
             return {"error": f"Entity '{entity_id}' not found."}
@@ -646,11 +801,14 @@ def register_tools(mcp):  # noqa: ANN001
         if err:
             return err
 
-        return {
+        result = {
             "status": "ok",
             "entity_id": entity_id,
             "entity": compact_entity(updated),
         }
+        if stripped:
+            result["warning"] = f"Immutable fields ignored: {stripped}"
+        return result
 
     @mcp.tool()
     def remove_entity_tool(entity_id: str) -> dict:

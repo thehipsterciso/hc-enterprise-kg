@@ -19,3 +19,10 @@ class Department(BaseEntity):
     budget: float | None = None
     headcount: int = 0
     location_id: str | None = None
+
+    # --- Data/AI Fluency Indicators (added for CDAIO Module 12) ---
+    data_fluency_level: int | None = None  # 1-5 (aware/literate/proficient/advanced/expert)
+    fluency_assessed_date: str = ""
+    training_program_active: bool | None = None
+    analytics_adoption_pct: float | None = None  # % of dept actively using analytics
+    data_culture_score: str = ""  # strong | developing | emerging | nascent | none

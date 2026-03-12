@@ -13,6 +13,7 @@ import time
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    import flask.typing as ft
     from flask import Flask
 
 logger = logging.getLogger(__name__)
@@ -96,7 +97,7 @@ def init_rate_limit(app: Flask, rate: float | None = None, burst: int | None = N
     limiter = RateLimiter(rate, burst)
 
     @app.before_request
-    def _check_rate_limit() -> object | None:
+    def _check_rate_limit() -> ft.ResponseReturnValue | None:
         from flask import Response
         from flask import request as flask_request
 

@@ -69,6 +69,11 @@ class EntityType(StrEnum):
     # --- L11: Strategic Initiatives (from schema L10) ---
     INITIATIVE = "initiative"
 
+    # --- CDAIO Expansion (Modules 4-16) ---
+    AI_MODEL = "ai_model"
+    DATA_PRODUCT = "data_product"
+    DATA_PIPELINE = "data_pipeline"
+
 
 class RelationshipType(StrEnum):
     """Enumeration of all relationship types in the knowledge graph.
@@ -158,6 +163,16 @@ class RelationshipType(StrEnum):
     LOCATED_IN = "located_in"
     ISOLATED_FROM = "isolated_from"
     ACQUIRED_FROM = "acquired_from"
+
+    # --- CDAIO: AI/ML & Data Product relationships ---
+    TRAINED_ON = "trained_on"
+    DEPLOYED_IN = "deployed_in"
+    PRODUCES = "produces"
+    CONSUMES = "consumes"
+    CREATES_VALUE_FOR = "creates_value_for"
+    MONITORS = "monitors"
+    PUBLISHES = "publishes"
+    ORCHESTRATES = "orchestrates"
 
 
 class TemporalMixin(BaseModel):

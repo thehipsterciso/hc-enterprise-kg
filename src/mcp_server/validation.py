@@ -7,6 +7,7 @@ basic field constraints.
 
 from __future__ import annotations
 
+import math
 import re
 from typing import TYPE_CHECKING
 
@@ -18,7 +19,38 @@ if TYPE_CHECKING:
 
 MAX_NAME_LENGTH = 255
 MAX_DESCRIPTION_LENGTH = 4096
+MAX_BLAST_RADIUS_DEPTH = 10
+MAX_LIST_LIMIT = 10_000
+MAX_IMPORT_FILE_BYTES = 500 * 1024 * 1024  # 500 MB
 SAFE_ID_RE = re.compile(r"^[a-zA-Z0-9_:.-]+$")
+
+# Fields that must NOT be overridden via the properties dict in
+# add_entity_tool.  These are either auto-generated (id, timestamps,
+# version) or controlled by explicit parameters (name, description,
+# entity_type).
+RESERVED_ENTITY_FIELDS = frozenset(
+    {
+        "id",
+        "entity_type",
+        "created_at",
+        "updated_at",
+        "valid_from",
+        "valid_until",
+        "version",
+    }
+)
+
+# Fields that must NOT be changed via update_entity_tool.
+IMMUTABLE_ENTITY_FIELDS = frozenset(
+    {
+        "id",
+        "entity_type",
+        "created_at",
+    }
+)
+
+# Control characters (C0 range except tab/newline/carriage-return)
+_CONTROL_CHAR_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
 
 def validate_id_format(value: str) -> tuple[bool, str]:
@@ -122,4 +154,46 @@ def validate_entity_input(
             f"({len(description)} given)."
         )
 
+    # Reject control characters (null bytes, etc.) in name
+    if _CONTROL_CHAR_RE.search(name):
+        return False, "Entity name contains invalid control characters."
+
     return True, ""
+
+
+def sanitize_properties(properties: dict) -> tuple[dict, list[str]]:
+    """Strip reserved fields from a properties dict.
+
+    Returns the cleaned dict and a list of stripped field names
+    (for warning the caller).
+    """
+    stripped: list[str] = []
+    clean = {}
+    for k, v in properties.items():
+        if k in RESERVED_ENTITY_FIELDS:
+            stripped.append(k)
+        else:
+            clean[k] = v
+    return clean, stripped
+
+
+def sanitize_updates(updates: dict) -> tuple[dict, list[str]]:
+    """Strip immutable fields from an updates dict.
+
+    Returns the cleaned dict and a list of stripped field names.
+    """
+    stripped: list[str] = []
+    clean = {}
+    for k, v in updates.items():
+        if k in IMMUTABLE_ENTITY_FIELDS:
+            stripped.append(k)
+        else:
+            clean[k] = v
+    return clean, stripped
+
+
+def clamp_float(value: float, low: float = 0.0, high: float = 1.0) -> float:
+    """Clamp a float to [low, high], treating NaN/Inf as the default."""
+    if math.isnan(value) or math.isinf(value):
+        return high if value > 0 else low
+    return max(low, min(high, value))

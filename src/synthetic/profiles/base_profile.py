@@ -69,6 +69,11 @@ class OrgProfile(BaseModel):
     contract_count_range: tuple[int, int] = (5, 20)
     initiative_count_range: tuple[int, int] = (3, 10)
 
+    # --- CDAIO entity counts ---
+    ai_model_count_range: tuple[int, int] = (3, 12)
+    data_product_count_range: tuple[int, int] = (4, 15)
+    data_pipeline_count_range: tuple[int, int] = (5, 20)
+
 
 # ---------------------------------------------------------------------------
 # Industry-aware scaling
@@ -105,6 +110,9 @@ class ScalingCoefficients:
     initiatives: float = 200
     threat_actors: float = 250
     incidents: float = 200
+    ai_models: float = 150
+    data_products: float = 100
+    data_pipelines: float = 60
 
 
 INDUSTRY_COEFFICIENTS: dict[str, ScalingCoefficients] = {
@@ -132,6 +140,9 @@ INDUSTRY_COEFFICIENTS: dict[str, ScalingCoefficients] = {
         initiatives=200,
         threat_actors=250,
         incidents=200,
+        ai_models=100,
+        data_products=60,
+        data_pipelines=40,
     ),
     "financial_services": ScalingCoefficients(
         systems=12,
@@ -157,6 +168,9 @@ INDUSTRY_COEFFICIENTS: dict[str, ScalingCoefficients] = {
         initiatives=150,
         threat_actors=200,
         incidents=150,
+        ai_models=120,
+        data_products=80,
+        data_pipelines=50,
     ),
     "healthcare": ScalingCoefficients(
         systems=15,
@@ -182,6 +196,9 @@ INDUSTRY_COEFFICIENTS: dict[str, ScalingCoefficients] = {
         initiatives=200,
         threat_actors=300,
         incidents=100,
+        ai_models=200,
+        data_products=120,
+        data_pipelines=80,
     ),
 }
 

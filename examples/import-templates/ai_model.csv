@@ -1,0 +1,6 @@
+name,description,ai_model_id,model_type,model_framework,model_status,model_category,eu_ai_act_risk_category,functional_domain,model_owner
+Customer Churn Predictor,Classification model predicting customer churn,AIM-001,classification,xgboost,production,traditional_ml,limited,Sales & Marketing,Data Science Team
+Fraud Detection System,Real-time fraud scoring model,AIM-002,classification,tensorflow,production,deep_learning,high,Finance,Risk Analytics
+Revenue Forecasting,Quarterly revenue prediction model,AIM-003,regression,scikit_learn,production,traditional_ml,minimal,Finance,FP&A Analytics
+Enterprise ChatBot,Internal knowledge assistant,AIM-004,generative,anthropic,staging,llm,limited,Operations,AI Platform Team
+Document Classifier,Automated document categorization,AIM-005,NLP,pytorch,production,deep_learning,limited,Operations,Document Management

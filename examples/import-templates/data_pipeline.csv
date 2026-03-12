@@ -1,0 +1,6 @@
+name,description,pipeline_id,pipeline_type,pipeline_pattern,orchestration_platform,pipeline_status,functional_domain,trigger_type
+Customer Data Ingestion,ETL pipeline ingesting CRM data into warehouse,DPL-001,etl,batch,airflow,active,Sales & Marketing,scheduled
+Real-Time Transaction Stream,Streaming pipeline for transaction processing,DPL-002,streaming,kappa,custom,active,Finance,event_driven
+Data Warehouse Refresh,Daily ELT refresh of analytics warehouse,DPL-003,elt,medallion,dbt_cloud,active,Technology,scheduled
+ML Feature Engineering,Feature computation pipeline for ML models,DPL-004,etl,hub_spoke,prefect,active,Technology,dependency
+Data Quality Monitor,Automated data quality checks across pipelines,DPL-005,data_quality,fan_in,great_expectations,active,Technology,scheduled
