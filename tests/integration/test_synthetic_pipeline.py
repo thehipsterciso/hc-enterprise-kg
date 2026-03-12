@@ -54,6 +54,10 @@ ENTERPRISE_ENTITY_TYPES = [
     EntityType.CONTRACT,
     # L11: Strategic Initiatives
     EntityType.INITIATIVE,
+    # CDAIO: AI/Data Intelligence
+    EntityType.AI_MODEL,
+    EntityType.DATA_PRODUCT,
+    EntityType.DATA_PIPELINE,
 ]
 
 

@@ -42,6 +42,10 @@ ENTITY_COLORS: dict[str, str] = {
     "customer": "#C7C7C7",
     "contract": "#FFBB78",
     "initiative": "#FF9896",
+    # CDAIO types
+    "ai_model": "#17BECF",
+    "data_product": "#BCBD22",
+    "data_pipeline": "#7F7F7F",
 }
 
 # Node sizes by entity type — structurally important types are larger
@@ -76,6 +80,10 @@ ENTITY_SIZES: dict[str, int] = {
     "customer": 18,
     "contract": 16,
     "initiative": 22,
+    # CDAIO types
+    "ai_model": 20,
+    "data_product": 22,
+    "data_pipeline": 18,
 }
 
 # Per-theme color tokens used by both the vis.js options and the injected UI panels

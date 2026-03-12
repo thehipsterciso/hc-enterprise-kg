@@ -210,8 +210,8 @@ class TestEntityTypeEnumStability:
         assert not missing, f"Enterprise entity types removed: {missing}"
 
     def test_total_entity_type_count(self):
-        """We should have exactly 30 entity types."""
-        assert len(EntityType) == 30, f"Expected 30, got {len(EntityType)}: {list(EntityType)}"
+        """We should have exactly 33 entity types."""
+        assert len(EntityType) == 33, f"Expected 33, got {len(EntityType)}: {list(EntityType)}"
 
 
 class TestRelationshipTypeEnumStability:

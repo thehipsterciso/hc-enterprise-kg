@@ -62,6 +62,10 @@ GENERATION_ORDER: list[tuple[EntityType, str]] = [
     (EntityType.CONTRACT, "contract_count_range"),
     # --- L11: Strategic Initiatives ---
     (EntityType.INITIATIVE, "initiative_count_range"),
+    # --- CDAIO: AI/Data Intelligence ---
+    (EntityType.AI_MODEL, "ai_model_count_range"),
+    (EntityType.DATA_PRODUCT, "data_product_count_range"),
+    (EntityType.DATA_PIPELINE, "data_pipeline_count_range"),
 ]
 
 # Entity types that can be overridden via CLI flags.
@@ -93,6 +97,9 @@ OVERRIDABLE_ENTITIES: dict[str, EntityType] = {
     "customers": EntityType.CUSTOMER,
     "contracts": EntityType.CONTRACT,
     "initiatives": EntityType.INITIATIVE,
+    "ai_models": EntityType.AI_MODEL,
+    "data_products": EntityType.DATA_PRODUCT,
+    "data_pipelines": EntityType.DATA_PIPELINE,
 }
 
 

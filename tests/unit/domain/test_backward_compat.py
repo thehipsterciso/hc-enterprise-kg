@@ -229,6 +229,6 @@ class TestNewStubEntitiesCreateable:
         assert entity.name == "SOX"
 
     def test_registry_count(self):
-        """Registry should have 30 types: 12 original + 18 stubs."""
+        """Registry should have 33 types: 12 original + 18 enterprise + 3 CDAIO."""
         all_types = EntityRegistry.all_types()
-        assert len(all_types) == 30, f"Expected 30 types, got {len(all_types)}: {all_types}"
+        assert len(all_types) == 33, f"Expected 33 types, got {len(all_types)}: {all_types}"

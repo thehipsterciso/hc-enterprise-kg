@@ -40,6 +40,10 @@ ENTITY_COLORS: dict[str, str] = {
     "customer": "#C7C7C7",
     "contract": "#FFBB78",
     "initiative": "#FF9896",
+    # CDAIO types
+    "ai_model": "#17BECF",
+    "data_product": "#BCBD22",
+    "data_pipeline": "#7F7F7F",
 }
 
 # Profile colors for multi-profile comparison charts
@@ -56,6 +60,7 @@ ENTITY_TYPE_GROUPS: dict[str, list[str]] = {
     "Security": ["vulnerability", "threat_actor", "incident", "threat"],
     "Governance": ["policy", "regulation", "control", "risk"],
     "Data": ["data_domain", "data_flow"],
+    "AI & Data Products": ["ai_model", "data_product", "data_pipeline"],
     "Locations": ["location", "site", "geography", "jurisdiction"],
     "Commercial": [
         "vendor",
@@ -78,6 +83,7 @@ GROUP_COLORS: dict[str, str] = {
     "Locations": "#9C755F",
     "Commercial": "#FF9DA7",
     "Strategy": "#59A14F",
+    "AI & Data Products": "#17BECF",
 }
 
 # QualityReport dimension labels (human-readable)

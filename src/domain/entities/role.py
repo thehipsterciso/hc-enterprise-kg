@@ -400,6 +400,11 @@ class Role(BaseEntity):
     # Standard — Normal Replacement, Temporary — No Succession Needed
     role_mandate_document: RoleMandateDocument = Field(default_factory=RoleMandateDocument)
 
+    # --- Decision Rights (added for CDAIO Module 2) ---
+    decision_domains: list[str] = Field(default_factory=list)  # e.g., "data classification"
+    decision_authority: str = ""  # decides | advises | informed
+    cdaio_function: str = ""  # data_governance | ai_strategy | analytics | engineering | operations
+
     # --- Group 4: Capacity & Allocation ---
     headcount_authorized: int | None = None
     headcount_filled: int | None = None

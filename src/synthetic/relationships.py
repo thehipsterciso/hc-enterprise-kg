@@ -88,6 +88,16 @@ class RelationshipWeaver:
         rels.extend(self._link_products_to_segments())
         rels.extend(self._link_initiatives_to_risks())
         rels.extend(self._link_persons_to_org_units())
+        # CDAIO: AI/ML & Data Product relationships
+        rels.extend(self._link_ai_models_to_data_assets())
+        rels.extend(self._link_ai_models_to_systems())
+        rels.extend(self._link_data_pipelines_to_sources())
+        rels.extend(self._link_data_pipelines_to_targets())
+        rels.extend(self._link_data_products_to_domains())
+        rels.extend(self._link_data_pipelines_to_orchestrators())
+        rels.extend(self._link_ai_models_to_products())
+        rels.extend(self._link_data_pipelines_to_data_products())
+        rels.extend(self._link_initiatives_to_value())
         # Populate entity mirror fields from woven relationships
         self._populate_mirror_fields(rels)
         return rels
@@ -981,6 +991,207 @@ class RelationshipWeaver:
                     properties={"membership_type": "primary"},
                 )
             )
+        return rels
+
+    # ------------------------------------------------------------------
+    # CDAIO: AI/ML & Data Product relationships
+    # ------------------------------------------------------------------
+
+    def _link_ai_models_to_data_assets(self) -> list[BaseRelationship]:
+        """AIModels TRAINED_ON DataAssets."""
+        ai_models = self._ctx.get_entities(EntityType.AI_MODEL)
+        data_assets = self._ctx.get_entities(EntityType.DATA_ASSET)
+        rels: list[BaseRelationship] = []
+        if not ai_models or not data_assets:
+            return rels
+        for model in ai_models:
+            training_data = random.sample(
+                data_assets, k=min(random.randint(1, 3), len(data_assets))
+            )
+            for asset in training_data:
+                rels.append(
+                    self._make_rel(
+                        RelationshipType.TRAINED_ON,
+                        model.id,
+                        asset.id,
+                        weight=0.9,
+                        confidence=0.85,
+                        properties={
+                            "training_data_split": random.choice(["train", "train+val", "full"]),
+                        },
+                    )
+                )
+        return rels
+
+    def _link_ai_models_to_systems(self) -> list[BaseRelationship]:
+        """~70% of AIModels DEPLOYED_IN a System."""
+        ai_models = self._ctx.get_entities(EntityType.AI_MODEL)
+        systems = self._ctx.get_entities(EntityType.SYSTEM)
+        rels: list[BaseRelationship] = []
+        if not ai_models or not systems:
+            return rels
+        for model in ai_models:
+            if random.random() < 0.7:
+                system = random.choice(systems)
+                rels.append(
+                    self._make_rel(
+                        RelationshipType.DEPLOYED_IN,
+                        model.id,
+                        system.id,
+                        weight=0.95,
+                        confidence=0.9,
+                        properties={
+                            "deployment_type": random.choice(
+                                ["api_endpoint", "batch_inference", "embedded", "edge"]
+                            ),
+                        },
+                    )
+                )
+        return rels
+
+    def _link_data_pipelines_to_sources(self) -> list[BaseRelationship]:
+        """DataPipelines CONSUMES DataAssets (source data)."""
+        pipelines = self._ctx.get_entities(EntityType.DATA_PIPELINE)
+        data_assets = self._ctx.get_entities(EntityType.DATA_ASSET)
+        rels: list[BaseRelationship] = []
+        if not pipelines or not data_assets:
+            return rels
+        for pipeline in pipelines:
+            sources = random.sample(data_assets, k=min(random.randint(1, 3), len(data_assets)))
+            for asset in sources:
+                rels.append(
+                    self._make_rel(
+                        RelationshipType.CONSUMES,
+                        pipeline.id,
+                        asset.id,
+                        weight=0.85,
+                        confidence=0.9,
+                    )
+                )
+        return rels
+
+    def _link_data_pipelines_to_targets(self) -> list[BaseRelationship]:
+        """DataPipelines PRODUCES DataAssets (output data)."""
+        pipelines = self._ctx.get_entities(EntityType.DATA_PIPELINE)
+        data_assets = self._ctx.get_entities(EntityType.DATA_ASSET)
+        rels: list[BaseRelationship] = []
+        if not pipelines or not data_assets:
+            return rels
+        for pipeline in pipelines:
+            targets = random.sample(data_assets, k=min(random.randint(1, 2), len(data_assets)))
+            for asset in targets:
+                rels.append(
+                    self._make_rel(
+                        RelationshipType.PRODUCES,
+                        pipeline.id,
+                        asset.id,
+                        weight=0.9,
+                        confidence=0.85,
+                    )
+                )
+        return rels
+
+    def _link_data_products_to_domains(self) -> list[BaseRelationship]:
+        """DataProducts BELONGS_TO DataDomains."""
+        data_products = self._ctx.get_entities(EntityType.DATA_PRODUCT)
+        domains = self._ctx.get_entities(EntityType.DATA_DOMAIN)
+        rels: list[BaseRelationship] = []
+        if not data_products or not domains:
+            return rels
+        for product in data_products:
+            domain = random.choice(domains)
+            rels.append(
+                self._make_rel(
+                    RelationshipType.BELONGS_TO,
+                    product.id,
+                    domain.id,
+                    weight=0.9,
+                    confidence=0.95,
+                )
+            )
+        return rels
+
+    def _link_data_pipelines_to_orchestrators(self) -> list[BaseRelationship]:
+        """Systems ORCHESTRATES DataPipelines."""
+        pipelines = self._ctx.get_entities(EntityType.DATA_PIPELINE)
+        systems = self._ctx.get_entities(EntityType.SYSTEM)
+        rels: list[BaseRelationship] = []
+        if not pipelines or not systems:
+            return rels
+        for pipeline in pipelines:
+            orchestrator = random.choice(systems)
+            rels.append(
+                self._make_rel(
+                    RelationshipType.ORCHESTRATES,
+                    orchestrator.id,
+                    pipeline.id,
+                    weight=0.8,
+                    confidence=0.9,
+                )
+            )
+        return rels
+
+    def _link_ai_models_to_products(self) -> list[BaseRelationship]:
+        """~40% of AIModels SUPPORTS a Product."""
+        ai_models = self._ctx.get_entities(EntityType.AI_MODEL)
+        products = self._ctx.get_entities(EntityType.PRODUCT)
+        rels: list[BaseRelationship] = []
+        if not ai_models or not products:
+            return rels
+        for model in ai_models:
+            if random.random() < 0.4:
+                product = random.choice(products)
+                rels.append(
+                    self._make_rel(
+                        RelationshipType.SUPPORTS,
+                        model.id,
+                        product.id,
+                        weight=0.85,
+                        confidence=0.8,
+                    )
+                )
+        return rels
+
+    def _link_data_pipelines_to_data_products(self) -> list[BaseRelationship]:
+        """~50% of DataPipelines PUBLISHES to a DataProduct."""
+        pipelines = self._ctx.get_entities(EntityType.DATA_PIPELINE)
+        data_products = self._ctx.get_entities(EntityType.DATA_PRODUCT)
+        rels: list[BaseRelationship] = []
+        if not pipelines or not data_products:
+            return rels
+        for pipeline in pipelines:
+            if random.random() < 0.5:
+                product = random.choice(data_products)
+                rels.append(
+                    self._make_rel(
+                        RelationshipType.PUBLISHES,
+                        pipeline.id,
+                        product.id,
+                        weight=0.85,
+                        confidence=0.85,
+                    )
+                )
+        return rels
+
+    def _link_initiatives_to_value(self) -> list[BaseRelationship]:
+        """Initiatives CREATES_VALUE_FOR BusinessCapabilities."""
+        initiatives = self._ctx.get_entities(EntityType.INITIATIVE)
+        capabilities = self._ctx.get_entities(EntityType.BUSINESS_CAPABILITY)
+        rels: list[BaseRelationship] = []
+        if not initiatives or not capabilities:
+            return rels
+        for initiative in initiatives:
+            targets = random.sample(capabilities, k=min(random.randint(1, 2), len(capabilities)))
+            for cap in targets:
+                rels.append(
+                    self._make_rel(
+                        RelationshipType.CREATES_VALUE_FOR,
+                        initiative.id,
+                        cap.id,
+                        weight=0.8,
+                        confidence=0.75,
+                    )
+                )
         return rels
 
     # ------------------------------------------------------------------

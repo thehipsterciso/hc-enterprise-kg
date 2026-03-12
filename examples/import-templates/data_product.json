@@ -1,0 +1,40 @@
+{
+  "entities": [
+    {
+      "id": "dpr-001",
+      "entity_type": "data_product",
+      "name": "Customer 360 Dataset",
+      "description": "Unified customer view combining CRM, billing, and support data",
+      "data_product_id": "DPR-001",
+      "data_product_type": "dataset",
+      "data_product_tier": "gold",
+      "maturity": "ga",
+      "functional_area": "Sales & Marketing",
+      "update_frequency": "daily"
+    },
+    {
+      "id": "dpr-002",
+      "entity_type": "data_product",
+      "name": "Real-Time Revenue Dashboard",
+      "description": "Live revenue metrics and KPIs for executive reporting",
+      "data_product_id": "DPR-002",
+      "data_product_type": "dashboard",
+      "data_product_tier": "gold",
+      "maturity": "ga",
+      "functional_area": "Finance",
+      "update_frequency": "near_real_time"
+    },
+    {
+      "id": "dpr-003",
+      "entity_type": "data_product",
+      "name": "ML Feature Store — Customer",
+      "description": "Curated feature store for customer ML models",
+      "data_product_id": "DPR-003",
+      "data_product_type": "feature_store",
+      "data_product_tier": "gold",
+      "maturity": "beta",
+      "functional_area": "Technology",
+      "update_frequency": "hourly"
+    }
+  ]
+}

@@ -16,7 +16,7 @@ from synthetic.profiles.financial_org import financial_org
 from synthetic.profiles.healthcare_org import healthcare_org
 from synthetic.profiles.tech_company import mid_size_tech_company
 
-# All 30 entity types expected in a full generation
+# All 33 entity types expected in a full generation
 ALL_ENTITY_TYPES = {
     "person",
     "department",
@@ -48,6 +48,9 @@ ALL_ENTITY_TYPES = {
     "customer",
     "contract",
     "initiative",
+    "ai_model",
+    "data_product",
+    "data_pipeline",
 }
 
 

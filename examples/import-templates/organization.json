@@ -328,6 +328,38 @@
       "current_status": "In Progress",
       "executive_sponsor": "CTO",
       "description": "Multi-year cloud migration for core business systems"
+    },
+    {
+      "id": "aim-churn",
+      "entity_type": "ai_model",
+      "name": "Customer Churn Predictor",
+      "ai_model_id": "AIM-001",
+      "model_type": "classification",
+      "model_framework": "xgboost",
+      "model_status": "production",
+      "eu_ai_act_risk_category": "limited",
+      "description": "Classification model predicting customer churn probability"
+    },
+    {
+      "id": "dpr-cust360",
+      "entity_type": "data_product",
+      "name": "Customer 360 Dataset",
+      "data_product_id": "DPR-001",
+      "data_product_type": "dataset",
+      "data_product_tier": "gold",
+      "maturity": "ga",
+      "description": "Curated customer dataset combining CRM, billing, and support data"
+    },
+    {
+      "id": "dpl-custingest",
+      "entity_type": "data_pipeline",
+      "name": "Customer Data Ingestion",
+      "pipeline_id": "DPL-001",
+      "pipeline_type": "etl",
+      "pipeline_pattern": "batch",
+      "orchestration_platform": "airflow",
+      "pipeline_status": "active",
+      "description": "ETL pipeline ingesting customer data from CRM into the data warehouse"
     }
   ],
   "relationships": [
@@ -485,6 +517,26 @@
       "relationship_type": "impacts",
       "source_id": "init-cloud",
       "target_id": "sys-erp"
+    },
+    {
+      "relationship_type": "trained_on",
+      "source_id": "aim-churn",
+      "target_id": "da-custdb"
+    },
+    {
+      "relationship_type": "deployed_in",
+      "source_id": "aim-churn",
+      "target_id": "sys-webapp"
+    },
+    {
+      "relationship_type": "publishes",
+      "source_id": "dpl-custingest",
+      "target_id": "dpr-cust360"
+    },
+    {
+      "relationship_type": "consumes",
+      "source_id": "aim-churn",
+      "target_id": "dpr-cust360"
     }
   ]
 }

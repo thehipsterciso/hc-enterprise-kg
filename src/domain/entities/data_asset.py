@@ -490,6 +490,21 @@ class DataAsset(BaseEntity):
     cost_optimization_opportunities: list[DataCostOptimization] = Field(default_factory=list)
     total_data_cost: TotalDataCost = Field(default_factory=TotalDataCost)
 
+    # --- Infonomics & Data Valuation (added for Module 7) ---
+    economic_value_method: str = ""  # cost | market | income | utility | none
+    estimated_economic_value: float | None = None
+    economic_value_currency: str = "USD"
+    monetization_status: str = ""  # not_monetized | internal | direct | indirect | cost_avoidance
+    value_realization_pct: float | None = None
+    data_product_eligible: bool | None = None  # suitable for publishing as data product?
+
+    # --- AI Readiness (added for Modules 9-10) ---
+    ai_readiness_assessed: bool | None = None
+    ai_readiness_score: float | None = None  # 0.0-1.0
+    bias_risk_level: str = ""  # high | medium | low | not_assessed
+    training_eligible: bool | None = None  # licensing and compliance allow ML training?
+    labeling_quality: str = ""  # high | medium | low | unlabeled | na
+
     # === Temporal & Provenance ===
     temporal: TemporalAndVersioning = Field(default_factory=TemporalAndVersioning)
     provenance: ProvenanceAndConfidence = Field(default_factory=ProvenanceAndConfidence)

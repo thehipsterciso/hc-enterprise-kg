@@ -472,6 +472,16 @@ class Initiative(BaseEntity):
     value_realized: ValueRealized | None = None
     strategic_alignment: StrategicAlignment | None = None
 
+    # --- CDAIO Value Classification (added for Modules 7, 11) ---
+    value_category: str = ""  # operational | customer | economic | strategic
+    lifecycle_stage: str = ""  # problem | poc | pilot | production | retired
+    initiative_nature: str = ""  # quick_win | structural | foundational
+    time_to_value: str = ""  # < 3 months | 3-12 months | 12+ months
+    value_confidence: str = ""  # demonstrated | modeled | estimated | aspirational
+    financial_validated: bool | None = None  # has finance reviewed and certified?
+    stage_gate_criteria: str = ""  # what must be true to advance
+    data_ai_alignment: str = ""  # data_governance | ai_strategy | analytics | infrastructure | none
+
     # --- Group 3: Timeline & Status ---
     current_status: str = ""  # Proposed, Approved, Planning, In Progress, etc.
     status_rationale: str = ""

@@ -115,4 +115,8 @@ def healthcare_org(employee_count: int = 2000) -> OrgProfile:
         customer_count_range=s(c.customers, 8, 6000),
         contract_count_range=s(c.contracts, 8, 6000),
         initiative_count_range=s(c.initiatives, 4, 200),
+        # CDAIO
+        ai_model_count_range=s(c.ai_models, 3, 150),
+        data_product_count_range=s(c.data_products, 4, 300),
+        data_pipeline_count_range=s(c.data_pipelines, 5, 500),
     )

@@ -6,6 +6,7 @@ from typing import Annotated
 
 from pydantic import Field
 
+from domain.entities.ai_model import AIModel
 from domain.entities.business_capability import BusinessCapability
 from domain.entities.contract import Contract
 from domain.entities.control import Control
@@ -13,6 +14,8 @@ from domain.entities.customer import Customer
 from domain.entities.data_asset import DataAsset
 from domain.entities.data_domain import DataDomain
 from domain.entities.data_flow import DataFlow
+from domain.entities.data_pipeline import DataPipeline
+from domain.entities.data_product import DataProduct
 from domain.entities.department import Department
 from domain.entities.geography import Geography
 from domain.entities.incident import Incident
@@ -39,7 +42,8 @@ from domain.entities.vulnerability import Vulnerability
 
 AnyEntity = Annotated[
     # v0.1 original types
-    Person
+    AIModel
+    | Person
     | Department
     | Role
     | System
@@ -61,6 +65,8 @@ AnyEntity = Annotated[
     # L03: Data Assets (full implementations)
     | DataDomain
     | DataFlow
+    | DataPipeline
+    | DataProduct
     # L04: Organization (full implementations)
     | OrganizationalUnit
     # L06: Business Capabilities (full implementations)
@@ -83,6 +89,7 @@ AnyEntity = Annotated[
 ]
 
 __all__ = [
+    "AIModel",
     "AnyEntity",
     "BusinessCapability",
     "Contract",
@@ -91,6 +98,8 @@ __all__ = [
     "DataAsset",
     "DataDomain",
     "DataFlow",
+    "DataPipeline",
+    "DataProduct",
     "Department",
     "Geography",
     "Incident",

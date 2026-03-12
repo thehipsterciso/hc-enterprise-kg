@@ -161,6 +161,9 @@ class TestMCPFullLifecycle:
             "customer",
             "contract",
             "initiative",
+            "ai_model",
+            "data_product",
+            "data_pipeline",
         }
         missing = expected_types - entity_types
         assert not missing, f"Missing entity types: {missing}"

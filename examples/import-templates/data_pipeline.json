@@ -1,0 +1,40 @@
+{
+  "entities": [
+    {
+      "id": "dpl-001",
+      "entity_type": "data_pipeline",
+      "name": "Customer Data Ingestion",
+      "description": "ETL pipeline ingesting CRM data into the data warehouse",
+      "pipeline_id": "DPL-001",
+      "pipeline_type": "etl",
+      "pipeline_pattern": "batch",
+      "orchestration_platform": "airflow",
+      "pipeline_status": "active",
+      "functional_domain": "Sales & Marketing"
+    },
+    {
+      "id": "dpl-002",
+      "entity_type": "data_pipeline",
+      "name": "Real-Time Transaction Stream",
+      "description": "Streaming pipeline for real-time transaction processing",
+      "pipeline_id": "DPL-002",
+      "pipeline_type": "streaming",
+      "pipeline_pattern": "kappa",
+      "orchestration_platform": "custom",
+      "pipeline_status": "active",
+      "functional_domain": "Finance"
+    },
+    {
+      "id": "dpl-003",
+      "entity_type": "data_pipeline",
+      "name": "Data Warehouse Refresh",
+      "description": "Daily ELT refresh of the analytics data warehouse",
+      "pipeline_id": "DPL-003",
+      "pipeline_type": "elt",
+      "pipeline_pattern": "medallion",
+      "orchestration_platform": "dbt_cloud",
+      "pipeline_status": "active",
+      "functional_domain": "Technology"
+    }
+  ]
+}

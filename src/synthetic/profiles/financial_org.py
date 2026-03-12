@@ -122,4 +122,8 @@ def financial_org(employee_count: int = 1000) -> OrgProfile:
         customer_count_range=s(c.customers, 10, 8000),
         contract_count_range=s(c.contracts, 8, 8000),
         initiative_count_range=s(c.initiatives, 4, 200),
+        # CDAIO
+        ai_model_count_range=s(c.ai_models, 3, 250),
+        data_product_count_range=s(c.data_products, 4, 400),
+        data_pipeline_count_range=s(c.data_pipelines, 5, 600),
     )

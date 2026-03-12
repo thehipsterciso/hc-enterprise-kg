@@ -583,6 +583,13 @@ class OrganizationalUnit(BaseEntity):
     business_continuity_tier: str = ""  # Platinum, Gold, Silver, Bronze
     key_person_dependencies: list[KeyPersonDependency] = Field(default_factory=list)
 
+    # === Organizational Readiness (added for CDAIO Module 12) ===
+    data_fluency_level: int | None = None  # 1-5 scale
+    fluency_assessed_date: str = ""
+    data_quality_trend: str = ""  # improving | stable | declining | unknown
+    dashboard_adoption_pct: float | None = None
+    ai_readiness_tier: str = ""  # ready | developing | foundational | not_assessed
+
     # === Type-specific extensions (optional sub-models) ===
     legal_entity_details: LegalEntityDetails = Field(default_factory=LegalEntityDetails)
     shared_service_details: SharedServiceDetails = Field(default_factory=SharedServiceDetails)
