@@ -14,7 +14,6 @@ from cli.visualize_cmd import (
     ENTITY_SIZES,
     _build_tooltip,
     _get_node_label,
-    _inject_legend,
 )
 
 
@@ -81,53 +80,6 @@ class TestEntityMappings:
             assert etype.value in ENTITY_SIZES, f"Missing size for {etype.value}"
 
 
-class TestInjectLegend:
-    def test_injects_legend_html(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            html_path = Path(tmpdir) / "test.html"
-            html_path.write_text("<html><body></body></html>")
-            stats = {
-                "entity_count": 10,
-                "relationship_count": 5,
-                "entity_types": {"person": 7, "department": 3},
-            }
-            _inject_legend(html_path, stats)
-            content = html_path.read_text()
-            assert "kg-legend" in content
-            assert "hc-enterprise-kg" in content
-            assert "Person (7)" in content
-            assert "Department (3)" in content
-            assert "10 entities" in content
-
-    def test_missing_body_tag_warns(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            html_path = Path(tmpdir) / "test.html"
-            html_path.write_text("<html><div>no body tag</div></html>")
-            stats = {
-                "entity_count": 5,
-                "relationship_count": 2,
-                "entity_types": {"person": 5},
-            }
-            _inject_legend(html_path, stats)
-            content = html_path.read_text()
-            # Legend should NOT be injected — original content unchanged
-            assert "kg-legend" not in content
-
-    def test_only_shows_present_types(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            html_path = Path(tmpdir) / "test.html"
-            html_path.write_text("<html><body></body></html>")
-            stats = {
-                "entity_count": 5,
-                "relationship_count": 2,
-                "entity_types": {"person": 5},
-            }
-            _inject_legend(html_path, stats)
-            content = html_path.read_text()
-            assert "Person (5)" in content
-            assert "Department" not in content
-
-
 _pyvis_available = True
 try:
     import pyvis  # noqa: F401
@@ -148,7 +100,7 @@ class TestVisualizeCLI:
             assert out.exists()
             content = out.read_text()
             assert "<html>" in content.lower()
-            assert "kg-legend" in content
+            assert "kg-panel" in content
 
     def test_visualize_default_output_name(self, sample_graph_json):
         runner = CliRunner()
