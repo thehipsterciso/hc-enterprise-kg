@@ -14,6 +14,7 @@ import os
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    import flask.typing as ft
     from flask import Flask
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,7 @@ def init_auth(app: Flask, api_key: str | None = None) -> None:
     logger.info("API authentication enabled")
 
     @app.before_request
-    def _check_auth() -> object | None:
+    def _check_auth() -> ft.ResponseReturnValue | None:
         from flask import request as flask_request
 
         if flask_request.path in EXEMPT_PATHS:
